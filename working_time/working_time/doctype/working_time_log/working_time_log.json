@@ -1,0 +1,84 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2023-01-20 20:02:56.531992",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "from",
+  "to",
+  "duration",
+  "project",
+  "key",
+  "note",
+  "break"
+ ],
+ "fields": [
+  {
+   "columns": 1,
+   "fieldname": "from",
+   "fieldtype": "Time",
+   "in_list_view": 1,
+   "label": "From"
+  },
+  {
+   "columns": 1,
+   "fieldname": "to",
+   "fieldtype": "Time",
+   "in_list_view": 1,
+   "label": "To",
+   "read_only": 1
+  },
+  {
+   "columns": 1,
+   "fieldname": "duration",
+   "fieldtype": "Duration",
+   "hide_days": 1,
+   "hide_seconds": 1,
+   "in_list_view": 1,
+   "label": "Duration",
+   "read_only": 1
+  },
+  {
+   "columns": 1,
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Project",
+   "options": "Project"
+  },
+  {
+   "columns": 1,
+   "fieldname": "key",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Key"
+  },
+  {
+   "fieldname": "note",
+   "fieldtype": "Text",
+   "in_list_view": 1,
+   "label": "Note"
+  },
+  {
+   "columns": 1,
+   "default": "0",
+   "fieldname": "break",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Break"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2023-01-20 21:47:43.157134",
+ "modified_by": "Administrator",
+ "module": "Working Time",
+ "name": "Working Time Log",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC"
+}
