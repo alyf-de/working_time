@@ -1,0 +1,18 @@
+include MANIFEST.in
+include requirements.txt
+include *.json
+include *.md
+include *.py
+include *.txt
+recursive-include working_time *.css
+recursive-include working_time *.csv
+recursive-include working_time *.html
+recursive-include working_time *.ico
+recursive-include working_time *.js
+recursive-include working_time *.json
+recursive-include working_time *.md
+recursive-include working_time *.png
+recursive-include working_time *.py
+recursive-include working_time *.svg
+recursive-include working_time *.txt
+recursive-exclude working_time *.pyc
