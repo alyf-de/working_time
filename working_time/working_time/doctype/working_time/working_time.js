@@ -1,7 +1,11 @@
 // Copyright (c) 2023, ALYF GmbH and contributors
 // For license information, please see license.txt
 
-frappe.ui.form.on("Working Time", {});
+frappe.ui.form.on("Working Time", {
+    setup: function (frm) {
+        frm.set_query("employee", "erpnext.controllers.queries.employee_query");
+    },
+});
 
 frappe.ui.form.on("Working Time Log", {
     time_logs_add: function (frm, cdt, cdn) {
