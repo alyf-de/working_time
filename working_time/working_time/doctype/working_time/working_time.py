@@ -6,7 +6,7 @@ import math
 import frappe
 from frappe import _
 from frappe.model.document import Document
-from frappe.utils import time_diff_in_seconds, today
+from frappe.utils import time_diff_in_seconds
 
 
 class WorkingTime(Document):
@@ -92,7 +92,12 @@ class WorkingTime(Document):
 
             if log.project:
                 customer, billing_rate, jira_site_url = frappe.get_value(
-                    "Project", log.project, ["customer", "billing_rate", "jira_site_url"]
+                    "Project",
+                    log.project,
+                    ["customer", "billing_rate", "jira_site_url"],
+                )
+                jira_issue_url = (
+                    f"https://{jira_site_url}/browse/{log.key}" if log.key else None
                 )
 
                 doc = frappe.get_doc(
@@ -111,7 +116,7 @@ class WorkingTime(Document):
                                 "from_time": self.date,
                                 "billing_hours": billing_hours,
                                 "description": log.note,
-                                "jira_issue_url": f"https://{jira_site_url}/browse/{log.key}",
+                                "jira_issue_url": jira_issue_url,
                             }
                         ],
                         "parent_project": log.project,
