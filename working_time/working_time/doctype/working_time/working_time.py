@@ -83,46 +83,49 @@ class WorkingTime(Document):
         )
 
         for log in self.time_logs:
-            hours = math.ceil(log.duration / FIVE_MINUTES) * FIVE_MINUTES / ONE_HOUR
-            billing_hours = (
-                math.ceil(log.duration * float(log.billable[:-1]) / 100 / FIVE_MINUTES)
-                * FIVE_MINUTES
-                / ONE_HOUR
-            )
-
-            if log.project:
-                customer, billing_rate, jira_site_url = frappe.get_value(
-                    "Project",
-                    log.project,
-                    ["customer", "billing_rate", "jira_site_url"],
-                )
-                jira_issue_url = (
-                    f"https://{jira_site_url}/browse/{log.key}" if log.key else None
+            if log.duration:
+                hours = math.ceil(log.duration / FIVE_MINUTES) * FIVE_MINUTES / ONE_HOUR
+                billing_hours = (
+                    math.ceil(
+                        log.duration * float(log.billable[:-1]) / 100 / FIVE_MINUTES
+                    )
+                    * FIVE_MINUTES
+                    / ONE_HOUR
                 )
 
-                doc = frappe.get_doc(
-                    {
-                        "doctype": "Timesheet",
-                        "time_logs": [
-                            {
-                                "is_billable": 1,
-                                "project": log.project,
-                                "activity_type": "Default",
-                                "base_billing_rate": billing_rate,
-                                "base_costing_rate": costing_rate,
-                                "costing_rate": costing_rate,
-                                "billing_rate": billing_rate,
-                                "hours": hours,
-                                "from_time": self.date,
-                                "billing_hours": billing_hours,
-                                "description": log.note,
-                                "jira_issue_url": jira_issue_url,
-                            }
-                        ],
-                        "parent_project": log.project,
-                        "customer": customer,
-                        "employee": self.employee,
-                    }
-                )
+                if log.project:
+                    customer, billing_rate, jira_site_url = frappe.get_value(
+                        "Project",
+                        log.project,
+                        ["customer", "billing_rate", "jira_site_url"],
+                    )
+                    jira_issue_url = (
+                        f"https://{jira_site_url}/browse/{log.key}" if log.key else None
+                    )
 
-                doc.insert()
+                    doc = frappe.get_doc(
+                        {
+                            "doctype": "Timesheet",
+                            "time_logs": [
+                                {
+                                    "is_billable": 1,
+                                    "project": log.project,
+                                    "activity_type": "Default",
+                                    "base_billing_rate": billing_rate,
+                                    "base_costing_rate": costing_rate,
+                                    "costing_rate": costing_rate,
+                                    "billing_rate": billing_rate,
+                                    "hours": hours,
+                                    "from_time": self.date,
+                                    "billing_hours": billing_hours,
+                                    "description": log.note,
+                                    "jira_issue_url": jira_issue_url,
+                                }
+                            ],
+                            "parent_project": log.project,
+                            "customer": customer,
+                            "employee": self.employee,
+                        }
+                    )
+
+                    doc.insert()
