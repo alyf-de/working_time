@@ -118,7 +118,7 @@ class WorkingTime(Document):
                                     "hours": hours,
                                     "from_time": self.date,
                                     "billing_hours": billing_hours,
-                                    "description": log.note,
+                                    "description": log.note or "-",
                                     "jira_issue_url": jira_issue_url,
                                 }
                             ],
