@@ -63,6 +63,7 @@
    "fieldtype": "Duration",
    "hide_days": 1,
    "hide_seconds": 1,
+   "in_list_view": 1,
    "label": "Working Time",
    "read_only": 1
   },
@@ -88,7 +89,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-01-21 03:42:43.295851",
+ "modified": "2023-01-25 01:15:25.964552",
  "modified_by": "Administrator",
  "module": "Working Time",
  "name": "Working Time",
@@ -108,5 +109,6 @@
   }
  ],
  "sort_field": "modified",
- "sort_order": "DESC"
+ "sort_order": "DESC",
+ "title_field": "employee_name"
 }
