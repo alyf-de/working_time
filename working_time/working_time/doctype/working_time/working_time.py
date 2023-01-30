@@ -7,6 +7,7 @@ import frappe
 from frappe import _
 from frappe.model.document import Document
 from frappe.utils import time_diff_in_seconds
+from working_time.jira_client import JiraClient
 
 
 class WorkingTime(Document):
@@ -99,9 +100,16 @@ class WorkingTime(Document):
                         log.project,
                         ["customer", "billing_rate", "jira_site"],
                     )
-                    jira_issue_url = (
-                        f"https://{jira_site}/browse/{log.key}" if log.key else None
-                    )
+
+                    if log.key:
+                        jira_issue_url = f"https://{jira_site}/browse/{log.key}"
+                        description = f"{JiraClient(jira_site).get_issue_summary(log.key)} ({log.key})"
+
+                        if log.note:
+                            description += f":\n\n{log.note}"
+                    else:
+                        jira_issue_url = None
+                        description = log.note or "-"
 
                     doc = frappe.get_doc(
                         {
@@ -118,7 +126,7 @@ class WorkingTime(Document):
                                     "hours": hours,
                                     "from_time": self.date,
                                     "billing_hours": billing_hours,
-                                    "description": log.note or "-",
+                                    "description": description,
                                     "jira_issue_url": jira_issue_url,
                                 }
                             ],
