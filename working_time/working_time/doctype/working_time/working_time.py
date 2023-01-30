@@ -9,6 +9,12 @@ from frappe.model.document import Document
 from frappe.utils import time_diff_in_seconds
 from working_time.jira_client import JiraClient
 
+HALF_DAY = 3.25
+OVERTIME_FACTOR = 1.15
+MAX_HALF_DAY = HALF_DAY * OVERTIME_FACTOR * 60 * 60
+FIVE_MINUTES = 5 * 60
+ONE_HOUR = 60 * 60
+
 
 class WorkingTime(Document):
     def before_validate(self):
@@ -52,10 +58,6 @@ class WorkingTime(Document):
                     self.working_time += log.duration
 
     def create_attendance(self):
-        HALF_DAY = 3.25
-        OVERTIME_FACTOR = 1.15
-        MAX_HALF_DAY = HALF_DAY * OVERTIME_FACTOR * 60 * 60
-
         if not frappe.db.exists(
             "Attendance", {"employee": self.employee, "attendance_date": self.date}
         ):
@@ -74,17 +76,9 @@ class WorkingTime(Document):
             attendance.submit()
 
     def create_timesheets(self):
-        FIVE_MINUTES = 5 * 60
-        ONE_HOUR = 60 * 60
-
-        costing_rate = frappe.get_value(
-            "Activity Cost",
-            {"activity_type": "Default", "employee": self.employee},
-            "costing_rate",
-        )
-
         for log in self.time_logs:
-            if log.duration:
+            if log.duration and log.project:
+                costing_rate = get_costing_rate(self.employee)
                 hours = math.ceil(log.duration / FIVE_MINUTES) * FIVE_MINUTES / ONE_HOUR
                 billing_hours = (
                     math.ceil(
@@ -94,46 +88,61 @@ class WorkingTime(Document):
                     / ONE_HOUR
                 )
 
-                if log.project:
-                    customer, billing_rate, jira_site = frappe.get_value(
-                        "Project",
-                        log.project,
-                        ["customer", "billing_rate", "jira_site"],
-                    )
+                customer, billing_rate, jira_site = frappe.get_value(
+                    "Project",
+                    log.project,
+                    ["customer", "billing_rate", "jira_site"],
+                )
 
-                    if log.key:
-                        jira_issue_url = f"https://{jira_site}/browse/{log.key}"
-                        description = f"{JiraClient(jira_site).get_issue_summary(log.key)} ({log.key})"
+                frappe.get_doc(
+                    {
+                        "doctype": "Timesheet",
+                        "time_logs": [
+                            {
+                                "is_billable": 1,
+                                "project": log.project,
+                                "activity_type": "Default",
+                                "base_billing_rate": billing_rate,
+                                "base_costing_rate": costing_rate,
+                                "costing_rate": costing_rate,
+                                "billing_rate": billing_rate,
+                                "hours": hours,
+                                "from_time": self.date,
+                                "billing_hours": billing_hours,
+                                "description": get_description(
+                                    jira_site, log.key, log.note
+                                ),
+                                "jira_issue_url": get_jira_issue_url(
+                                    jira_site, log.key
+                                ),
+                            }
+                        ],
+                        "parent_project": log.project,
+                        "customer": customer,
+                        "employee": self.employee,
+                    }
+                ).insert()
 
-                        if log.note:
-                            description += f":\n\n{log.note}"
-                    else:
-                        jira_issue_url = None
-                        description = log.note or "-"
 
-                    doc = frappe.get_doc(
-                        {
-                            "doctype": "Timesheet",
-                            "time_logs": [
-                                {
-                                    "is_billable": 1,
-                                    "project": log.project,
-                                    "activity_type": "Default",
-                                    "base_billing_rate": billing_rate,
-                                    "base_costing_rate": costing_rate,
-                                    "costing_rate": costing_rate,
-                                    "billing_rate": billing_rate,
-                                    "hours": hours,
-                                    "from_time": self.date,
-                                    "billing_hours": billing_hours,
-                                    "description": description,
-                                    "jira_issue_url": jira_issue_url,
-                                }
-                            ],
-                            "parent_project": log.project,
-                            "customer": customer,
-                            "employee": self.employee,
-                        }
-                    )
+def get_costing_rate(employee):
+    return frappe.get_value(
+        "Activity Cost",
+        {"activity_type": "Default", "employee": employee},
+        "costing_rate",
+    )
 
-                    doc.insert()
+
+def get_jira_issue_url(jira_site, key):
+    return f"https://{jira_site}/browse/{key}" if key else None
+
+
+def get_description(jira_site, key, note):
+    if key:
+        description = f"{JiraClient(jira_site).get_issue_summary(key)} ({key})"
+
+        if note:
+            description += f":\n\n{note}"
+    else:
+        description = note or "-"
+
+    return description
