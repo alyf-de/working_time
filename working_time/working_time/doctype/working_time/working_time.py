@@ -94,13 +94,13 @@ class WorkingTime(Document):
                 )
 
                 if log.project:
-                    customer, billing_rate, jira_site_url = frappe.get_value(
+                    customer, billing_rate, jira_site = frappe.get_value(
                         "Project",
                         log.project,
-                        ["customer", "billing_rate", "jira_site_url"],
+                        ["customer", "billing_rate", "jira_site"],
                     )
                     jira_issue_url = (
-                        f"https://{jira_site_url}/browse/{log.key}" if log.key else None
+                        f"https://{jira_site}/browse/{log.key}" if log.key else None
                     )
 
                     doc = frappe.get_doc(

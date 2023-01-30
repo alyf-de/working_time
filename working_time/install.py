@@ -30,11 +30,11 @@ def customize_project():
                 "collapsible": 1,
             },
             {
-                "fieldname": "jira_site_url",
-                "label": "Site URL",
-                "fieldtype": "Data",
+                "fieldname": "jira_site",
+                "label": "Site",
+                "fieldtype": "Link",
+                "options": "Jira Site",
                 "insert_after": "jira_section",
-                "description": "e.g. mysite.atlassian.net",
                 "translatable": 0,
             },
         ]
