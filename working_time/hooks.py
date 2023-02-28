@@ -57,7 +57,7 @@ app_license = "-"
 # ------------
 
 # before_install = "working_time.install.before_install"
-# after_install = "working_time.install.after_install"
+after_install = "working_time.install.after_install"
 
 # Uninstallation
 # ------------
