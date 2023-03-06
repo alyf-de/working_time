@@ -9,9 +9,11 @@ frappe.ui.form.on("Working Time", {
 
 frappe.ui.form.on("Working Time Log", {
     time_logs_add: function (frm, cdt, cdn) {
-        let row = locals[cdt][cdn];
-        row.from_time = frappe.datetime.now_time(false);
-        row.to_time = ""; // Otherwise Frappe may overwrite empty values with the current time on save.
-        frm.refresh_field("time_logs");
+        let prev_to_time;
+        if (frm.doc.time_logs.length > 1) {
+            prev_to_time = frm.doc.time_logs.at(-2).to_time;
+        }
+        frappe.model.set_value(cdt, cdn, "from_time", prev_to_time || frappe.datetime.now_time(false));
+        frappe.model.set_value(cdt, cdn, "to_time", "");  // Otherwise Frappe may overwrite empty values with the current time on save.
     },
 });
