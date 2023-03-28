@@ -179,3 +179,69 @@ after_install = "working_time.install.after_install"
 #	"working_time.auth.validate"
 # ]
 
+working_time_custom_fields = {
+	"Timesheet Detail": [
+		{
+			"fieldname": "jira_section",
+			"label": "Jira",
+			"fieldtype": "Section Break",
+			"insert_after": "costing_amount",
+		},
+		{
+			"fieldname": "jira_issue_url",
+			"label": "Issue URL",
+			"fieldtype": "Data",
+			"Options": "URL",
+			"insert_after": "jira_section",
+			"read_only": 1,
+			"translatable": 0,
+		},
+	],
+	"Project": [
+		{
+			"fieldname": "billing_rate",
+			"label": "Billing Rate per Hour",
+			"fieldtype": "Currency",
+			"options": "currency",
+			"insert_after": "cost_center",
+			"translatable": 0,
+		},
+		{
+			"fieldname": "jira_section",
+			"label": "Jira",
+			"fieldtype": "Section Break",
+			"insert_after": "message",
+			"collapsible": 1,
+		},
+		{
+			"fieldname": "jira_site",
+			"label": "Site",
+			"fieldtype": "Link",
+			"options": "Jira Site",
+			"insert_after": "jira_section",
+			"translatable": 0,
+		},
+	],
+	"Timesheet": [
+		{
+			"fieldname": "working_time",
+			"label": "Working Time",
+			"fieldtype": "Link",
+			"options": "Working Time",
+			"insert_after": "project",
+			"translatable": 0,
+			"read_only": 1,
+		}
+	],
+	"Attendance": [
+		{
+			"fieldname": "working_time",
+			"label": "Working Time",
+			"fieldtype": "Link",
+			"options": "Working Time",
+			"insert_after": "company",
+			"translatable": 0,
+			"read_only": 1,
+		}
+	],
+}

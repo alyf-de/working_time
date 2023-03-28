@@ -69,6 +69,7 @@ class WorkingTime(Document):
                     if self.working_time > MAX_HALF_DAY
                     else "Half Day",
                     "attendance_date": self.date,
+                    "working_time": self.name,
                 }
             )
             attendance.flags.ignore_permissions = True
@@ -120,6 +121,7 @@ class WorkingTime(Document):
                         "parent_project": log.project,
                         "customer": customer,
                         "employee": self.employee,
+                        "working_time": self.name,
                     }
                 ).insert()
 

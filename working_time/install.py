@@ -6,65 +6,12 @@ from frappe.custom.doctype.custom_field.custom_field import create_custom_fields
 
 
 def after_install():
-    customize_project()
-    customize_timesheet()
+    make_custom_fields()
     insert_docs()
 
 
-def customize_project():
-    custom_fields = {
-        "Project": [
-            {
-                "fieldname": "billing_rate",
-                "label": "Billing Rate per Hour",
-                "fieldtype": "Currency",
-                "options": "currency",
-                "insert_after": "cost_center",
-                "translatable": 0,
-            },
-            {
-                "fieldname": "jira_section",
-                "label": "Jira",
-                "fieldtype": "Section Break",
-                "insert_after": "message",
-                "collapsible": 1,
-            },
-            {
-                "fieldname": "jira_site",
-                "label": "Site",
-                "fieldtype": "Link",
-                "options": "Jira Site",
-                "insert_after": "jira_section",
-                "translatable": 0,
-            },
-        ]
-    }
-
-    create_custom_fields(custom_fields)
-
-
-def customize_timesheet():
-    custom_fields = {
-        "Timesheet Detail": [
-            {
-                "fieldname": "jira_section",
-                "label": "Jira",
-                "fieldtype": "Section Break",
-                "insert_after": "costing_amount",
-            },
-            {
-                "fieldname": "jira_issue_url",
-                "label": "Issue URL",
-                "fieldtype": "Data",
-                "Options": "URL",
-                "insert_after": "jira_section",
-                "read_only": 1,
-                "translatable": 0,
-            },
-        ]
-    }
-
-    create_custom_fields(custom_fields)
+def make_custom_fields():
+    create_custom_fields(frappe.get_hooks("working_time_custom_fields"))
 
 
 def insert_docs():
