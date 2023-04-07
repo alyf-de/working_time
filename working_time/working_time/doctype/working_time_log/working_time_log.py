@@ -7,7 +7,7 @@ from frappe.utils import time_diff_in_seconds
 
 
 class WorkingTimeLog(Document):
-	def cleanup(self):
+	def cleanup_and_set_duration(self):
 		self.remove_seconds()
 		self.uppercase_key()
 		self.set_duration()

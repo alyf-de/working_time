@@ -21,7 +21,7 @@ class WorkingTime(Document):
         self.break_time = self.working_time = 0
         for idx, log in enumerate(self.time_logs):
             log.to_time = self.time_logs[idx + 1].from_time if idx < last_idx else log.to_time
-            log.cleanup()
+            log.cleanup_and_set_duration()
             self.break_time += (log.duration or 0) if log.is_break else 0
             self.working_time += 0 if log.is_break else (log.duration or 0)
 
