@@ -6,7 +6,6 @@ import math
 import frappe
 from frappe import _
 from frappe.model.document import Document
-from frappe.utils import time_diff_in_seconds
 from working_time.jira_client import JiraClient
 
 HALF_DAY = 3.25
@@ -18,44 +17,25 @@ ONE_HOUR = 60 * 60
 
 class WorkingTime(Document):
     def before_validate(self):
-        self.remove_seconds()
-        self.set_to_times()
-        self.set_durations()
+        last_idx = len(self.time_logs) - 1
+        self.break_time = self.working_time = 0
+        for idx, log in enumerate(self.time_logs):
+            log.to_time = self.time_logs[idx + 1].from_time if idx < last_idx else log.to_time
+            log.cleanup_and_set_duration()
+            self.break_time += (log.duration or 0) if log.is_break else 0
+            self.working_time += 0 if log.is_break else (log.duration or 0)
 
     def validate(self):
         for log in self.time_logs:
             if log.duration and log.duration < 0:
-                frappe.throw(_("Time logs must be continuous"))
+                frappe.throw(_("Please fix negative duration in row {0}").format(log.idx))
+
+            if log.project and not log.key and not log.description:
+                frappe.throw(_("Please add issue key or description in row {0}").format(log.idx))
 
     def on_submit(self):
         self.create_attendance()
         self.create_timesheets()
-
-    def remove_seconds(self):
-        for log in self.time_logs:
-            if log.from_time:
-                log.from_time = f"{log.from_time[:-2]}00"
-
-            if log.to_time:
-                log.to_time = f"{log.to_time[:-2]}00"
-
-    def set_to_times(self):
-        for i in range(0, len(self.time_logs) - 1):
-            self.time_logs[i].to_time = self.time_logs[i + 1].from_time
-
-    def set_durations(self):
-        self.break_time = 0
-        self.working_time = 0
-
-        for log in self.time_logs:
-            if log.from_time and log.to_time:
-                log.duration = time_diff_in_seconds(log.to_time, log.from_time)
-
-            if log.duration:
-                if log.is_break:
-                    self.break_time += log.duration
-                else:
-                    self.working_time += log.duration
 
     def create_attendance(self):
         if not frappe.db.exists(
