@@ -14,6 +14,7 @@
   "section_break_7",
   "break_time",
   "working_time",
+  "project_time",
   "amended_from"
  ],
  "fields": [
@@ -83,6 +84,12 @@
   {
    "fieldname": "section_break_7",
    "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "project_time",
+   "fieldtype": "Duration",
+   "label": "Project Time",
+   "read_only": 1
   }
  ],
  "is_submittable": 1,
@@ -96,7 +103,7 @@
    "link_fieldname": "working_time"
   }
  ],
- "modified": "2023-03-28 13:48:36.800439",
+ "modified": "2023-04-19 19:34:51.096166",
  "modified_by": "Administrator",
  "module": "Working Time",
  "name": "Working Time",
