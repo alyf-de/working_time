@@ -2,8 +2,8 @@ Timetracking and Attendance in ERPNext, integrated with Jira
 
 ## Features
 
-- Allows logging of misc time, project time and breaks
-- Allows to select a percentage in order to slightly adjust the billable time
+- Allows logging of miscellanous time, project time and breaks
+- Allows to set a percentage of working time as billable time in a Working Time Log
 - Rounds billable time to 5 minutes
 - Fetches issue titles from Jira (used as time log description)
 - Creates ERPNext **Timesheets**
