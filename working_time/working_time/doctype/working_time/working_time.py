@@ -30,8 +30,8 @@ class WorkingTime(Document):
             if log.duration and log.duration < 0:
                 frappe.throw(_("Please fix negative duration in row {0}").format(log.idx))
 
-            if log.project and not log.key and not log.description:
-                frappe.throw(_("Please add issue key or description in row {0}").format(log.idx))
+            if log.project and not log.key and not log.note:
+                frappe.throw(_("Please add issue key or note in row {0}").format(log.idx))
 
     def on_submit(self):
         self.create_attendance()
