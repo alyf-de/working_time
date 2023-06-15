@@ -41,7 +41,12 @@ class WorkingTime(Document):
 
     def create_attendance(self):
         if not frappe.db.exists(
-            "Attendance", {"employee": self.employee, "attendance_date": self.date}
+            "Attendance",
+            {
+                "employee": self.employee,
+                "attendance_date": self.date,
+                "docstatus": ("!=", 2)
+            }
         ):
             attendance = frappe.get_doc(
                 {
