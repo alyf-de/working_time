@@ -5,6 +5,13 @@ frappe.ui.form.on("Working Time", {
     setup: function (frm) {
         frm.set_query("employee", "erpnext.controllers.queries.employee_query");
     },
+    refresh: function (frm) {
+        if (frm.doc.docstatus === 0) {
+            // Linked documents will get created on submit.
+            // Hide the dashboard if the document is not yet submitted.
+            frm.dashboard.hide();
+        }
+    },
 });
 
 frappe.ui.form.on("Working Time Log", {
