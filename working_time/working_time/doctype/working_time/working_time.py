@@ -5,6 +5,7 @@ import math
 
 import frappe
 from frappe import _
+from frappe.model.docstatus import DocStatus
 from frappe.model.document import Document
 
 from working_time.jira_utils import get_description, get_jira_issue_url
@@ -39,6 +40,9 @@ class WorkingTime(Document):
     def on_submit(self):
         self.create_attendance()
         self.create_timesheets()
+    
+    def on_cancel(self):
+        self.delete_timesheets()
 
     def create_attendance(self):
         if not frappe.db.exists(
@@ -112,6 +116,12 @@ class WorkingTime(Document):
                         "working_time": self.name,
                     }
                 ).insert()
+
+    def delete_timesheets(self):
+        for timesheet in frappe.get_list(
+            "Timesheet", filters={"working_time": self.name, "docstatus": DocStatus.draft()}
+        ):
+            frappe.delete_doc("Timesheet", timesheet.name)
 
 
 def get_costing_rate(employee):

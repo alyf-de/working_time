@@ -5,6 +5,7 @@ import math
 
 import frappe
 from frappe.model.document import Document
+from frappe.model.docstatus import DocStatus
 from working_time.working_time.doctype.working_time.working_time import (
 	FIVE_MINUTES,
 	ONE_HOUR,
@@ -17,6 +18,9 @@ from working_time.jira_utils import get_description, get_jira_issue_url
 class FreelancerTime(Document):
 	def on_submit(self):
 		self.create_timesheets()
+
+	def on_cancel(self):
+		self.delete_timesheets()
 
 	def create_timesheets(self):
 		for log in self.time_logs:
@@ -60,6 +64,12 @@ class FreelancerTime(Document):
 						"freelancer_time": self.name,
 					}
 				).insert()
+
+	def delete_timesheets(self):
+		for timesheet in frappe.get_list(
+			"Timesheet", filters={"freelancer_time": self.name, "docstatus": DocStatus.draft()}
+		):
+			frappe.delete_doc("Timesheet", timesheet.name)
 
 
 def get_rate_and_currency(user, date) -> float:
