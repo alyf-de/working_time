@@ -40,9 +40,9 @@ class WorkingTime(Document):
     def on_submit(self):
         self.create_attendance()
         self.create_timesheets()
-    
+
     def on_cancel(self):
-        self.delete_timesheets()
+        self.delete_draft_timesheets()
 
     def create_attendance(self):
         if not frappe.db.exists(

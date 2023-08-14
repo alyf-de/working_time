@@ -20,7 +20,7 @@ class FreelancerTime(Document):
 		self.create_timesheets()
 
 	def on_cancel(self):
-		self.delete_timesheets()
+		self.delete_draft_timesheets()
 
 	def create_timesheets(self):
 		for log in self.time_logs:
@@ -65,7 +65,7 @@ class FreelancerTime(Document):
 					}
 				).insert()
 
-	def delete_timesheets(self):
+	def delete_draft_timesheets(self):
 		for timesheet in frappe.get_list(
 			"Timesheet", filters={"freelancer_time": self.name, "docstatus": DocStatus.draft()}
 		):
