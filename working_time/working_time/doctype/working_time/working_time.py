@@ -6,7 +6,8 @@ import math
 import frappe
 from frappe import _
 from frappe.model.document import Document
-from working_time.jira_client import JiraClient
+
+from working_time.jira_utils import get_description, get_jira_issue_url
 
 HALF_DAY = 3.25
 OVERTIME_FACTOR = 1.15
@@ -119,19 +120,3 @@ def get_costing_rate(employee):
         {"activity_type": "Default", "employee": employee},
         "costing_rate",
     )
-
-
-def get_jira_issue_url(jira_site, key):
-    return f"https://{jira_site}/browse/{key}" if key else None
-
-
-def get_description(jira_site, key, note):
-    if key:
-        description = f"{JiraClient(jira_site).get_issue_summary(key)} ({key})"
-
-        if note:
-            description += f":\n\n{note}"
-    else:
-        description = note or "-"
-
-    return description

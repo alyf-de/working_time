@@ -231,7 +231,16 @@ working_time_custom_fields = {
 			"insert_after": "project",
 			"translatable": 0,
 			"read_only": 1,
-		}
+		},
+		{
+			"fieldname": "freelancer_time",
+			"label": "Freelancer Time",
+			"fieldtype": "Link",
+			"options": "Freelancer Time",
+			"insert_after": "working_time",
+			"translatable": 0,
+			"read_only": 1,
+		},
 	],
 	"Attendance": [
 		{
