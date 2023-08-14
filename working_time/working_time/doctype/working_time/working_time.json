@@ -103,7 +103,7 @@
    "link_fieldname": "working_time"
   }
  ],
- "modified": "2023-04-19 19:34:51.096166",
+ "modified": "2023-08-14 19:06:50.793914",
  "modified_by": "Administrator",
  "module": "Working Time",
  "name": "Working Time",
@@ -126,6 +126,7 @@
   },
   {
    "amend": 1,
+   "cancel": 1,
    "create": 1,
    "delete": 1,
    "email": 1,
@@ -134,12 +135,12 @@
    "read": 1,
    "report": 1,
    "role": "Employee",
-   "share": 1,
    "submit": 1,
    "write": 1
   }
  ],
  "sort_field": "creation",
  "sort_order": "DESC",
+ "states": [],
  "title_field": "employee_name"
 }

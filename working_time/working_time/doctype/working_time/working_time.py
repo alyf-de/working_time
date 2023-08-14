@@ -43,6 +43,7 @@ class WorkingTime(Document):
 
     def on_cancel(self):
         self.delete_draft_timesheets()
+        self.cancel_attendance()
 
     def create_attendance(self):
         if not frappe.db.exists(
@@ -117,11 +118,30 @@ class WorkingTime(Document):
                     }
                 ).insert()
 
-    def delete_timesheets(self):
+    def delete_draft_timesheets(self):
         for timesheet in frappe.get_list(
             "Timesheet", filters={"working_time": self.name, "docstatus": DocStatus.draft()}
         ):
             frappe.delete_doc("Timesheet", timesheet.name)
+
+    def cancel_attendance(self):
+        if frappe.has_permission("Attendance", "cancel"):
+            # Cancelling will be done by the framework automatically
+            return
+
+        attendance_name = frappe.db.get_value(
+            "Attendance",
+            {
+                "working_time": self.name,
+                "docstatus": ("!=", DocStatus.cancelled())
+            }
+        )
+        if not attendance_name:
+            return
+
+        attendance = frappe.get_doc("Attendance", attendance_name)
+        attendance.flags.ignore_permissions = True
+        attendance.cancel()
 
 
 def get_costing_rate(employee):
