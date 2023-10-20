@@ -34,8 +34,13 @@ class WorkingTime(Document):
             if log.duration and log.duration < 0:
                 frappe.throw(_("Please fix negative duration in row {0}").format(log.idx))
 
-            if log.project and not log.key and not log.note:
-                frappe.throw(_("Please add issue key or note in row {0}").format(log.idx))
+            if (
+                log.billable != "0%" and
+                log.project and
+                not log.key and
+                (not log.note or not log.note.strip().startswith("+"))
+            ):
+                frappe.throw(_("Please add an issue key or invoice note to the billable row {0}").format(log.idx))
 
     def on_submit(self):
         self.create_attendance()
@@ -74,13 +79,15 @@ class WorkingTime(Document):
             if log.duration and log.project:
                 costing_rate = get_costing_rate(self.employee)
                 hours = math.ceil(log.duration / FIVE_MINUTES) * FIVE_MINUTES / ONE_HOUR
-                billing_hours = (
-                    math.ceil(
-                        log.duration * float(log.billable[:-1]) / 100 / FIVE_MINUTES
+                billing_hours = 0
+                if log.billable != "0%":
+                    billing_hours = (
+                        math.ceil(
+                            log.duration * float(log.billable[:-1]) / 100 / FIVE_MINUTES
+                        )
+                        * FIVE_MINUTES
+                        / ONE_HOUR
                     )
-                    * FIVE_MINUTES
-                    / ONE_HOUR
-                )
 
                 customer, billing_rate, jira_site = frappe.get_value(
                     "Project",
@@ -93,7 +100,7 @@ class WorkingTime(Document):
                         "doctype": "Timesheet",
                         "time_logs": [
                             {
-                                "is_billable": 1,
+                                "is_billable": int(log.billable != "0%"),
                                 "project": log.project,
                                 "activity_type": "Default",
                                 "base_billing_rate": billing_rate,
@@ -111,6 +118,7 @@ class WorkingTime(Document):
                                 ),
                             }
                         ],
+                        "note": log.note if log.note and not log.note.strip().startswith("+") else None,
                         "parent_project": log.project,
                         "customer": customer,
                         "employee": self.employee,

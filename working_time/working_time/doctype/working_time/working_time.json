@@ -11,6 +11,7 @@
   "section_break_4",
   "date",
   "time_logs",
+  "note_explainer",
   "section_break_7",
   "break_time",
   "working_time",
@@ -90,6 +91,11 @@
    "fieldtype": "Duration",
    "label": "Project Time",
    "read_only": 1
+  },
+  {
+   "fieldname": "note_explainer",
+   "fieldtype": "HTML",
+   "options": "<p class=\"text-muted\">Notes starting with <code>\"+ \"</code> will get printed on the invoice, if any.<br>Other notes will be treated as internal.</p><p></p>"
   }
  ],
  "is_submittable": 1,
@@ -103,7 +109,7 @@
    "link_fieldname": "working_time"
   }
  ],
- "modified": "2023-08-14 19:06:50.793914",
+ "modified": "2023-10-20 19:42:23.471319",
  "modified_by": "Administrator",
  "module": "Working Time",
  "name": "Working Time",
