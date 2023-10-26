@@ -13,9 +13,13 @@
   "time_logs",
   "note_explainer",
   "section_break_7",
-  "break_time",
-  "working_time",
   "project_time",
+  "billable_time",
+  "working_time",
+  "column_break_covil",
+  "project_pct",
+  "billable_pct",
+  "break_time",
   "amended_from"
  ],
  "fields": [
@@ -96,6 +100,30 @@
    "fieldname": "note_explainer",
    "fieldtype": "HTML",
    "options": "<p class=\"text-muted\">Notes starting with <code>\"+ \"</code> will get printed on the invoice, if any.<br>Other notes will be treated as internal.</p><p></p>"
+  },
+  {
+   "fieldname": "billable_time",
+   "fieldtype": "Duration",
+   "hide_days": 1,
+   "hide_seconds": 1,
+   "label": "Billable Time",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_covil",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "project_pct",
+   "fieldtype": "Percent",
+   "label": "Project %",
+   "read_only": 1
+  },
+  {
+   "fieldname": "billable_pct",
+   "fieldtype": "Percent",
+   "label": "Billable %",
+   "read_only": 1
   }
  ],
  "is_submittable": 1,
@@ -109,7 +137,7 @@
    "link_fieldname": "working_time"
   }
  ],
- "modified": "2023-10-20 19:42:23.471319",
+ "modified": "2023-10-26 19:55:08.264363",
  "modified_by": "Administrator",
  "module": "Working Time",
  "name": "Working Time",

@@ -19,15 +19,23 @@ ONE_HOUR = 60 * 60
 
 class WorkingTime(Document):
     def before_validate(self):
+        self.break_time = self.working_time = self.project_time = self.billable_time = 0
+        self.project_pct = self.billable_pct = 0
+
         last_idx = len(self.time_logs) - 1
-        self.break_time = self.working_time = self.project_time = 0
         for idx, log in enumerate(self.time_logs):
             log.to_time = self.time_logs[idx + 1].from_time if idx < last_idx else log.to_time
             log.cleanup_and_set_duration()
             duration = log.duration or 0
             self.break_time += duration if log.is_break else 0
             self.working_time += 0 if log.is_break else duration
-            self.project_time += duration if log.project and not log.is_break else 0
+            if log.project and not log.is_break:
+                self.project_time += duration
+                self.billable_time += get_billable_duration(log)
+
+        if self.working_time:
+            self.project_pct = round(self.project_time / self.working_time * 100, 0)
+            self.billable_pct = round(self.billable_time / self.working_time * 100, 0)
 
     def validate(self):
         for log in self.time_logs:
@@ -83,7 +91,7 @@ class WorkingTime(Document):
                 if log.billable != "0%":
                     billing_hours = (
                         math.ceil(
-                            log.duration * float(log.billable[:-1]) / 100 / FIVE_MINUTES
+                            get_billable_duration(log) / FIVE_MINUTES
                         )
                         * FIVE_MINUTES
                         / ONE_HOUR
@@ -158,3 +166,10 @@ def get_costing_rate(employee):
         {"activity_type": "Default", "employee": employee},
         "costing_rate",
     )
+
+
+def get_billable_duration(log):
+    if log.billable == "0%":
+        return 0
+
+    return log.duration * float(log.billable[:-1]) / 100
