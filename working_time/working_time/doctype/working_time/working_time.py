@@ -26,11 +26,11 @@ class WorkingTime(Document):
         for idx, log in enumerate(self.time_logs):
             log.to_time = self.time_logs[idx + 1].from_time if idx < last_idx else log.to_time
             log.cleanup_and_set_duration()
-            duration = log.duration or 0
-            self.break_time += duration if log.is_break else 0
-            self.working_time += 0 if log.is_break else duration
+            log.duration = log.duration or 0
+            self.break_time += log.duration if log.is_break else 0
+            self.working_time += 0 if log.is_break else log.duration
             if log.project and not log.is_break:
-                self.project_time += duration
+                self.project_time += log.duration
                 self.billable_time += get_billable_duration(log)
 
         if self.working_time:
