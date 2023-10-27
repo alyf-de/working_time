@@ -172,4 +172,4 @@ def get_billable_duration(log):
     if log.billable == "0%":
         return 0
 
-    return log.duration * float(log.billable[:-1]) / 100
+    return log.duration * float(log.billable.rstrip("% ")) / 100
