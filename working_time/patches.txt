@@ -1,2 +1,3 @@
 working_time.patches.migrate_old_working_times
 working_time.patches.link_timesheet_and_attendance_to_working_time  # 2023-08-14
+working_time.patches.billable_time_pct # 1
