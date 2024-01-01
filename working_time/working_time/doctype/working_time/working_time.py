@@ -109,14 +109,14 @@ class WorkingTime(Document):
                             "from_time": self.date,
                             "billing_hours": data["billable_hours"],
                             "description": get_description(
-                                jira_site, key, "; ".join(data["customer_notes"])
+                                jira_site, key, "; ".join(set(data["customer_notes"]))
                             ),
                             "jira_issue_url": get_jira_issue_url(
                                 jira_site, key
                             ),
                         }
                     ],
-                    "note": ",\n".join(data["internal_notes"]),
+                    "note": ",\n".join(set(data["internal_notes"])),
                     "parent_project": project,
                     "customer": customer,
                     "employee": self.employee,
