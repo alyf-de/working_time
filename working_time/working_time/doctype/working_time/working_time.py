@@ -83,56 +83,46 @@ class WorkingTime(Document):
             attendance.submit()
 
     def create_timesheets(self):
-        for log in self.time_logs:
-            if log.duration and log.project:
-                costing_rate = get_costing_rate(self.employee)
-                hours = math.ceil(log.duration / FIVE_MINUTES) * FIVE_MINUTES / ONE_HOUR
-                billing_hours = 0
-                if log.billable != "0%":
-                    billing_hours = (
-                        math.ceil(
-                            get_billable_duration(log) / FIVE_MINUTES
-                        )
-                        * FIVE_MINUTES
-                        / ONE_HOUR
-                    )
+        aggregated_time_logs = aggregate_time_logs(self.time_logs)
 
-                customer, billing_rate, jira_site = frappe.get_value(
-                    "Project",
-                    log.project,
-                    ["customer", "billing_rate", "jira_site"],
-                )
+        for (project, key), data in aggregated_time_logs.items():
+            costing_rate = get_costing_rate(self.employee)
+            customer, billing_rate, jira_site = frappe.get_value(
+                "Project",
+                project,
+                ["customer", "billing_rate", "jira_site"],
+            )
 
-                frappe.get_doc(
-                    {
-                        "doctype": "Timesheet",
-                        "time_logs": [
-                            {
-                                "is_billable": int(log.billable != "0%"),
-                                "project": log.project,
-                                "activity_type": "Default",
-                                "base_billing_rate": billing_rate,
-                                "base_costing_rate": costing_rate,
-                                "costing_rate": costing_rate,
-                                "billing_rate": billing_rate,
-                                "hours": hours,
-                                "from_time": self.date,
-                                "billing_hours": billing_hours,
-                                "description": get_description(
-                                    jira_site, log.key, log.note
-                                ),
-                                "jira_issue_url": get_jira_issue_url(
-                                    jira_site, log.key
-                                ),
-                            }
-                        ],
-                        "note": log.note if log.note and not log.note.strip().startswith("+") else None,
-                        "parent_project": log.project,
-                        "customer": customer,
-                        "employee": self.employee,
-                        "working_time": self.name,
-                    }
-                ).insert()
+            frappe.get_doc(
+                {
+                    "doctype": "Timesheet",
+                    "time_logs": [
+                        {
+                            "is_billable": int(data["billable_hours"] > 0),
+                            "project": project,
+                            "activity_type": "Default",
+                            "base_billing_rate": billing_rate,
+                            "base_costing_rate": costing_rate,
+                            "costing_rate": costing_rate,
+                            "billing_rate": billing_rate,
+                            "hours": data["hours"],
+                            "from_time": self.date,
+                            "billing_hours": data["billable_hours"],
+                            "description": get_description(
+                                jira_site, key, "; ".join(data["customer_notes"])
+                            ),
+                            "jira_issue_url": get_jira_issue_url(
+                                jira_site, key
+                            ),
+                        }
+                    ],
+                    "note": ",\n".join(data["internal_notes"]),
+                    "parent_project": project,
+                    "customer": customer,
+                    "employee": self.employee,
+                    "working_time": self.name,
+                }
+            ).insert()
 
     def delete_draft_timesheets(self):
         for timesheet in frappe.get_list(
@@ -173,3 +163,67 @@ def get_billable_duration(log):
         return 0
 
     return log.duration * float(log.billable.rstrip("% ")) / 100
+
+
+def parse_note(note: str | None) -> tuple[str | None, str | None]:
+    """Parse a note into customer note and internal note."""
+    customer_note = None
+    internal_note = None
+    stripped_note = note.strip() if note else None
+    if stripped_note:
+        if stripped_note.startswith("+"):
+            customer_note = stripped_note[1:].strip()
+        else:
+            internal_note = stripped_note
+    
+    return customer_note, internal_note
+
+
+def calculate_hours(log) -> tuple[float, float]:
+    """Calculate hours and billable hours from a time log."""
+    hours = math.ceil(log.duration / FIVE_MINUTES) * FIVE_MINUTES / ONE_HOUR
+    billing_hours = 0.0
+    if log.billable != "0%":
+        billing_hours = (
+            math.ceil(
+                get_billable_duration(log) / FIVE_MINUTES
+            )
+            * FIVE_MINUTES
+            / ONE_HOUR
+        )
+
+    return hours, billing_hours
+
+
+def aggregate_time_logs(time_logs) -> dict[tuple[str | None, str | None], dict]:
+    """Aggregate time logs by project and issue key."""
+    aggregated_time_logs = {
+        # (log.project, log.key): {
+        #     cutomer_notes: [],
+        #     internal_notes: [],
+        #     billable_hours: 0,
+        #     hours: 0,
+        # }
+    }
+
+    for log in time_logs:
+        if log.duration and log.project:
+            hours, billing_hours = calculate_hours(log)
+            customer_note, internal_note = parse_note(log.note)
+
+            if (log.project, log.key) in aggregated_time_logs:
+                aggregated_time_logs[(log.project, log.key)]["hours"] += hours
+                aggregated_time_logs[(log.project, log.key)]["billable_hours"] += billing_hours
+                if customer_note:
+                    aggregated_time_logs[(log.project, log.key)]["customer_notes"].append(customer_note)
+                if internal_note:
+                    aggregated_time_logs[(log.project, log.key)]["internal_notes"].append(internal_note)
+            else:
+                aggregated_time_logs[(log.project, log.key)] = {
+                    "hours": hours,
+                    "billable_hours": billing_hours,
+                    "customer_notes": [customer_note] if customer_note else [],
+                    "internal_notes": [internal_note] if internal_note else [],
+                }
+
+    return aggregated_time_logs
