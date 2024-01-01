@@ -109,14 +109,14 @@ class WorkingTime(Document):
                             "from_time": self.date,
                             "billing_hours": data["billable_hours"],
                             "description": get_description(
-                                jira_site, key, "; ".join(set(data["customer_notes"]))
+                                jira_site, key, "; ".join(data["customer_notes"])
                             ),
                             "jira_issue_url": get_jira_issue_url(
                                 jira_site, key
                             ),
                         }
                     ],
-                    "note": ",\n".join(set(data["internal_notes"])),
+                    "note": ",\n".join(data["internal_notes"]),
                     "parent_project": project,
                     "customer": customer,
                     "employee": self.employee,
@@ -199,8 +199,8 @@ def aggregate_time_logs(time_logs) -> dict[tuple[str | None, str | None], dict]:
     """Aggregate time logs by project and issue key."""
     aggregated_time_logs = {
         # (log.project, log.key): {
-        #     cutomer_notes: [],
-        #     internal_notes: [],
+        #     cutomer_notes: set(),
+        #     internal_notes: set(),
         #     billable_hours: 0,
         #     hours: 0,
         # }
@@ -215,15 +215,15 @@ def aggregate_time_logs(time_logs) -> dict[tuple[str | None, str | None], dict]:
                 aggregated_time_logs[(log.project, log.key)]["hours"] += hours
                 aggregated_time_logs[(log.project, log.key)]["billable_hours"] += billing_hours
                 if customer_note:
-                    aggregated_time_logs[(log.project, log.key)]["customer_notes"].append(customer_note)
+                    aggregated_time_logs[(log.project, log.key)]["customer_notes"].add(customer_note)
                 if internal_note:
-                    aggregated_time_logs[(log.project, log.key)]["internal_notes"].append(internal_note)
+                    aggregated_time_logs[(log.project, log.key)]["internal_notes"].add(internal_note)
             else:
                 aggregated_time_logs[(log.project, log.key)] = {
                     "hours": hours,
                     "billable_hours": billing_hours,
-                    "customer_notes": [customer_note] if customer_note else [],
-                    "internal_notes": [internal_note] if internal_note else [],
+                    "customer_notes": {customer_note} if customer_note else set(),
+                    "internal_notes": {internal_note} if internal_note else set(),
                 }
 
     return aggregated_time_logs
