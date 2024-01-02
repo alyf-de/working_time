@@ -1,10 +1,11 @@
 # Copyright (c) 2024, ALYF GmbH and contributors
 # For license information, please see license.txt
 
-import frappe
-from frappe import _
 from datetime import timedelta
+
+import frappe
 from babel.dates import format_date
+from frappe import _
 from frappe.utils.data import getdate
 
 
@@ -71,7 +72,7 @@ def get_columns():
 			"label": _("Not Plausible"),
 			"fieldtype": "Check",
 			"width": 150,
-		}
+		},
 	]
 
 
