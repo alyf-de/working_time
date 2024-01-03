@@ -52,6 +52,7 @@ def get_columns():
 			"fieldtype": "Duration",
 			"width": 200,
 			"hide_days": 1,
+			"hide_seconds": 1,
 		},
 		{
 			"fieldname": "actual_working_time",
@@ -59,6 +60,7 @@ def get_columns():
 			"fieldtype": "Duration",
 			"width": 200,
 			"hide_days": 1,
+			"hide_seconds": 1,
 		},
 		{
 			"fieldname": "difference",
@@ -66,6 +68,7 @@ def get_columns():
 			"fieldtype": "Duration",
 			"width": 100,
 			"hide_days": 1,
+			"hide_seconds": 1,
 		},
 		{
 			"fieldname": "not_plausible",
