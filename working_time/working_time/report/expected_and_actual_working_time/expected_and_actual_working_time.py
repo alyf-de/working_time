@@ -90,7 +90,7 @@ def get_data(employee, from_date, to_date, daily_working_hours):
 		actual_working_time = (
 			frappe.db.get_value(
 				"Working Time",
-				{"employee": employee, "date": current_date},
+				{"employee": employee, "date": current_date, "docstatus": 1},
 				"working_time",
 			)
 			or 0
