@@ -16,5 +16,5 @@ def get_employee_working_hours(employee: str):
 
 
 @frappe.whitelist()
-def get_employee_name(user):
-	return frappe.get_value("Employee", {"user_id": user}, "name")
+def get_employee_name():
+	return frappe.get_value("Employee", {"user_id": frappe.session.user}, "name")
