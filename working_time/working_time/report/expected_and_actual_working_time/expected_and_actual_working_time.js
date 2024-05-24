@@ -49,9 +49,6 @@ frappe.query_reports["Expected and Actual Working Time"] = {
 
 		frappe.call({
 			method: "working_time.working_time.report.expected_and_actual_working_time.get_filter_values.get_employee_name",
-			args: {
-				"user": frappe.session.user
-			},
 			callback: function(r) {
 				if (r.message) {
 					var filter = report.get_filter("employee");
