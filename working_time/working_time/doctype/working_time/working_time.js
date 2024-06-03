@@ -43,3 +43,20 @@ frappe.ui.form.on("Working Time Log", {
 		frappe.model.set_value(cdt, cdn, "to_time", ""); // Otherwise Frappe may overwrite empty values with the current time on save.
 	},
 });
+
+// set billable time to 0% if Project is of Type "Internal", reset to 100% in case Project is "External"
+frappe.ui.form.on("Working Time Log", {
+	project: function(frm,cdt,cdn){
+		let child = locals[cdt][cdn];
+		frappe.db
+			.get_value("Project", child.project, "project_type")
+			.then(({ message }) => {
+				if (message && message.project_type == "Internal") {
+					frappe.model.set_value(cdt, cdn, "billable", "0%");
+   				}
+				if (message && message.project_type == "External") {
+					frappe.model.set_value(cdt, cdn, "billable", "100%");
+				}
+			});
+		},
+});
