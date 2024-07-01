@@ -58,5 +58,5 @@ frappe.ui.form.on("Working Time Log", {
 					frappe.model.set_value(cdt, cdn, "billable", "100%");
 				}
 			});
-		},
+	},
 });
