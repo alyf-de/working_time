@@ -44,9 +44,9 @@ frappe.ui.form.on("Working Time Log", {
 	},
 });
 
-// set billable time to 0% if Project is of Type "Internal", reset to 100% in case Project is "External"
 frappe.ui.form.on("Working Time Log", {
-	project: function(frm,cdt,cdn){
+	project: function (frm, cdt, cdn) {
+		// set billable time to 0% if Project is of Type "Internal", reset to 100% otherwise
 		let child = locals[cdt][cdn];
 		frappe.db
 			.get_value("Project", child.project, "project_type")
