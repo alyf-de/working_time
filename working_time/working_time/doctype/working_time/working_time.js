@@ -53,8 +53,7 @@ frappe.ui.form.on("Working Time Log", {
 			.then(({ message }) => {
 				if (message && message.project_type == "Internal") {
 					frappe.model.set_value(cdt, cdn, "billable", "0%");
-   				}
-				if (message && message.project_type == "External") {
+				} else {
 					frappe.model.set_value(cdt, cdn, "billable", "100%");
 				}
 			});
