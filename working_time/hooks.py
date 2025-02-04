@@ -106,13 +106,14 @@ after_install = "working_time.install.after_install"
 # Scheduled Tasks
 # ---------------
 
-# scheduler_events = {
+scheduler_events = {
 #	"all": [
 #		"working_time.tasks.all"
 #	],
-#	"daily": [
-#		"working_time.tasks.daily"
-#	],
+	"daily": [
+		"working_time.reminders.send_stale_reminders",
+		"working_time.reminders.send_month_end_reminders",
+	],
 #	"hourly": [
 #		"working_time.tasks.hourly"
 #	],
@@ -122,7 +123,7 @@ after_install = "working_time.install.after_install"
 #	"monthly": [
 #		"working_time.tasks.monthly"
 #	]
-# }
+}
 
 # Testing
 # -------
