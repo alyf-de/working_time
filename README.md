@@ -13,6 +13,9 @@ Companies that use Atlassian Jira for project management and ERPNext for time tr
 - Creates ERPNext **Timesheets**
 - Creates ERPNext **Attendances**
 - Report of actual vs. expected working time per Employee
+- Sends email reminders to employees for submitting their draft working time entries
+    - If a draft working time entry is older than 3 days, and
+    - on the last working day of the month
 
 ## Setup
 
