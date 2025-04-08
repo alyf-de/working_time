@@ -21,7 +21,7 @@ def execute(filters):
 	frappe.has_permission("Working Time", "read", throw=True)
 
 	return get_columns(), list(
-		get_data(employee, from_date, to_date, daily_working_hours)
+		get_data(employee, from_date, to_date, daily_working_hours, "working_time")
 	)
 
 
@@ -84,13 +84,13 @@ def daterange(start_date, end_date):
 		yield start_date + timedelta(n)
 
 
-def get_data(employee, from_date, to_date, daily_working_hours):
+def get_data(employee, from_date, to_date, daily_working_hours, fieldname):
 	holiday_list = frappe.db.get_value("Employee", employee, "holiday_list")
 	for current_date in daterange(from_date, to_date):
 		actual_working_time = frappe.get_list(
 			"Working Time",
 			filters={"employee": employee, "date": current_date, "docstatus": 1},
-			fields=["SUM(working_time)"],
+			fields=[f"SUM({fieldname})"],
 			as_list=True,
 		)[0][0] or 0
 
