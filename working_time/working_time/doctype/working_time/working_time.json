@@ -20,6 +20,9 @@
   "project_pct",
   "billable_pct",
   "break_time",
+  "stats_section",
+  "stats_html",
+  "section_break_cg6mr",
   "amended_from"
  ],
  "fields": [
@@ -124,6 +127,19 @@
    "fieldtype": "Percent",
    "label": "Billable %",
    "read_only": 1
+  },
+  {
+   "fieldname": "stats_html",
+   "fieldtype": "HTML",
+   "label": "Stats HTML"
+  },
+  {
+   "fieldname": "stats_section",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "section_break_cg6mr",
+   "fieldtype": "Section Break"
   }
  ],
  "is_submittable": 1,
@@ -137,7 +153,7 @@
    "link_fieldname": "working_time"
   }
  ],
- "modified": "2023-10-26 19:55:08.264363",
+ "modified": "2025-04-09 19:19:29.219995",
  "modified_by": "Administrator",
  "module": "Working Time",
  "name": "Working Time",

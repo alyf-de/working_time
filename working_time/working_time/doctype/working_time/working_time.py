@@ -7,8 +7,10 @@ import frappe
 from frappe import _
 from frappe.model.docstatus import DocStatus
 from frappe.model.document import Document
+from frappe.utils.data import add_to_date, flt, getdate
 
 from working_time.jira_utils import get_description, get_jira_issue_url
+from working_time.working_time.number_card.number_cards import get_chart_data
 
 HALF_DAY = 3.25
 OVERTIME_FACTOR = 1.15
@@ -227,3 +229,50 @@ def aggregate_time_logs(time_logs) -> dict[tuple[str | None, str | None], dict]:
                 }
 
     return aggregated_time_logs
+
+
+@frappe.whitelist()
+def get_working_time_stats(employee: str, date: str):
+    today = getdate(date)
+    start_of_last_month = getdate(add_to_date(today.replace(day=1), months=-1))
+    start_of_this_month = today.replace(day=1)
+    end_of_last_month = getdate(add_to_date(start_of_this_month, days=-1))
+
+    working_time_avg_last_month = get_chart_data(employee, start_of_last_month, end_of_last_month, "working_time")
+    working_time_avg_this_month = get_chart_data(employee, start_of_this_month, today, "working_time")
+    break_time_avg_last_month = get_chart_data(employee, start_of_last_month, end_of_last_month, "break_time")
+    break_time_avg_this_month = get_chart_data(employee, start_of_this_month, today, "break_time")
+    billing_time_avg_last_month = get_chart_data(employee, start_of_last_month, end_of_last_month, "billable_time")
+    billing_time_avg_this_month = get_chart_data(employee, start_of_this_month, today, "billable_time")
+    billing_time_ratio_last_month = billing_time_avg_last_month / working_time_avg_last_month if working_time_avg_last_month else 0
+    billing_time_ratio_this_month = billing_time_avg_this_month / working_time_avg_this_month if working_time_avg_this_month else 0
+
+    return [
+        {
+            "timespan": _("Last Month"),
+            "daily_working_hours": {
+                "value": flt(working_time_avg_last_month, 2),
+            },
+            "billing_time_ratio": {
+                "value": flt(billing_time_ratio_last_month, 2),
+            },
+            "daily_break_hours": {
+                "value": flt(break_time_avg_last_month, 2),
+            },
+        },
+        {
+            "timespan": _("This Month"),
+            "daily_working_hours": {
+                "value": flt(working_time_avg_this_month, 2),
+                "pct_change": flt(-1 * (1 - working_time_avg_this_month / working_time_avg_last_month), 2)
+            },
+            "billing_time_ratio": {
+                "value": flt(billing_time_ratio_this_month, 2),
+                "pct_change": flt(-1 * (1 - billing_time_ratio_this_month / billing_time_ratio_last_month), 2)
+            },
+            "daily_break_hours": {
+                "value": flt(break_time_avg_this_month, 2),
+                "pct_change": flt(-1 * (1 - break_time_avg_this_month / break_time_avg_last_month), 2)
+            },
+        },
+    ]
