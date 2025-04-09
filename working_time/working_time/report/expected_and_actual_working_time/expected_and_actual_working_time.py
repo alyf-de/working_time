@@ -103,6 +103,7 @@ def get_data(employee, from_date, to_date, daily_working_hours, fieldname):
 
 		attendance = next((attendance for attendance in attendance_list if attendance.attendance_date == current_date), None)
 		on_leave = int(bool(attendance and attendance.status == "On Leave"))
+		half_day = int(bool(attendance and attendance.status == "Half Day" and attendance.leave_type))
 
 		is_holiday = int(
 			bool(
@@ -116,6 +117,9 @@ def get_data(employee, from_date, to_date, daily_working_hours, fieldname):
 			expected_working_time = 0
 		else:
 			expected_working_time = daily_working_hours * 60 * 60
+
+		if half_day:
+			expected_working_time /= 2
 
 		yield (
 			current_date,
