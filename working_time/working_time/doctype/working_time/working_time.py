@@ -254,7 +254,7 @@ def get_working_time_stats(employee: str, date: str):
                 "value": flt(working_time_avg_last_month, 2),
             },
             "billing_time_ratio": {
-                "value": flt(billing_time_ratio_last_month, 2),
+                "value": flt(billing_time_ratio_last_month * 100, 2),
             },
             "daily_break_hours": {
                 "value": flt(break_time_avg_last_month, 2),
@@ -264,15 +264,15 @@ def get_working_time_stats(employee: str, date: str):
             "timespan": _("This Month"),
             "daily_working_hours": {
                 "value": flt(working_time_avg_this_month, 2),
-                "pct_change": flt(-1 * (1 - working_time_avg_this_month / working_time_avg_last_month), 2)
+                "pct_change": flt(-100 * (1 - working_time_avg_this_month / working_time_avg_last_month), 2)
             },
             "billing_time_ratio": {
-                "value": flt(billing_time_ratio_this_month, 2),
-                "pct_change": flt(-1 * (1 - billing_time_ratio_this_month / billing_time_ratio_last_month), 2)
+                "value": flt(billing_time_ratio_this_month * 100, 2),
+                "pct_change": flt(-100 * (1 - billing_time_ratio_this_month / billing_time_ratio_last_month), 2)
             },
             "daily_break_hours": {
                 "value": flt(break_time_avg_this_month, 2),
-                "pct_change": flt(-1 * (1 - break_time_avg_this_month / break_time_avg_last_month), 2)
+                "pct_change": flt(-100 * (1 - break_time_avg_this_month / break_time_avg_last_month), 2)
             },
         },
     ]
