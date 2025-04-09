@@ -86,6 +86,11 @@ def daterange(start_date, end_date):
 
 def get_data(employee, from_date, to_date, daily_working_hours, fieldname):
 	holiday_list = frappe.db.get_value("Employee", employee, "holiday_list")
+	attendance_list = frappe.get_all(
+		"Attendance",
+		filters={"employee": employee, "attendance_date": ("between", (from_date, to_date)), "docstatus": 1},
+		fields=["attendance_date", "status", "leave_type"],
+	)
 	for current_date in daterange(from_date, to_date):
 		actual_working_time = frappe.get_list(
 			"Working Time",
@@ -95,19 +100,10 @@ def get_data(employee, from_date, to_date, daily_working_hours, fieldname):
 		)[0][0] or 0
 
 		weekday = format_date(current_date, format="EEE", locale=frappe.local.lang)
-		on_leave = int(
-			bool(
-				frappe.db.exists(
-					"Attendance",
-					{
-						"employee": employee,
-						"attendance_date": current_date,
-						"status": "On Leave",
-						"docstatus": 1,
-					},
-				)
-			)
-		)
+
+		attendance = next((attendance for attendance in attendance_list if attendance.attendance_date == current_date), None)
+		on_leave = int(bool(attendance and attendance.status == "On Leave"))
+
 		is_holiday = int(
 			bool(
 				frappe.db.exists(
