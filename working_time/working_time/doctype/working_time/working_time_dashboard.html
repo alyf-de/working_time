@@ -2,16 +2,16 @@
 	<thead>
 		<tr>
 			<th style="width: 14%" class="text-left">{{ __("Timespan") }}</th>
-			<th style="width: 14%" class="text-left">{{ __("Daily Working Hours") }}</th>
+			<th style="width: 14%" class="text-left">{{ __("Daily Working Time") }}</th>
 			<th style="width: 14%" class="text-left">{{ __("Billing Time Ratio") }}</th>
-			<th style="width: 14%" class="text-left">{{ __("Daily Break Hours") }}</th>
+			<th style="width: 14%" class="text-left">{{ __("Daily Break Time") }}</th>
 		</tr>
 	</thead>
 	<tbody>
 		{% for(const row of data) { %}
 		<tr>
 			<td class="text-left"> {%= row.timespan %} </td>
-			{% for (const field of ["daily_working_hours", "billing_time_ratio", "daily_break_hours"]) { %}
+			{% for (const field of ["daily_working_time", "billing_time_ratio", "daily_break_time"]) { %}
 				<td class="text-right">
 					{% if (row[field].pct_change) { %}
 						<span class="badge {%= row[field].pct_change > 0 ? 'badge-success' : 'badge-danger' %}">
@@ -19,7 +19,7 @@
 							{%= frappe.format(row[field].pct_change, {fieldtype: "Percent"}, {inline: true}) %}
 						</span>
 					{% } %}
-					{%= frappe.format(row[field].value, {fieldtype: field === "billing_time_ratio" ? "Percent" : "Float", precision: 2}, {inline: true}) %}
+					{%= frappe.format(row[field].value, {fieldtype: field === "billing_time_ratio" ? "Percent" : "Duration", precision: 2, hide_seconds: 1}, {inline: true}) %}
 				</td>
 			{% } %}
 		</tr>

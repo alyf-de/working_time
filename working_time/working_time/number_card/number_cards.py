@@ -11,9 +11,8 @@ def get_chart_data(employee: str, from_date: str, to_date: str, fieldname: str):
 	data = list(get_data(employee, from_date, to_date, 0, fieldname))
 	total_seconds = sum(item[5] for item in data)
 	working_days = sum(not item[2] and not item[3] for item in data)
-	working_seconds_per_day = total_seconds / (working_days or 1)
+	return total_seconds / (working_days or 1)
 
-	return flt(working_seconds_per_day / 60 / 60, 2)
 
 
 def get_chart(fieldname: str):
@@ -22,7 +21,7 @@ def get_chart(fieldname: str):
 	employee = frappe.db.get_value("Employee", {"user_id": frappe.session.user})
 
 	return {
-		"value": get_chart_data(employee, from_date, to_date, fieldname),
+		"value": flt(get_chart_data(employee, from_date, to_date, fieldname) / 60 / 60, 2),
 		"fieldtype": "Float",
 		"route_options": {
 			"from_date": from_date,
