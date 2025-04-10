@@ -10,9 +10,9 @@ frappe.ui.form.on("Working Time", {
 			// Linked documents will get created on submit.
 			// Hide the dashboard if the document is not yet submitted.
 			frm.dashboard.hide();
-			frm.events.show_stats(frm);
+			frm.trigger("show_stats");
 		} else {
-			frm.events.hide_stats(frm);
+			frm.trigger("hide_stats");
 		}
 
 		if (frm.is_new() && !frm.doc.employee) {
@@ -29,7 +29,18 @@ frappe.ui.form.on("Working Time", {
 				}
 			});
 	},
+	date: function (frm) {
+		frm.trigger("show_stats");
+	},
+	employee: function (frm) {
+		frm.trigger("show_stats");
+	},
 	show_stats: function (frm) {
+		if (!frm.doc.employee || !frm.doc.date) {
+			frm.trigger("hide_stats");
+			return;
+		}
+
 		frappe
 			.xcall(
 				"working_time.working_time.doctype.working_time.working_time.get_working_time_stats",
