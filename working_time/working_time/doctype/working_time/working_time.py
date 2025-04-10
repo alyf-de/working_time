@@ -264,15 +264,25 @@ def get_working_time_stats(employee: str, date: str):
             "timespan": _("This Month"),
             "daily_working_time": {
                 "value": flt(working_time_avg_this_month, 2),
-                "pct_change": flt(-100 * (1 - working_time_avg_this_month / working_time_avg_last_month), 2)
+                "pct_change": get_pct_change(
+                    working_time_avg_this_month, working_time_avg_last_month
+                ),
             },
             "billing_time_ratio": {
                 "value": flt(billing_time_ratio_this_month * 100, 2),
-                "pct_change": flt(-100 * (1 - billing_time_ratio_this_month / billing_time_ratio_last_month), 2)
+                "pct_change": get_pct_change(
+                    billing_time_ratio_this_month, billing_time_ratio_last_month
+                ),
             },
             "daily_break_time": {
                 "value": flt(break_time_avg_this_month, 2),
-                "pct_change": flt(-100 * (1 - break_time_avg_this_month / break_time_avg_last_month), 2)
+                "pct_change": get_pct_change(
+                    break_time_avg_this_month, break_time_avg_last_month
+                ),
             },
         },
     ]
+
+
+def get_pct_change(new, old):
+    return flt(-100 * (1 - new / old), 2) if old else 0
