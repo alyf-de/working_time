@@ -3,8 +3,9 @@
 
 # import frappe
 from datetime import timedelta
+
 from frappe.model.document import Document
-from frappe.utils.data import time_diff_in_seconds, to_timedelta
+from frappe.utils.data import to_timedelta
 
 
 class WorkingTimeLog(Document):

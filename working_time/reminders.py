@@ -60,11 +60,13 @@ def send_month_end_reminders():
 			frappe.sendmail(
 				recipients=company_email,
 				subject=_("Remember to submit your working time"),
-				message=_("""Dear {first_name},
+				message=_(
+					"""Dear {first_name},
 
 {month} is almost over. Please remember to submit your <a href='{url}'>working time</a>.
 
-Thanks in advance!""").format(
+Thanks in advance!"""
+				).format(
 					first_name=first_name,
 					month=_(today.strftime("%B")),
 					url=get_url(f"/app/working-time?employee={employee}&docstatus=0"),
@@ -72,9 +74,7 @@ Thanks in advance!""").format(
 			)
 
 
-def get_holiday_dates(
-	holiday_list: str, first_date: date, last_date: date
-) -> list[date]:
+def get_holiday_dates(holiday_list: str, first_date: date, last_date: date) -> list[date]:
 	"""Get all holiday dates for a given holiday list and date range.
 
 	Args:
@@ -135,11 +135,13 @@ def send_stale_reminders(cutoff_days: int = 3):
 			frappe.sendmail(
 				recipients=employee,
 				subject=_("Remember to submit your working time"),
-				message=_("""Dear {first_name},
+				message=_(
+					"""Dear {first_name},
 
 Your have a draft <a href='{url}'>working time entry</a> that is older than {cutoff_days} days. Please submit it as soon as possible.
 
-Thanks in advance!""").format(
+Thanks in advance!"""
+				).format(
 					first_name=frappe.db.get_value("Employee", employee, "first_name"),
 					url=get_url(f"/app/working-time/{working_time}"),
 					cutoff_days=cutoff_days,
