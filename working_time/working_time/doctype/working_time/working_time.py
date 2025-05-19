@@ -56,7 +56,7 @@ class WorkingTime(Document):
         self.create_attendance()
         self.create_timesheets()
 
-    def on_cancel(self):
+    def before_cancel(self):
         self.delete_draft_timesheets()
         self.cancel_attendance()
 
