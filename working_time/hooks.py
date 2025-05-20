@@ -222,6 +222,13 @@ working_time_custom_fields = {
 			"insert_after": "jira_section",
 			"translatable": 0,
 		},
+		{
+			"fieldname": "default_key",
+			"label": "Default Key",
+			"fieldtype": "Data",
+			"insert_after": "jira_site",
+			"translatable": 0,
+		},
 	],
 	"Timesheet": [
 		{
