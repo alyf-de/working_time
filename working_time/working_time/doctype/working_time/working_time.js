@@ -4,6 +4,11 @@
 frappe.ui.form.on("Working Time", {
 	setup: function (frm) {
 		frm.set_query("employee", "erpnext.controllers.queries.employee_query");
+
+		if (!frappe.model.can_cancel("Attendance")) {
+			// handled by explicit cancel in backend, ignoring perms
+			frm.ignore_doctypes_on_cancel_all = ["Attendance"];
+		}
 	},
 	refresh: function (frm) {
 		if (frm.doc.docstatus === 0) {
