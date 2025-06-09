@@ -81,15 +81,16 @@ frappe.ui.form.on("Working Time Log", {
 		);
 		frappe.model.set_value(cdt, cdn, "to_time", ""); // Otherwise Frappe may overwrite empty values with the current time on save.
 	},
-});
-
-frappe.ui.form.on("Working Time Log", {
 	project: function (frm, cdt, cdn) {
 		// set billable time to 0% if Project is of Type "Internal", reset to 100% otherwise
 		const child = locals[cdt][cdn];
 		frappe.db
-			.get_value("Project", child.project, "project_type")
+			.get_value("Project", child.project, ["project_type", "default_key"])
 			.then(({ message }) => {
+				if (!child.key && message.default_key) {
+					frappe.model.set_value(cdt, cdn, "key", message.default_key);
+				}
+
 				if (message && message.project_type == "Internal") {
 					frappe.model.set_value(cdt, cdn, "billable", "0%");
 				} else {
