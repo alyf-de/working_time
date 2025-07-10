@@ -4,12 +4,20 @@
 frappe.ui.form.on("Working Time", {
 	setup: function (frm) {
 		frm.set_query("employee", "erpnext.controllers.queries.employee_query");
+
+		if (!frappe.model.can_cancel("Attendance")) {
+			// handled by explicit cancel in backend, ignoring perms
+			frm.ignore_doctypes_on_cancel_all = ["Attendance"];
+		}
 	},
 	refresh: function (frm) {
 		if (frm.doc.docstatus === 0) {
 			// Linked documents will get created on submit.
 			// Hide the dashboard if the document is not yet submitted.
 			frm.dashboard.hide();
+			frm.trigger("show_stats");
+		} else {
+			frm.trigger("hide_stats");
 		}
 
 		if (frm.is_new() && !frm.doc.employee) {
@@ -25,6 +33,42 @@ frappe.ui.form.on("Working Time", {
 					frm.set_value("employee", message.name);
 				}
 			});
+	},
+	date: function (frm) {
+		frm.trigger("show_stats");
+	},
+	employee: function (frm) {
+		frm.trigger("show_stats");
+	},
+	show_stats: function (frm) {
+		if (!frm.doc.employee || !frm.doc.date) {
+			frm.trigger("hide_stats");
+			return;
+		}
+
+		frappe
+			.xcall(
+				"working_time.working_time.doctype.working_time.working_time.get_working_time_stats",
+				{ employee: frm.doc.employee, date: frm.doc.date }
+			)
+			.then((message) => {
+				if (message) {
+					frm.set_df_property("stats_section", "hidden", 0);
+					frm.set_df_property(
+						"stats_html",
+						"options",
+						frappe.render_template("working_time_dashboard", {
+							data: message,
+						})
+					);
+					frm.refresh_field("stats_html");
+				}
+			});
+	},
+	hide_stats: function (frm) {
+		frm.set_df_property("stats_html", "options", "");
+		frm.set_df_property("stats_section", "hidden", 1);
+		frm.refresh_field("stats_html");
 	},
 });
 
@@ -42,15 +86,16 @@ frappe.ui.form.on("Working Time Log", {
 		);
 		frappe.model.set_value(cdt, cdn, "to_time", ""); // Otherwise Frappe may overwrite empty values with the current time on save.
 	},
-});
-
-frappe.ui.form.on("Working Time Log", {
 	project: function (frm, cdt, cdn) {
 		// set billable time to 0% if Project is of Type "Internal", reset to 100% otherwise
 		const child = locals[cdt][cdn];
 		frappe.db
-			.get_value("Project", child.project, "project_type")
+			.get_value("Project", child.project, ["project_type", "default_key"])
 			.then(({ message }) => {
+				if (!child.key && message.default_key) {
+					frappe.model.set_value(cdt, cdn, "key", message.default_key);
+				}
+
 				if (message && message.project_type == "Internal") {
 					frappe.model.set_value(cdt, cdn, "billable", "0%");
 				} else {

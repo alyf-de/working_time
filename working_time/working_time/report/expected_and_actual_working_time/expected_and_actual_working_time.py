@@ -21,7 +21,7 @@ def execute(filters):
 	frappe.has_permission("Working Time", "read", throw=True)
 
 	return get_columns(), list(
-		get_data(employee, from_date, to_date, daily_working_hours)
+		get_data(employee, from_date, to_date, daily_working_hours, "working_time")
 	)
 
 
@@ -84,30 +84,27 @@ def daterange(start_date, end_date):
 		yield start_date + timedelta(n)
 
 
-def get_data(employee, from_date, to_date, daily_working_hours):
+def get_data(employee, from_date, to_date, daily_working_hours, fieldname):
 	holiday_list = frappe.db.get_value("Employee", employee, "holiday_list")
+	attendance_list = frappe.get_all(
+		"Attendance",
+		filters={"employee": employee, "attendance_date": ("between", (from_date, to_date)), "docstatus": 1},
+		fields=["attendance_date", "status", "leave_type"],
+	)
 	for current_date in daterange(from_date, to_date):
 		actual_working_time = frappe.get_list(
 			"Working Time",
 			filters={"employee": employee, "date": current_date, "docstatus": 1},
-			fields=["SUM(working_time)"],
+			fields=[f"SUM({fieldname})"],
 			as_list=True,
 		)[0][0] or 0
 
 		weekday = format_date(current_date, format="EEE", locale=frappe.local.lang)
-		on_leave = int(
-			bool(
-				frappe.db.exists(
-					"Attendance",
-					{
-						"employee": employee,
-						"attendance_date": current_date,
-						"status": "On Leave",
-						"docstatus": 1,
-					},
-				)
-			)
-		)
+
+		attendance = next((attendance for attendance in attendance_list if attendance.attendance_date == current_date), None)
+		on_leave = int(bool(attendance and attendance.status == "On Leave"))
+		half_day = int(bool(attendance and attendance.status == "Half Day" and attendance.leave_type))
+
 		is_holiday = int(
 			bool(
 				frappe.db.exists(
@@ -120,6 +117,9 @@ def get_data(employee, from_date, to_date, daily_working_hours):
 			expected_working_time = 0
 		else:
 			expected_working_time = daily_working_hours * 60 * 60
+
+		if half_day:
+			expected_working_time /= 2
 
 		yield (
 			current_date,
