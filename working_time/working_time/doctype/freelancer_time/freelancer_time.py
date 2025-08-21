@@ -5,40 +5,31 @@ import math
 
 import frappe
 from frappe import _
-from frappe.model.document import Document
 from frappe.model.docstatus import DocStatus
+from frappe.model.document import Document
+from frappe.utils.data import date_diff
+
+from working_time.jira_utils import get_description, get_jira_issue_url
 from working_time.working_time.doctype.working_time.working_time import (
 	FIVE_MINUTES,
 	ONE_HOUR,
 	parse_note,
 )
-from working_time.jira_utils import get_description, get_jira_issue_url
-from frappe.utils.data import date_diff
 
 
 class FreelancerTime(Document):
 	def before_validate(self):
-		self.total_duration = sum(
-			log.duration for log in self.time_logs if log.duration
-		)
+		self.total_duration = sum(log.duration for log in self.time_logs if log.duration)
 
 	def validate(self):
 		self.validate_from_to_dates("from_date", "to_date")
 
 		for log in self.time_logs:
 			if date_diff(self.to_date, log.date) < 0:
-				frappe.throw(
-					_("The date in row {0} is after the end date.").format(
-						log.idx
-					)
-				)
+				frappe.throw(_("The date in row {0} is after the end date.").format(log.idx))
 
 			if date_diff(log.date, self.from_date) < 0:
-				frappe.throw(
-					_("The date in row {0} is before the start date.").format(
-						log.idx
-					)
-				)
+				frappe.throw(_("The date in row {0} is before the start date.").format(log.idx))
 
 	def on_submit(self):
 		self.create_timesheets()
@@ -50,9 +41,7 @@ class FreelancerTime(Document):
 		for log in self.time_logs:
 			if log.duration and log.project:
 				costing_rate = get_rate_and_currency(self.owner, log.date)
-				billing_hours = hours = (
-					math.ceil(log.duration / FIVE_MINUTES) * FIVE_MINUTES / ONE_HOUR
-				)
+				billing_hours = hours = math.ceil(log.duration / FIVE_MINUTES) * FIVE_MINUTES / ONE_HOUR
 
 				customer, billing_rate, jira_site = frappe.get_value(
 					"Project",
@@ -76,12 +65,8 @@ class FreelancerTime(Document):
 								"hours": hours,
 								"from_time": log.date,
 								"billing_hours": billing_hours,
-								"description": get_description(
-									jira_site, log.issue_key, customer_note
-								),
-								"jira_issue_url": get_jira_issue_url(
-									jira_site, log.issue_key
-								),
+								"description": get_description(jira_site, log.issue_key, customer_note),
+								"jira_issue_url": get_jira_issue_url(jira_site, log.issue_key),
 							}
 						],
 						"note": internal_note,
@@ -104,5 +89,5 @@ def get_rate_and_currency(user, date) -> float:
 		"Freelancer Rate",
 		{"user": user, "from_date": ("<=", date)},
 		"rate",
-		order_by="from_date DESC"
+		order_by="from_date DESC",
 	)

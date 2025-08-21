@@ -4,7 +4,7 @@
 import frappe
 
 COLUMNS = [
-    {
+	{
 		"fieldname": "employee",
 		"label": "Employee",
 		"fieldtype": "Link",

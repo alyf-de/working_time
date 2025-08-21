@@ -1,5 +1,3 @@
-from . import __version__ as app_version
-
 app_name = "working_time"
 app_title = "Working Time"
 app_publisher = "ALYF GmbH"
@@ -44,7 +42,7 @@ app_license = "-"
 
 # website user home page (by Role)
 # role_home_page = {
-#	"Role": "home_page"
+# 	"Role": "home_page"
 # }
 
 # Generators
@@ -76,11 +74,11 @@ after_install = "working_time.install.after_install"
 # Permissions evaluated in scripted ways
 
 # permission_query_conditions = {
-#	"Event": "frappe.desk.doctype.event.event.get_permission_query_conditions",
+# 	"Event": "frappe.desk.doctype.event.event.get_permission_query_conditions",
 # }
 #
 # has_permission = {
-#	"Event": "frappe.desk.doctype.event.event.has_permission",
+# 	"Event": "frappe.desk.doctype.event.event.has_permission",
 # }
 
 # DocType Class
@@ -88,7 +86,7 @@ after_install = "working_time.install.after_install"
 # Override standard doctype classes
 
 # override_doctype_class = {
-#	"ToDo": "custom_app.overrides.CustomToDo"
+# 	"ToDo": "custom_app.overrides.CustomToDo"
 # }
 
 # Document Events
@@ -96,33 +94,33 @@ after_install = "working_time.install.after_install"
 # Hook on document methods and events
 
 # doc_events = {
-#	"*": {
-#		"on_update": "method",
-#		"on_cancel": "method",
-#		"on_trash": "method"
-#	}
+# 	"*": {
+# 		"on_update": "method",
+# 		"on_cancel": "method",
+# 		"on_trash": "method"
+# 	}
 # }
 
 # Scheduled Tasks
 # ---------------
 
 scheduler_events = {
-#	"all": [
-#		"working_time.tasks.all"
-#	],
+	# 	"all": [
+	# 		"working_time.tasks.all"
+	# 	],
 	"daily": [
 		"working_time.reminders.send_stale_reminders",
 		"working_time.reminders.send_month_end_reminders",
 	],
-#	"hourly": [
-#		"working_time.tasks.hourly"
-#	],
-#	"weekly": [
-#		"working_time.tasks.weekly"
-#	]
-#	"monthly": [
-#		"working_time.tasks.monthly"
-#	]
+	# 	"hourly": [
+	# 		"working_time.tasks.hourly"
+	# 	],
+	# 	"weekly": [
+	# 		"working_time.tasks.weekly"
+	# 	]
+	# 	"monthly": [
+	# 		"working_time.tasks.monthly"
+	# 	]
 }
 
 # Testing
@@ -134,14 +132,14 @@ scheduler_events = {
 # ------------------------------
 #
 # override_whitelisted_methods = {
-#	"frappe.desk.doctype.event.event.get_events": "working_time.event.get_events"
+# 	"frappe.desk.doctype.event.event.get_events": "working_time.event.get_events"
 # }
 #
 # each overriding function accepts a `data` argument;
 # generated from the base implementation of the doctype dashboard,
 # along with any modifications made in other Frappe apps
 # override_doctype_dashboards = {
-#	"Task": "working_time.task.get_dashboard_data"
+# 	"Task": "working_time.task.get_dashboard_data"
 # }
 
 # exempt linked doctypes from being automatically cancelled
@@ -177,7 +175,7 @@ scheduler_events = {
 # --------------------------------
 
 # auth_hooks = [
-#	"working_time.auth.validate"
+# 	"working_time.auth.validate"
 # ]
 
 working_time_custom_fields = {

@@ -20,9 +20,7 @@ def execute(filters):
 	frappe.has_permission("Employee", "read", employee_doc, throw=True)
 	frappe.has_permission("Working Time", "read", throw=True)
 
-	return get_columns(), list(
-		get_data(employee, from_date, to_date, daily_working_hours, "working_time")
-	)
+	return get_columns(), list(get_data(employee, from_date, to_date, daily_working_hours, "working_time"))
 
 
 def get_columns():
@@ -88,29 +86,35 @@ def get_data(employee, from_date, to_date, daily_working_hours, fieldname):
 	holiday_list = frappe.db.get_value("Employee", employee, "holiday_list")
 	attendance_list = frappe.get_all(
 		"Attendance",
-		filters={"employee": employee, "attendance_date": ("between", (from_date, to_date)), "docstatus": 1},
+		filters={
+			"employee": employee,
+			"attendance_date": ("between", (from_date, to_date)),
+			"docstatus": 1,
+		},
 		fields=["attendance_date", "status", "leave_type"],
 	)
 	for current_date in daterange(from_date, to_date):
-		actual_working_time = frappe.get_list(
-			"Working Time",
-			filters={"employee": employee, "date": current_date, "docstatus": 1},
-			fields=[f"SUM({fieldname})"],
-			as_list=True,
-		)[0][0] or 0
+		actual_working_time = (
+			frappe.get_list(
+				"Working Time",
+				filters={"employee": employee, "date": current_date, "docstatus": 1},
+				fields=[f"SUM({fieldname})"],
+				as_list=True,
+			)[0][0]
+			or 0
+		)
 
 		weekday = format_date(current_date, format="EEE", locale=frappe.local.lang)
 
-		attendance = next((attendance for attendance in attendance_list if attendance.attendance_date == current_date), None)
+		attendance = next(
+			(attendance for attendance in attendance_list if attendance.attendance_date == current_date),
+			None,
+		)
 		on_leave = int(bool(attendance and attendance.status == "On Leave"))
 		half_day = int(bool(attendance and attendance.status == "Half Day" and attendance.leave_type))
 
 		is_holiday = int(
-			bool(
-				frappe.db.exists(
-					"Holiday", {"parent": holiday_list, "holiday_date": current_date}
-				)
-			)
+			bool(frappe.db.exists("Holiday", {"parent": holiday_list, "holiday_date": current_date}))
 		)
 
 		if current_date.isoweekday() in (6, 7) or on_leave or is_holiday:
