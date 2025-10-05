@@ -87,7 +87,9 @@ class WorkingTime(Document):
 	def create_timesheets(self):
 		aggregated_time_logs = aggregate_time_logs(self.time_logs)
 
-		for (project, key), data in aggregated_time_logs.items():
+		from_time = self.date
+
+		for (project, task, key), data in aggregated_time_logs.items():
 			costing_rate = get_costing_rate(self.employee)
 			customer, billing_rate, jira_site = frappe.get_value(
 				"Project",
@@ -102,13 +104,14 @@ class WorkingTime(Document):
 						{
 							"is_billable": int(data["billable_hours"] > 0),
 							"project": project,
+							"task": task,
 							"activity_type": "Default",
 							"base_billing_rate": billing_rate,
 							"base_costing_rate": costing_rate,
 							"costing_rate": costing_rate,
 							"billing_rate": billing_rate,
 							"hours": data["hours"],
-							"from_time": self.date,
+							"from_time": from_time,
 							"billing_hours": data["billable_hours"],
 							"description": get_description(jira_site, key, "; ".join(data["customer_notes"])),
 							"jira_issue_url": get_jira_issue_url(jira_site, key),
@@ -121,6 +124,8 @@ class WorkingTime(Document):
 					"working_time": self.name,
 				}
 			).insert()
+
+			from_time = add_to_date(from_time, hours=data["hours"])
 
 	def delete_draft_timesheets(self):
 		for timesheet in frappe.get_list(
@@ -199,15 +204,15 @@ def aggregate_time_logs(time_logs) -> dict[tuple[str | None, str | None], dict]:
 			hours, billing_hours = calculate_hours(log)
 			customer_note, internal_note = parse_note(log.note)
 
-			if (log.project, log.key) in aggregated_time_logs:
-				aggregated_time_logs[(log.project, log.key)]["hours"] += hours
-				aggregated_time_logs[(log.project, log.key)]["billable_hours"] += billing_hours
+			if (log.project, log.task, log.key) in aggregated_time_logs:
+				aggregated_time_logs[(log.project, log.task, log.key)]["hours"] += hours
+				aggregated_time_logs[(log.project, log.task, log.key)]["billable_hours"] += billing_hours
 				if customer_note:
-					aggregated_time_logs[(log.project, log.key)]["customer_notes"].add(customer_note)
+					aggregated_time_logs[(log.project, log.task, log.key)]["customer_notes"].add(customer_note)
 				if internal_note:
-					aggregated_time_logs[(log.project, log.key)]["internal_notes"].add(internal_note)
+					aggregated_time_logs[(log.project, log.task, log.key)]["internal_notes"].add(internal_note)
 			else:
-				aggregated_time_logs[(log.project, log.key)] = {
+				aggregated_time_logs[(log.project, log.task, log.key)] = {
 					"hours": hours,
 					"billable_hours": billing_hours,
 					"customer_notes": {customer_note} if customer_note else set(),
