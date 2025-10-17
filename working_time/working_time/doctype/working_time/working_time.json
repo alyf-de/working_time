@@ -120,12 +120,14 @@
    "fieldname": "project_pct",
    "fieldtype": "Percent",
    "label": "Project %",
+   "precision": "0",
    "read_only": 1
   },
   {
    "fieldname": "billable_pct",
    "fieldtype": "Percent",
    "label": "Billable %",
+   "precision": "0",
    "read_only": 1
   },
   {
@@ -142,6 +144,7 @@
    "fieldtype": "Section Break"
   }
  ],
+ "grid_page_length": 50,
  "is_submittable": 1,
  "links": [
   {
@@ -153,7 +156,7 @@
    "link_fieldname": "working_time"
   }
  ],
- "modified": "2025-04-09 19:19:29.219995",
+ "modified": "2025-10-17 14:41:15.770625",
  "modified_by": "Administrator",
  "module": "Working Time",
  "name": "Working Time",
@@ -189,6 +192,7 @@
    "write": 1
   }
  ],
+ "row_format": "Dynamic",
  "sort_field": "creation",
  "sort_order": "DESC",
  "states": [],
