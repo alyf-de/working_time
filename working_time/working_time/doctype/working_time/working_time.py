@@ -188,12 +188,12 @@ def calculate_hours(log) -> tuple[float, float]:
 	return hours, billing_hours
 
 
-def aggregate_time_logs(time_logs) -> dict[tuple[str | None, str | None], dict]:
+def aggregate_time_logs(time_logs) -> dict[tuple[str | None, str | None, str | None], dict]:
 	"""Aggregate time logs by project and issue key."""
 	aggregated_time_logs = {
-		# (log.project, log.key): {
-		#     cutomer_notes: set(),
-		#     internal_notes: set(),
+		# (log.project, log.task, log.key): {
+		#     customer_notes: [],
+		#     internal_notes: [],
 		#     billable_hours: 0,
 		#     hours: 0,
 		# }
@@ -207,16 +207,20 @@ def aggregate_time_logs(time_logs) -> dict[tuple[str | None, str | None], dict]:
 			if (log.project, log.task, log.key) in aggregated_time_logs:
 				aggregated_time_logs[(log.project, log.task, log.key)]["hours"] += hours
 				aggregated_time_logs[(log.project, log.task, log.key)]["billable_hours"] += billing_hours
-				if customer_note:
-					aggregated_time_logs[(log.project, log.task, log.key)]["customer_notes"].add(customer_note)
-				if internal_note:
-					aggregated_time_logs[(log.project, log.task, log.key)]["internal_notes"].add(internal_note)
+
+				customer_notes = aggregated_time_logs[(log.project, log.task, log.key)]["customer_notes"]
+				if customer_note and (not customer_notes or customer_notes[-1] != customer_note):
+					customer_notes.append(customer_note)
+
+				internal_notes = aggregated_time_logs[(log.project, log.task, log.key)]["internal_notes"]
+				if internal_note and (not internal_notes or internal_notes[-1] != internal_note):
+					internal_notes.append(internal_note)
 			else:
 				aggregated_time_logs[(log.project, log.task, log.key)] = {
 					"hours": hours,
 					"billable_hours": billing_hours,
-					"customer_notes": {customer_note} if customer_note else set(),
-					"internal_notes": {internal_note} if internal_note else set(),
+					"customer_notes": [customer_note] if customer_note else [],
+					"internal_notes": [internal_note] if internal_note else [],
 				}
 
 	return aggregated_time_logs

@@ -1,12 +1,15 @@
 # Copyright (c) 2024, ALYF GmbH and contributors
 # For license information, please see license.txt
-
 from datetime import timedelta
+from typing import TYPE_CHECKING
 
 import frappe
 from babel.dates import format_date
 from frappe import _
 from frappe.utils.data import getdate
+
+if TYPE_CHECKING:
+	from erpnext.setup.doctype.employee.employee import Employee
 
 
 def execute(filters):
@@ -16,9 +19,15 @@ def execute(filters):
 	daily_working_hours = filters.get("daily_working_hours")
 
 	# check permissions
-	employee_doc = frappe.get_doc("Employee", employee)
+	employee_doc: Employee = frappe.get_doc("Employee", employee)
 	frappe.has_permission("Employee", "read", employee_doc, throw=True)
 	frappe.has_permission("Working Time", "read", throw=True)
+
+	if employee_doc.date_of_joining:
+		from_date = max(from_date, employee_doc.date_of_joining)
+
+	if employee_doc.relieving_date:
+		to_date = min(to_date, employee_doc.relieving_date)
 
 	return get_columns(), list(get_data(employee, from_date, to_date, daily_working_hours, "working_time"))
 

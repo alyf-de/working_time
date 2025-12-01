@@ -16,10 +16,10 @@
 					{% if (row[field].pct_change) { %}
 						<span class="badge {%= row[field].pct_change > 0 ? 'badge-success' : 'badge-danger' %}">
 							{%= row[field].pct_change > 0 ? '+' : '' %}
-							{%= frappe.format(row[field].pct_change, {fieldtype: "Percent"}, {inline: true}) %}
+							{%= frappe.format(row[field].pct_change, {fieldtype: "Percent", precision: "0"}, {inline: true}) %}
 						</span>
 					{% } %}
-					{%= frappe.format(row[field].value, {fieldtype: field === "billing_time_ratio" ? "Percent" : "Duration", precision: 2, hide_seconds: 1}, {inline: true}) %}
+					{%= frappe.format(row[field].value, {fieldtype: field === "billing_time_ratio" ? "Percent" : "Duration", precision: "0", hide_seconds: 1}, {inline: true}) %}
 				</td>
 			{% } %}
 		</tr>
