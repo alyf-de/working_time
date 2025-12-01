@@ -187,7 +187,7 @@ def aggregate_time_logs(time_logs) -> dict[tuple[str | None, str | None], dict]:
 	"""Aggregate time logs by project and issue key."""
 	aggregated_time_logs = {
 		# (log.project, log.key): {
-		#     cutomer_notes: [],
+		#     customer_notes: [],
 		#     internal_notes: [],
 		#     billable_hours: 0,
 		#     hours: 0,
