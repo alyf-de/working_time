@@ -27,6 +27,7 @@ Companies that use Atlassian Jira for project management and ERPNext for time tr
    ```
 
 - Create a **Jira Site**, enter your _Site URL_, _Username_ and _API Token_
+- Enable _Ignore Employee Time Overlap_ and _Ignore User Time Overlap_ in **Projects Settings**
 - Open or create an ERPNext **Project**
     - Link it to your **Jira Site**
     - Set the _Billing Rate per Hour_

@@ -42,6 +42,7 @@ class TestWorkingTime(unittest.TestCase):
 			_dict(
 				project="Project B",
 				key="KEY-2",
+				task="Task B",
 				duration=3600,
 				billable="100%",
 				note="+Customer Note 1",
@@ -49,6 +50,7 @@ class TestWorkingTime(unittest.TestCase):
 			_dict(
 				project="Project B",
 				key="KEY-2",
+				task="Task B",
 				duration=3600,
 				billable="100%",
 				note="+Customer Note 1",  # Duplicate, should be ignored
@@ -58,7 +60,7 @@ class TestWorkingTime(unittest.TestCase):
 		result = aggregate_time_logs(logs)
 
 		# Check Project A
-		project_a = result[("Project A", "KEY-1")]
+		project_a = result[("Project A", None, "KEY-1")]
 		self.assertEqual(project_a["hours"], 3.0)
 		self.assertEqual(
 			project_a["internal_notes"], ["Internal Note 1", "Internal Note 2", "Internal Note 1"]
@@ -66,7 +68,7 @@ class TestWorkingTime(unittest.TestCase):
 		self.assertEqual(project_a["customer_notes"], [])
 
 		# Check Project B
-		project_b = result[("Project B", "KEY-2")]
+		project_b = result[("Project B", "Task B", "KEY-2")]
 		self.assertEqual(project_b["hours"], 2.0)
 		self.assertEqual(project_b["internal_notes"], [])
 		self.assertEqual(project_b["customer_notes"], ["Customer Note 1"])
