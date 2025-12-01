@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 	from erpnext.setup.doctype.employee.employee import Employee
 
 
-def execute(filters) :
+def execute(filters):
 	employee = filters.get("employee")
 	from_date = getdate(filters.get("from_date"))
 	to_date = getdate(filters.get("to_date"))
