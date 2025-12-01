@@ -87,8 +87,6 @@ class WorkingTime(Document):
 	def create_timesheets(self):
 		aggregated_time_logs = aggregate_time_logs(self.time_logs)
 
-		from_time = self.date
-
 		for (project, task, key), data in aggregated_time_logs.items():
 			costing_rate = get_costing_rate(self.employee)
 			customer, billing_rate, jira_site = frappe.get_value(
@@ -111,7 +109,7 @@ class WorkingTime(Document):
 							"costing_rate": costing_rate,
 							"billing_rate": billing_rate,
 							"hours": data["hours"],
-							"from_time": from_time,
+							"from_time": self.date,
 							"billing_hours": data["billable_hours"],
 							"description": get_description(jira_site, key, "; ".join(data["customer_notes"])),
 							"jira_issue_url": get_jira_issue_url(jira_site, key),
@@ -124,8 +122,6 @@ class WorkingTime(Document):
 					"working_time": self.name,
 				}
 			).insert()
-
-			from_time = add_to_date(from_time, hours=data["hours"])
 
 	def delete_draft_timesheets(self):
 		for timesheet in frappe.get_list(
