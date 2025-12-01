@@ -27,7 +27,7 @@ on:
       - "**.po"
 
 concurrency:
-  group: version-15-working_time-${{ github.event.number }}
+  group: version-15-working_time-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
