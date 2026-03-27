@@ -146,6 +146,10 @@ scheduler_events = {
 #
 # auto_cancel_exempted_doctypes = ["Auto Repeat"]
 
+# Translation
+# ------------
+# List of apps whose translatable strings should be excluded from this app's translations.
+ignore_translatable_strings_from = ["frappe", "erpnext", "hrms"]
 
 # User Data Protection
 # --------------------

@@ -1,0 +1,388 @@
+# Translations template for Working Time.
+# Copyright (C) 2026 ALYF GmbH
+# This file is distributed under the same license as the Working Time project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Working Time VERSION\n"
+"Report-Msgid-Bugs-To: hallo@alyf.de\n"
+"POT-Creation-Date: 2026-03-27 14:57+0053\n"
+"PO-Revision-Date: 2026-03-27 14:57+0053\n"
+"Last-Translator: hallo@alyf.de\n"
+"Language-Team: hallo@alyf.de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.13.1\n"
+
+#. Option for the 'Billable' (Select) field in DocType 'Working Time Log'
+#: working_time/working_time/doctype/working_time_log/working_time_log.json
+msgid "0%"
+msgstr ""
+
+#. Option for the 'Billable' (Select) field in DocType 'Working Time Log'
+#: working_time/working_time/doctype/working_time_log/working_time_log.json
+msgid "100%"
+msgstr ""
+
+#. Option for the 'Billable' (Select) field in DocType 'Working Time Log'
+#: working_time/working_time/doctype/working_time_log/working_time_log.json
+msgid "125%"
+msgstr ""
+
+#. Option for the 'Billable' (Select) field in DocType 'Working Time Log'
+#: working_time/working_time/doctype/working_time_log/working_time_log.json
+msgid "150%"
+msgstr ""
+
+#. Option for the 'Billable' (Select) field in DocType 'Working Time Log'
+#: working_time/working_time/doctype/working_time_log/working_time_log.json
+msgid "25%"
+msgstr ""
+
+#. Option for the 'Billable' (Select) field in DocType 'Working Time Log'
+#: working_time/working_time/doctype/working_time_log/working_time_log.json
+msgid "50%"
+msgstr ""
+
+#. Option for the 'Billable' (Select) field in DocType 'Working Time Log'
+#: working_time/working_time/doctype/working_time_log/working_time_log.json
+msgid "75%"
+msgstr ""
+
+#. Content of the 'note_explainer' (HTML) field in DocType 'Freelancer Time'
+#. Content of the 'note_explainer' (HTML) field in DocType 'Working Time'
+#: working_time/working_time/doctype/freelancer_time/freelancer_time.json
+#: working_time/working_time/doctype/working_time/working_time.json
+msgid "<p class=\"text-muted\">Notes starting with <code>\"+ \"</code> will get printed on the invoice, if any.<br>Other notes will be treated as internal.</p><p></p>"
+msgstr ""
+
+#. Header text in the Time Tracking Workspace
+#: working_time/working_time/workspace/time_tracking/time_tracking.json
+msgid "<span class=\"h4\">Time Tracking</span>"
+msgstr ""
+
+#. Label of a Password field in DocType 'Jira Site'
+#: working_time/working_time/doctype/jira_site/jira_site.json
+msgid "API Token"
+msgstr ""
+
+#: working_time/working_time/report/expected_and_actual_working_time/expected_and_actual_working_time.py:66
+msgid "Actual Working Time"
+msgstr ""
+
+#. Label of a Select field in DocType 'Working Time Log'
+#: working_time/working_time/doctype/working_time_log/working_time_log.json
+msgid "Billable"
+msgstr ""
+
+#. Label of a Percent field in DocType 'Working Time'
+#: working_time/working_time/doctype/working_time/working_time.json
+msgid "Billable %"
+msgstr ""
+
+#. Label of a Duration field in DocType 'Working Time'
+#: working_time/working_time/doctype/working_time/working_time.json
+msgid "Billable Time"
+msgstr ""
+
+#: working_time/working_time/doctype/working_time/working_time_dashboard.html:6
+msgid "Billing Time Ratio"
+msgstr ""
+
+#. Label of a Check field in DocType 'Working Time Policy'
+#: working_time/working_time/doctype/working_time_policy/working_time_policy.json
+msgid "Block holidays"
+msgstr ""
+
+#. Label of a Select field in DocType 'Working Time Blocked Day'
+#: working_time/working_time/doctype/working_time_blocked_day/working_time_blocked_day.json
+msgid "Blocked Day"
+msgstr ""
+
+#. Label of a Table field in DocType 'Working Time Policy'
+#: working_time/working_time/doctype/working_time_policy/working_time_policy.json
+msgid "Blocked Days"
+msgstr ""
+
+#. Description of the 'Block holidays' (Check) field in DocType 'Working Time
+#. Policy'
+#: working_time/working_time/doctype/working_time_policy/working_time_policy.json
+msgid "Blocks real holidays from an employee's holiday list. Ignores weekly off."
+msgstr ""
+
+#. Label of a Duration field in DocType 'Working Time'
+#. Label of a Check field in DocType 'Working Time Log'
+#: working_time/working_time/doctype/working_time/working_time.json
+#: working_time/working_time/doctype/working_time_log/working_time_log.json
+msgid "Break"
+msgstr ""
+
+#. Label of a number card in the Time Tracking Workspace
+#: working_time/working_time/workspace/time_tracking/time_tracking.json
+msgid "Daily Billable Time (this month)"
+msgstr ""
+
+#: working_time/working_time/doctype/working_time/working_time_dashboard.html:7
+msgid "Daily Break Time"
+msgstr ""
+
+#. Label of a number card in the Time Tracking Workspace
+#: working_time/working_time/workspace/time_tracking/time_tracking.json
+msgid "Daily Break Time (this month)"
+msgstr ""
+
+#. Label of a number card in the Time Tracking Workspace
+#: working_time/working_time/workspace/time_tracking/time_tracking.json
+msgid "Daily Project Time (this month)"
+msgstr ""
+
+#: working_time/working_time/report/expected_and_actual_working_time/expected_and_actual_working_time.js:46
+msgid "Daily Working Hours"
+msgstr ""
+
+#: working_time/working_time/doctype/working_time/working_time_dashboard.html:5
+msgid "Daily Working Time"
+msgstr ""
+
+#: working_time/reminders.py:138
+msgid ""
+"Dear {first_name},\n"
+"\n"
+"Your have a draft <a href='{url}'>working time entry</a> that is older than {cutoff_days} days. Please submit it as soon as possible.\n"
+"\n"
+"Thanks in advance!"
+msgstr ""
+
+#: working_time/reminders.py:63
+msgid ""
+"Dear {first_name},\n"
+"\n"
+"{month} is almost over. Please remember to submit your <a href='{url}'>working time</a>.\n"
+"\n"
+"Thanks in advance!"
+msgstr ""
+
+#: working_time/working_time/report/expected_and_actual_working_time/expected_and_actual_working_time.py:58
+msgid "Expected Working Time"
+msgstr ""
+
+#. Name of a report
+#. Label of a Link in the Time Tracking Workspace
+#: working_time/working_time/report/expected_and_actual_working_time/expected_and_actual_working_time.json
+#: working_time/working_time/workspace/time_tracking/time_tracking.json
+msgid "Expected and Actual Working Time"
+msgstr ""
+
+#. Name of a role
+#: working_time/working_time/doctype/freelancer_time/freelancer_time.json
+msgid "Freelancer"
+msgstr ""
+
+#. Name of a DocType
+#. Label of a Link in the Time Tracking Workspace
+#: working_time/working_time/doctype/freelancer_rate/freelancer_rate.json
+#: working_time/working_time/workspace/time_tracking/time_tracking.json
+msgid "Freelancer Rate"
+msgstr ""
+
+#. Name of a DocType
+#. Label of a Link in the Time Tracking Workspace
+#: working_time/working_time/doctype/freelancer_time/freelancer_time.json
+#: working_time/working_time/workspace/time_tracking/time_tracking.json
+msgid "Freelancer Time"
+msgstr ""
+
+#. Name of a DocType
+#: working_time/working_time/doctype/freelancer_time_log/freelancer_time_log.json
+msgid "Freelancer Time Log"
+msgstr ""
+
+#. Description of the 'Note' (Small Text) field in DocType 'Working Time Log'
+#: working_time/working_time/doctype/working_time_log/working_time_log.json
+msgid "If the Issue Key is missing or needs additional explanation. Start with a \"+\" to get this printed on the invoice."
+msgstr ""
+
+#: working_time/working_time/report/expected_and_actual_working_time/expected_and_actual_working_time.py:52
+msgid "Is Holiday"
+msgstr ""
+
+#. Label of a Data field in DocType 'Freelancer Time Log'
+#: working_time/working_time/doctype/freelancer_time_log/freelancer_time_log.json
+msgid "Issue Key"
+msgstr ""
+
+#. Name of a DocType
+#. Label of a Link in the Time Tracking Workspace
+#: working_time/working_time/doctype/jira_site/jira_site.json
+#: working_time/working_time/workspace/time_tracking/time_tracking.json
+msgid "Jira Site"
+msgstr ""
+
+#. Label of a Data field in DocType 'Working Time Log'
+#: working_time/working_time/doctype/working_time_log/working_time_log.json
+msgid "Jira-Key"
+msgstr ""
+
+#. Label of a Table field in DocType 'Working Time Policy'
+#: working_time/working_time/doctype/working_time_policy/working_time_policy.json
+msgid "Mandatory Breaks"
+msgstr ""
+
+#. Label of a Duration field in DocType 'Working Time Policy'
+#: working_time/working_time/doctype/working_time_policy/working_time_policy.json
+msgid "Max Working Time Per Day"
+msgstr ""
+
+#. Label of a Duration field in DocType 'Working Time Policy'
+#: working_time/working_time/doctype/working_time_policy/working_time_policy.json
+msgid "Min Rest Between Days"
+msgstr ""
+
+#. Label of a shortcut in the Time Tracking Workspace
+#: working_time/working_time/workspace/time_tracking/time_tracking.json
+msgid "New Freelancer Time"
+msgstr ""
+
+#. Label of a shortcut in the Time Tracking Workspace
+#: working_time/working_time/workspace/time_tracking/time_tracking.json
+msgid "New Working Time"
+msgstr ""
+
+#: working_time/working_time/report/expected_and_actual_working_time/expected_and_actual_working_time.py:82
+msgid "Not Plausible"
+msgstr ""
+
+#: working_time/working_time/doctype/working_time/working_time_dashboard.html:30
+msgid "Only submitted working times are considered in this table."
+msgstr ""
+
+#: working_time/working_time/doctype/working_time/working_time.py:55
+msgid "Please add an issue key or invoice note to the billable row {0}"
+msgstr ""
+
+#: working_time/working_time/doctype/working_time/working_time.py:46
+msgid "Please fix negative duration in row {0}"
+msgstr ""
+
+#. Label of a Percent field in DocType 'Working Time'
+#: working_time/working_time/doctype/working_time/working_time.json
+msgid "Project %"
+msgstr ""
+
+#. Label of a Duration field in DocType 'Working Time'
+#: working_time/working_time/doctype/working_time/working_time.json
+msgid "Project Time"
+msgstr ""
+
+#: working_time/reminders.py:62 working_time/reminders.py:137
+msgid "Remember to submit your working time"
+msgstr ""
+
+#. Label of a Duration field in DocType 'Working Time Break Policy'
+#: working_time/working_time/doctype/working_time_break_policy/working_time_break_policy.json
+msgid "Required Break Minutes"
+msgstr ""
+
+#: working_time/working_time/doctype/working_time/working_time.py:164
+msgid "Rest time since previous day ({0}) is less than the required minimum ({1})"
+msgstr ""
+
+#. Label of a Data field in DocType 'Jira Site'
+#: working_time/working_time/doctype/jira_site/jira_site.json
+msgid "Site URL"
+msgstr ""
+
+#. Label of a HTML field in DocType 'Working Time'
+#: working_time/working_time/doctype/working_time/working_time.json
+msgid "Stats HTML"
+msgstr ""
+
+#: working_time/working_time/doctype/working_time/working_time_dashboard.html:32
+msgid "The data is cached and updated every 8 hours."
+msgstr ""
+
+#: working_time/working_time/doctype/freelancer_time/freelancer_time.py:29
+msgid "The date in row {0} is after the end date."
+msgstr ""
+
+#: working_time/working_time/doctype/freelancer_time/freelancer_time.py:32
+msgid "The date in row {0} is before the start date."
+msgstr ""
+
+#. Label of a Duration field in DocType 'Freelancer Time'
+#: working_time/working_time/doctype/freelancer_time/freelancer_time.json
+msgid "Total Duration"
+msgstr ""
+
+#. Label of a Duration field in DocType 'Working Time Break Policy'
+#: working_time/working_time/doctype/working_time_break_policy/working_time_break_policy.json
+msgid "Work Threshold"
+msgstr ""
+
+#. Name of a DocType
+#. Label of a Duration field in DocType 'Working Time'
+#. Label of a Link in the Time Tracking Workspace
+#: working_time/config/desktop.py:11
+#: working_time/working_time/doctype/working_time/working_time.json
+#: working_time/working_time/workspace/time_tracking/time_tracking.json
+msgid "Working Time"
+msgstr ""
+
+#. Label of a number card in the Time Tracking Workspace
+#: working_time/working_time/workspace/time_tracking/time_tracking.json
+msgid "Working Time (this month)"
+msgstr ""
+
+#. Name of a DocType
+#: working_time/working_time/doctype/working_time_blocked_day/working_time_blocked_day.json
+msgid "Working Time Blocked Day"
+msgstr ""
+
+#. Name of a DocType
+#: working_time/working_time/doctype/working_time_break_policy/working_time_break_policy.json
+msgid "Working Time Break Policy"
+msgstr ""
+
+#. Name of a DocType
+#: working_time/working_time/doctype/working_time_log/working_time_log.json
+msgid "Working Time Log"
+msgstr ""
+
+#. Name of a DocType
+#: working_time/working_time/doctype/working_time_policy/working_time_policy.json
+msgid "Working Time Policy"
+msgstr ""
+
+#. Name of a report
+#: working_time/working_time/report/working_time_summary/working_time_summary.json
+msgid "Working Time Summary"
+msgstr ""
+
+#: working_time/working_time/doctype/working_time/working_time.py:107
+msgid "Working time ({0}) exceeds the maximum allowed ({1}) per day"
+msgstr ""
+
+#: working_time/working_time/doctype/working_time/working_time.py:120
+msgid "Working time of {0} or more requires at least {1} of break time"
+msgstr ""
+
+#. Description of the 'Site URL' (Data) field in DocType 'Jira Site'
+#: working_time/working_time/doctype/jira_site/jira_site.json
+msgid "e.g. your-domain.atlassian.net"
+msgstr ""
+
+#: working_time/working_time/doctype/working_time/working_time.py:80
+msgid "{0} is a blocked day according to the Working Time Policy"
+msgstr ""
+
+#: working_time/working_time/doctype/working_time/working_time.py:96
+msgid "{0} is a holiday according to your holiday list"
+msgstr ""
+
+#. Count format of shortcut in the Time Tracking Workspace
+#: working_time/working_time/workspace/time_tracking/time_tracking.json
+msgid "{} Drafts"
+msgstr ""
+
