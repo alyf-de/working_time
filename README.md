@@ -16,6 +16,12 @@ Companies that use Atlassian Jira for project management and ERPNext for time tr
 - Sends email reminders to employees for submitting their draft working time entries
     - If a draft working time entry is older than 3 days, and
     - on the last working day of the month
+- **Working Time Policy** enforcement per employee, including:
+    - Maximum working time per day
+    - Mandatory break requirements based on working time thresholds
+    - Minimum rest time between days
+    - Blocked weekdays
+    - Holiday blocking (based on the employee's holiday list)
 
 ## Setup
 
