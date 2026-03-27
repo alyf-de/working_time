@@ -2,12 +2,13 @@
 # For license information, please see license.txt
 
 import math
+from datetime import datetime
 
 import frappe
 from frappe import _
 from frappe.model.docstatus import DocStatus
 from frappe.model.document import Document
-from frappe.utils.data import add_to_date, flt, getdate
+from frappe.utils.data import add_to_date, flt, format_duration, get_time, getdate
 
 from working_time.jira_utils import get_description, get_jira_issue_url
 from working_time.working_time.number_card.number_cards import get_chart_data
@@ -53,6 +54,118 @@ class WorkingTime(Document):
 				frappe.throw(
 					_("Please add an issue key or invoice note to the billable row {0}").format(log.idx)
 				)
+
+		self.validate_working_time_policy()
+
+	def validate_working_time_policy(self):
+		policy_name = frappe.db.get_value("Employee", self.employee, "working_time_policy")
+		if not policy_name:
+			return
+
+		policy = frappe.get_doc("Working Time Policy", policy_name)
+
+		self.validate_blocked_day(policy)
+		self.validate_holiday_block(policy)
+		self.validate_max_working_time(policy)
+		self.validate_mandatory_breaks(policy)
+		self.validate_min_rest_between_days(policy)
+
+	def validate_blocked_day(self, policy):
+		if not policy.blocked_days:
+			return
+
+		day_name = getdate(self.date).strftime("%A")
+		blocked_days = [row.blocked_day for row in policy.blocked_days]
+		if day_name in blocked_days:
+			frappe.throw(_("{0} is a blocked day according to the Working Time Policy").format(day_name))
+
+	def validate_holiday_block(self, policy):
+		if not policy.consider_holiday_list:
+			return
+
+		holiday_list = frappe.db.get_value("Employee", self.employee, "holiday_list")
+		if not holiday_list:
+			return
+
+		is_holiday = frappe.db.exists(
+			"Holiday",
+			{"parent": holiday_list, "holiday_date": self.date, "weekly_off": 0},
+		)
+		if is_holiday:
+			frappe.throw(
+				_("{0} is a holiday according to your holiday list").format(
+					frappe.utils.format_date(self.date)
+				)
+			)
+
+	def validate_max_working_time(self, policy):
+		if not policy.max_working_time_per_day:
+			return
+
+		if self.working_time > policy.max_working_time_per_day:
+			frappe.throw(
+				_("Working time ({0}) exceeds the maximum allowed ({1}) per day").format(
+					format_duration(self.working_time),
+					format_duration(policy.max_working_time_per_day),
+				)
+			)
+
+	def validate_mandatory_breaks(self, policy):
+		if not policy.mandatory_breaks:
+			return
+
+		for row in policy.mandatory_breaks:
+			if self.working_time >= row.work_threshold and self.break_time < row.required_break_minutes:
+				frappe.throw(
+					_("Working time of {0} or more requires at least {1} of break time").format(
+						format_duration(row.work_threshold),
+						format_duration(row.required_break_minutes),
+					)
+				)
+
+	def validate_min_rest_between_days(self, policy):
+		if not policy.min_rest_between_days or not self.time_logs:
+			return
+
+		previous = frappe.db.get_value(
+			"Working Time",
+			{
+				"employee": self.employee,
+				"date": ("<", self.date),
+				"docstatus": ("!=", 2),
+				"name": ("!=", self.name),
+			},
+			["name", "date"],
+			order_by="date desc",
+			as_dict=True,
+		)
+		if not previous:
+			return
+
+		last_to_time = frappe.db.get_value(
+			"Working Time Log",
+			{"parent": previous.name, "to_time": ("is", "set")},
+			"to_time",
+			order_by="to_time desc",
+		)
+		if not last_to_time:
+			return
+
+		first_from_time = self.time_logs[0].from_time
+		if not first_from_time:
+			return
+
+		prev_end = datetime.combine(getdate(previous.date), get_time(last_to_time))
+		curr_start = datetime.combine(getdate(self.date), get_time(first_from_time))
+		rest_seconds = (curr_start - prev_end).total_seconds()
+
+		if rest_seconds < policy.min_rest_between_days:
+			frappe.throw(
+				_("Rest time since previous day ({0}) is less than the required minimum ({1})").format(
+					format_duration(rest_seconds),
+					format_duration(policy.min_rest_between_days),
+				)
+			)
 
 	def on_submit(self):
 		self.create_attendance()

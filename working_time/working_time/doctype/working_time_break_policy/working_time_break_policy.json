@@ -1,0 +1,46 @@
+{
+ "actions": [],
+ "creation": "2026-03-27 14:25:27.429674",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "work_threshold",
+  "required_break_minutes"
+ ],
+ "fields": [
+  {
+   "fieldname": "work_threshold",
+   "fieldtype": "Duration",
+   "hide_days": 1,
+   "hide_seconds": 1,
+   "in_list_view": 1,
+   "label": "Work Threshold",
+   "reqd": 1
+  },
+  {
+   "fieldname": "required_break_minutes",
+   "fieldtype": "Duration",
+   "hide_days": 1,
+   "hide_seconds": 1,
+   "in_list_view": 1,
+   "label": "Required Break Minutes",
+   "reqd": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-03-27 14:45:08.875261",
+ "modified_by": "Administrator",
+ "module": "Working Time",
+ "name": "Working Time Break Policy",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

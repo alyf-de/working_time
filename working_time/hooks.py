@@ -259,4 +259,13 @@ working_time_custom_fields = {
 			"read_only": 1,
 		}
 	],
+	"Employee": [
+		{
+			"fieldname": "working_time_policy",
+			"label": "Working Time Policy",
+			"fieldtype": "Link",
+			"options": "Working Time Policy",
+			"insert_after": "holiday_list",
+		}
+	],
 }

@@ -1,0 +1,88 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "prompt",
+ "creation": "2026-03-27 14:23:43.742588",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "max_working_time_per_day",
+  "min_rest_between_days",
+  "section_break_qroa",
+  "mandatory_breaks",
+  "section_break_nrzm",
+  "blocked_days",
+  "consider_holiday_list"
+ ],
+ "fields": [
+  {
+   "fieldname": "max_working_time_per_day",
+   "fieldtype": "Duration",
+   "hide_days": 1,
+   "hide_seconds": 1,
+   "label": "Max Working Time Per Day"
+  },
+  {
+   "fieldname": "min_rest_between_days",
+   "fieldtype": "Duration",
+   "hide_days": 1,
+   "hide_seconds": 1,
+   "label": "Min Rest Between Days"
+  },
+  {
+   "fieldname": "mandatory_breaks",
+   "fieldtype": "Table",
+   "label": "Mandatory Breaks",
+   "options": "Working Time Break Policy"
+  },
+  {
+   "fieldname": "section_break_qroa",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "section_break_nrzm",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "blocked_days",
+   "fieldtype": "Table",
+   "label": "Blocked Days",
+   "options": "Working Time Blocked Day"
+  },
+  {
+   "default": "0",
+   "description": "Blocks real holidays from an employee's holiday list. Ignores weekly off.",
+   "fieldname": "consider_holiday_list",
+   "fieldtype": "Check",
+   "label": "Block holidays"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-03-27 14:44:55.711799",
+ "modified_by": "Administrator",
+ "module": "Working Time",
+ "name": "Working Time Policy",
+ "naming_rule": "Set by user",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
