@@ -39,10 +39,10 @@ def send_month_end_reminders():
 	last_dom = calendar.monthrange(today.year, today.month)[1]
 	last_date = date(today.year, today.month, last_dom)
 
-	for employee, holiday_list, company_email, first_name, user_id in frappe.get_all(
+	for employee, holiday_list, prefered_email, first_name, user_id, reports_to in frappe.get_all(
 		"Employee",
 		filters={"status": "Active"},
-		fields=["name", "holiday_list", "company_email", "first_name", "user_id"],
+		fields=["name", "holiday_list", "prefered_email", "first_name", "user_id", "reports_to"],
 		as_list=True,
 	):
 		holidays = get_holiday_dates(holiday_list, today, last_date)
@@ -56,9 +56,12 @@ def send_month_end_reminders():
 		if user_id:
 			language = frappe.db.get_value("User", user_id, "language")
 
+		reply_to = frappe.db.get_value("Employee", reports_to, "prefered_email") if reports_to else None
+
 		with print_language(language):
 			frappe.sendmail(
-				recipients=company_email,
+				recipients=prefered_email,
+				reply_to=reply_to,
 				subject=_("Remember to submit your working time"),
 				message=_(
 					"""Dear {first_name},
@@ -127,13 +130,18 @@ def send_stale_reminders(cutoff_days: int = 3):
 		as_list=True,
 	):
 		language = None
-		user_id = frappe.db.get_value("Employee", employee, "user_id")
+		user_id, prefered_email, first_name, reports_to = frappe.db.get_value(
+			"Employee", employee, ["user_id", "prefered_email", "first_name", "reports_to"]
+		)
 		if user_id:
 			language = frappe.db.get_value("User", user_id, "language")
 
+		reply_to = frappe.db.get_value("Employee", reports_to, "prefered_email") if reports_to else None
+
 		with print_language(language):
 			frappe.sendmail(
-				recipients=employee,
+				recipients=prefered_email or user_id,
+				reply_to=reply_to,
 				subject=_("Remember to submit your working time"),
 				message=_(
 					"""Dear {first_name},
@@ -142,7 +150,7 @@ Your have a draft <a href='{url}'>working time entry</a> that is older than {cut
 
 Thanks in advance!"""
 				).format(
-					first_name=frappe.db.get_value("Employee", employee, "first_name"),
+					first_name=first_name,
 					url=get_url(f"/app/working-time/{working_time}"),
 					cutoff_days=cutoff_days,
 				),
