@@ -146,7 +146,7 @@ def send_stale_reminders(cutoff_days: int = 3):
 				message=_(
 					"""Dear {first_name},
 
-Your have a draft <a href='{url}'>working time entry</a> that is older than {cutoff_days} days. Please submit it as soon as possible.
+You have a draft <a href='{url}'>working time entry</a> that is older than {cutoff_days} days. Please submit it as soon as possible.
 
 Thanks in advance!"""
 				).format(
