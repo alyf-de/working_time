@@ -162,6 +162,7 @@
    "fieldtype": "Column Break"
   },
   {
+   "depends_on": "eval: doc.productive_time !== doc.working_time",
    "fieldname": "productive_time",
    "fieldtype": "Duration",
    "label": "Productive Time",
@@ -180,7 +181,7 @@
    "link_fieldname": "working_time"
   }
  ],
- "modified": "2026-05-26 21:24:36.464213",
+ "modified": "2026-05-26 23:16:47.703228",
  "modified_by": "Administrator",
  "module": "Working Time",
  "name": "Working Time",
