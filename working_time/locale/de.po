@@ -157,6 +157,11 @@ msgid ""
 "\n"
 "Thanks in advance!"
 msgstr ""
+"Hallo {first_name},\n"
+"\n"
+"du hast einen <a href='{url}'>Arbeitszeiteintrag</a> im Entwurf, der älter als {cutoff_days} Tage ist. Bitte reiche ihn so bald wie möglich ein.\n"
+"\n"
+"Vielen Dank!"
 
 #: working_time/reminders.py:66
 msgid ""
