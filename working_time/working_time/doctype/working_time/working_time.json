@@ -154,6 +154,8 @@
   {
    "fieldname": "paid_break_time",
    "fieldtype": "Duration",
+   "hide_days": 1,
+   "hide_seconds": 1,
    "label": "Paid Break Time",
    "read_only": 1
   },
@@ -165,6 +167,8 @@
    "depends_on": "eval: doc.productive_time !== doc.working_time",
    "fieldname": "productive_time",
    "fieldtype": "Duration",
+   "hide_days": 1,
+   "hide_seconds": 1,
    "label": "Productive Time",
    "read_only": 1
   }
@@ -181,7 +185,7 @@
    "link_fieldname": "working_time"
   }
  ],
- "modified": "2026-05-26 23:16:47.703228",
+ "modified": "2026-05-26 23:20:02.508838",
  "modified_by": "Administrator",
  "module": "Working Time",
  "name": "Working Time",
