@@ -22,7 +22,8 @@ ONE_HOUR = 60 * 60
 
 class WorkingTime(Document):
 	def before_validate(self):
-		self.break_time = self.working_time = self.project_time = self.billable_time = 0
+		self.break_time = self.working_time = self.productive_time = self.paid_break_time = 0
+		self.project_time = self.billable_time = 0
 		self.project_pct = self.billable_pct = 0
 
 		last_idx = len(self.time_logs) - 1
@@ -30,11 +31,19 @@ class WorkingTime(Document):
 			log.to_time = self.time_logs[idx + 1].from_time if idx < last_idx else log.to_time
 			log.cleanup_and_set_duration()
 			log.duration = log.duration or 0
-			self.break_time += log.duration if log.is_break else 0
-			self.working_time += 0 if log.is_break else log.duration
-			if log.project and not log.is_break:
-				self.project_time += log.duration
-				self.billable_time += get_billable_duration(log)
+
+			if log.is_break:
+				self.break_time += log.duration
+				if log.is_paid_break:
+					self.paid_break_time += log.duration
+					self.working_time += log.duration
+			else:
+				log.is_paid_break = 0
+				self.productive_time += log.duration
+				self.working_time += log.duration
+				if log.project:
+					self.project_time += log.duration
+					self.billable_time += get_billable_duration(log)
 
 		if self.working_time:
 			self.project_pct = round(self.project_time / self.working_time * 100, 0)
@@ -99,14 +108,14 @@ class WorkingTime(Document):
 			)
 
 	def validate_max_working_time(self, policy):
-		if not policy.max_working_time_per_day:
+		if not policy.max_productive_time_per_day:
 			return
 
-		if self.working_time > policy.max_working_time_per_day:
+		if self.productive_time > policy.max_productive_time_per_day:
 			frappe.throw(
-				_("Working time ({0}) exceeds the maximum allowed ({1}) per day").format(
-					format_duration(self.working_time),
-					format_duration(policy.max_working_time_per_day),
+				_("Productive time ({0}) exceeds the maximum allowed ({1}) per day").format(
+					format_duration(self.productive_time),
+					format_duration(policy.max_productive_time_per_day),
 				)
 			)
 
@@ -115,9 +124,9 @@ class WorkingTime(Document):
 			return
 
 		for row in policy.mandatory_breaks:
-			if self.working_time >= row.work_threshold and self.break_time < row.required_break_minutes:
+			if self.productive_time >= row.work_threshold and self.break_time < row.required_break_minutes:
 				frappe.throw(
-					_("Working time of {0} or more requires at least {1} of break time").format(
+					_("Productive time of {0} or more requires at least {1} of break time").format(
 						format_duration(row.work_threshold),
 						format_duration(row.required_break_minutes),
 					)

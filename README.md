@@ -6,7 +6,7 @@ Companies that use Atlassian Jira for project management and ERPNext for time tr
 
 ## Features
 
-- Allows logging of miscellanous time, project time and breaks
+- Allows logging of miscellaneous time, project time, breaks and paid breaks
 - Allows to set a percentage of working time as billable time in a Working Time Log
 - Rounds billable time to 5 minutes
 - Fetches issue titles from Jira (used as time log description)
@@ -17,8 +17,8 @@ Companies that use Atlassian Jira for project management and ERPNext for time tr
     - If a draft working time entry is older than 3 days, and
     - on the last working day of the month
 - **Working Time Policy** enforcement per employee, including:
-    - Maximum working time per day
-    - Mandatory break requirements based on working time thresholds
+    - Maximum productive time per day
+    - Mandatory break requirements based on productive time thresholds
     - Minimum rest time between days
     - Blocked weekdays
     - Holiday blocking (based on the employee's holiday list)
@@ -44,6 +44,22 @@ Companies that use Atlassian Jira for project management and ERPNext for time tr
     - Add a time log and mark it as a break,
     - Add a time log and link it to a _Project_ and Jira issue _Key_
 - Submit your **Working Time**
+
+## Time Fields
+
+**Working Time** separates productive time, break time and paid time:
+
+- _Productive Time_ (`productive_time`) is the total duration of logs that are not marked as breaks.
+- _Break Time_ (`break_time`) is the total duration of logs marked as breaks, including paid breaks.
+- _Paid Break Time_ (`paid_break_time`) is the total duration of break logs where _Paid_ (`is_paid_break`) is enabled.
+- _Paid Working Time_ (`working_time`) is the paid total: _Productive Time_ plus _Paid Break Time_. Number cards, stats and reports use this field as the paid working time total.
+- _Project Time_ (`project_time`) and _Billable Time_ (`billable_time`) are calculated from non-break project logs.
+
+In a **Working Time Log**, mark _Break_ (`is_break`) for any physical break. Regular working logs are paid by default and should not be marked as breaks. Regular breaks are unpaid by default. Use _Paid_ (`is_paid_break`) only for exceptional break rows that should count toward paid working time, such as mandatory but passive travel time.
+
+**Working Time Policy** restrictions use _Productive Time_ for maximum time and threshold checks, while mandatory break requirements use _Break Time_. This means paid breaks count as paid time, but do not increase productive time for policy restrictions.
+
+German users may refer to [this article](https://www.kanzlei-chevalier.de/blog/dienstreise-als-arbeitszeit) for more information.
 
 ## Further Reading
 

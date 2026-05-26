@@ -6,7 +6,7 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "max_working_time_per_day",
+  "max_productive_time_per_day",
   "min_rest_between_days",
   "section_break_qroa",
   "mandatory_breaks",
@@ -15,13 +15,6 @@
   "consider_holiday_list"
  ],
  "fields": [
-  {
-   "fieldname": "max_working_time_per_day",
-   "fieldtype": "Duration",
-   "hide_days": 1,
-   "hide_seconds": 1,
-   "label": "Max Working Time Per Day"
-  },
   {
    "fieldname": "min_rest_between_days",
    "fieldtype": "Duration",
@@ -55,12 +48,19 @@
    "fieldname": "consider_holiday_list",
    "fieldtype": "Check",
    "label": "Block holidays"
+  },
+  {
+   "fieldname": "max_productive_time_per_day",
+   "fieldtype": "Duration",
+   "hide_days": 1,
+   "hide_seconds": 1,
+   "label": "Max Productive Time Per Day"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-03-27 14:44:55.711799",
+ "modified": "2026-05-26 21:32:14.336531",
  "modified_by": "Administrator",
  "module": "Working Time",
  "name": "Working Time Policy",

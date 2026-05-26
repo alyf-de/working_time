@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Working Time VERSION\n"
 "Report-Msgid-Bugs-To: hallo@alyf.de\n"
-"POT-Creation-Date: 2026-03-27 14:57+0053\n"
+"POT-Creation-Date: 2026-05-26 23:08+0053\n"
 "PO-Revision-Date: 2026-03-27 14:57+0053\n"
 "Last-Translator: hallo@alyf.de\n"
 "Language-Team: hallo@alyf.de\n"
@@ -112,12 +112,15 @@ msgstr "Gesperrte Tage"
 msgid "Blocks real holidays from an employee's holiday list. Ignores weekly off."
 msgstr "Sperrt echte Feiertage aus der Feiertagsliste des Mitarbeiters. Wöchentliche freie Tage werden ignoriert."
 
-#. Label of a Duration field in DocType 'Working Time'
 #. Label of a Check field in DocType 'Working Time Log'
-#: working_time/working_time/doctype/working_time/working_time.json
 #: working_time/working_time/doctype/working_time_log/working_time_log.json
 msgid "Break"
 msgstr "Pause"
+
+#. Label of a Duration field in DocType 'Working Time'
+#: working_time/working_time/doctype/working_time/working_time.json
+msgid "Break Time"
+msgstr "Pausenzeit"
 
 #. Label of a number card in the Time Tracking Workspace
 #: working_time/working_time/workspace/time_tracking/time_tracking.json
@@ -146,11 +149,11 @@ msgstr "Tägliche Arbeitsstunden"
 msgid "Daily Working Time"
 msgstr "Tägliche Arbeitszeit"
 
-#: working_time/reminders.py:138
+#: working_time/reminders.py:146
 msgid ""
 "Dear {first_name},\n"
 "\n"
-"Your have a draft <a href='{url}'>working time entry</a> that is older than {cutoff_days} days. Please submit it as soon as possible.\n"
+"You have a draft <a href='{url}'>working time entry</a> that is older than {cutoff_days} days. Please submit it as soon as possible.\n"
 "\n"
 "Thanks in advance!"
 msgstr ""
@@ -160,7 +163,7 @@ msgstr ""
 "\n"
 "Vielen Dank!"
 
-#: working_time/reminders.py:63
+#: working_time/reminders.py:66
 msgid ""
 "Dear {first_name},\n"
 "\n"
@@ -173,6 +176,11 @@ msgstr ""
 "der {month} ist fast vorbei. Bitte denke daran, deine <a href='{url}'>Arbeitszeit</a> einzureichen.\n"
 "\n"
 "Vielen Dank!"
+
+#. Description of the 'Paid' (Check) field in DocType 'Working Time Log'
+#: working_time/working_time/doctype/working_time_log/working_time_log.json
+msgid "Enable to count this break as paid working time (e.g. mandatory travel time)"
+msgstr "Aktivieren, um diese Pause als bezahlte Arbeitszeit zu zählen (z.B. Pflichtreisezeit)"
 
 #: working_time/working_time/report/expected_and_actual_working_time/expected_and_actual_working_time.py:58
 msgid "Expected Working Time"
@@ -242,8 +250,8 @@ msgstr "Pflichtpausen"
 
 #. Label of a Duration field in DocType 'Working Time Policy'
 #: working_time/working_time/doctype/working_time_policy/working_time_policy.json
-msgid "Max Working Time Per Day"
-msgstr "Maximale Arbeitszeit pro Tag"
+msgid "Max Productive Time Per Day"
+msgstr "Maximale produktive Arbeitszeit pro Tag"
 
 #. Label of a Duration field in DocType 'Working Time Policy'
 #: working_time/working_time/doctype/working_time_policy/working_time_policy.json
@@ -268,13 +276,36 @@ msgstr "Nicht Plausibel"
 msgid "Only submitted working times are considered in this table."
 msgstr "Nur gebuchte Arbeitszeiten werden in dieser Tabelle berücksichtigt."
 
-#: working_time/working_time/doctype/working_time/working_time.py:55
+#. Label of a Duration field in DocType 'Working Time'
+#: working_time/working_time/doctype/working_time/working_time.json
+msgid "Paid Break Time"
+msgstr "Bezahlte Pausenzeit"
+
+#. Label of a Duration field in DocType 'Working Time'
+#: working_time/working_time/doctype/working_time/working_time.json
+msgid "Paid Working Time"
+msgstr "Bezahlte Arbeitszeit"
+
+#: working_time/working_time/doctype/working_time/working_time.py:64
 msgid "Please add an issue key or invoice note to the billable row {0}"
 msgstr "Bitte einen Issue-Key oder eine Rechnungsnotiz zur abrechenbaren Zeile {0} hinzufügen"
 
-#: working_time/working_time/doctype/working_time/working_time.py:46
+#: working_time/working_time/doctype/working_time/working_time.py:55
 msgid "Please fix negative duration in row {0}"
 msgstr "Bitte negative Dauer in Zeile {0} korrigieren"
+
+#. Label of a Duration field in DocType 'Working Time'
+#: working_time/working_time/doctype/working_time/working_time.json
+msgid "Productive Time"
+msgstr "Produktive Arbeitszeit"
+
+#: working_time/working_time/doctype/working_time/working_time.py:116
+msgid "Productive time ({0}) exceeds the maximum allowed ({1}) per day"
+msgstr "Produktive Arbeitszeit ({0}) überschreitet die maximal erlaubte ({1}) pro Tag"
+
+#: working_time/working_time/doctype/working_time/working_time.py:129
+msgid "Productive time of {0} or more requires at least {1} of break time"
+msgstr "Produktive Arbeitszeit von {0} oder mehr benötigt mindestens {1} Pausenzeit"
 
 #. Label of a Percent field in DocType 'Working Time'
 #: working_time/working_time/doctype/working_time/working_time.json
@@ -286,7 +317,7 @@ msgstr "Projekt %"
 msgid "Project Time"
 msgstr "Projektzeit"
 
-#: working_time/reminders.py:62 working_time/reminders.py:137
+#: working_time/reminders.py:65 working_time/reminders.py:145
 msgid "Remember to submit your working time"
 msgstr "Erinnerung: Arbeitszeit einreichen"
 
@@ -295,7 +326,7 @@ msgstr "Erinnerung: Arbeitszeit einreichen"
 msgid "Required Break Minutes"
 msgstr "Erforderliche Pausenminuten"
 
-#: working_time/working_time/doctype/working_time/working_time.py:164
+#: working_time/working_time/doctype/working_time/working_time.py:173
 msgid "Rest time since previous day ({0}) is less than the required minimum ({1})"
 msgstr "Die Ruhezeit seit dem Vortag ({0}) ist kürzer als das erforderliche Minimum ({1})"
 
@@ -332,7 +363,6 @@ msgid "Work Threshold"
 msgstr "Arbeitsschwelle"
 
 #. Name of a DocType
-#. Label of a Duration field in DocType 'Working Time'
 #. Label of a Link in the Time Tracking Workspace
 #: working_time/config/desktop.py:11
 #: working_time/working_time/doctype/working_time/working_time.json
@@ -370,24 +400,16 @@ msgstr "Arbeitszeitrichtlinie"
 msgid "Working Time Summary"
 msgstr "Arbeitszeit Zusammenfassung"
 
-#: working_time/working_time/doctype/working_time/working_time.py:107
-msgid "Working time ({0}) exceeds the maximum allowed ({1}) per day"
-msgstr "Die Arbeitszeit ({0}) überschreitet das erlaubte Maximum ({1}) pro Tag"
-
-#: working_time/working_time/doctype/working_time/working_time.py:120
-msgid "Working time of {0} or more requires at least {1} of break time"
-msgstr "Eine Arbeitszeit von {0} oder mehr erfordert mindestens {1} Pausenzeit"
-
 #. Description of the 'Site URL' (Data) field in DocType 'Jira Site'
 #: working_time/working_time/doctype/jira_site/jira_site.json
 msgid "e.g. your-domain.atlassian.net"
 msgstr "z.B. your-domain.atlassian.net"
 
-#: working_time/working_time/doctype/working_time/working_time.py:80
+#: working_time/working_time/doctype/working_time/working_time.py:89
 msgid "{0} is a blocked day according to the Working Time Policy"
 msgstr "{0} ist laut Arbeitszeitrichtlinie ein gesperrter Tag"
 
-#: working_time/working_time/doctype/working_time/working_time.py:96
+#: working_time/working_time/doctype/working_time/working_time.py:105
 msgid "{0} is a holiday according to your holiday list"
 msgstr "{0} ist laut Ihrer Feiertagsliste ein Feiertag"
 
@@ -395,3 +417,4 @@ msgstr "{0} ist laut Ihrer Feiertagsliste ein Feiertag"
 #: working_time/working_time/workspace/time_tracking/time_tracking.json
 msgid "{} Drafts"
 msgstr "{} Entwürfe"
+

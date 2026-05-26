@@ -15,10 +15,14 @@
   "section_break_7",
   "project_time",
   "billable_time",
-  "working_time",
   "column_break_covil",
   "project_pct",
   "billable_pct",
+  "section_break_cimk",
+  "productive_time",
+  "paid_break_time",
+  "working_time",
+  "column_break_vtvv",
   "break_time",
   "stats_section",
   "stats_html",
@@ -72,7 +76,7 @@
    "hide_days": 1,
    "hide_seconds": 1,
    "in_list_view": 1,
-   "label": "Working Time",
+   "label": "Paid Working Time",
    "read_only": 1
   },
   {
@@ -86,7 +90,7 @@
    "fieldtype": "Duration",
    "hide_days": 1,
    "hide_seconds": 1,
-   "label": "Break",
+   "label": "Break Time",
    "read_only": 1
   },
   {
@@ -142,6 +146,31 @@
   {
    "fieldname": "section_break_cg6mr",
    "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "section_break_cimk",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "paid_break_time",
+   "fieldtype": "Duration",
+   "hide_days": 1,
+   "hide_seconds": 1,
+   "label": "Paid Break Time",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_vtvv",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval: doc.productive_time !== doc.working_time",
+   "fieldname": "productive_time",
+   "fieldtype": "Duration",
+   "hide_days": 1,
+   "hide_seconds": 1,
+   "label": "Productive Time",
+   "read_only": 1
   }
  ],
  "grid_page_length": 50,
@@ -156,7 +185,7 @@
    "link_fieldname": "working_time"
   }
  ],
- "modified": "2025-10-17 14:41:15.770625",
+ "modified": "2026-05-26 23:20:02.508838",
  "modified_by": "Administrator",
  "module": "Working Time",
  "name": "Working Time",
@@ -193,6 +222,7 @@
   }
  ],
  "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
  "sort_field": "creation",
  "sort_order": "DESC",
  "states": [],
