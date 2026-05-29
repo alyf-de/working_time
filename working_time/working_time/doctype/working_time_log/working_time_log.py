@@ -21,18 +21,18 @@ class WorkingTimeLog(Document):
 
 	def ensure_timedelta(self):
 		if isinstance(self.from_time, str):
-			self.from_time = to_timedelta(self.from_time) if self.from_time else None
+			self.from_time = to_timedelta(self.from_time) if self.from_time != "" else None
 
 		if isinstance(self.to_time, str):
-			self.to_time = to_timedelta(self.to_time) if self.to_time else None
+			self.to_time = to_timedelta(self.to_time) if self.to_time != "" else None
 
 	def remove_seconds(self):
-		if self.from_time:
+		if self.from_time is not None:
 			self.from_time = timedelta(seconds=self.from_time.total_seconds() // 60 * 60)
 
-		if self.to_time:
+		if self.to_time is not None:
 			self.to_time = timedelta(seconds=self.to_time.total_seconds() // 60 * 60)
 
 	def set_duration(self):
-		if self.from_time and self.to_time:
+		if self.from_time is not None and self.to_time is not None:
 			self.duration = (self.to_time - self.from_time).total_seconds()
