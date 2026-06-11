@@ -18,6 +18,7 @@ OVERTIME_FACTOR = 1.15
 MAX_HALF_DAY = HALF_DAY * OVERTIME_FACTOR * 60 * 60
 FIVE_MINUTES = 5 * 60
 ONE_HOUR = 60 * 60
+WHOLE_DAY_HOURS = 8
 
 
 class WorkingTime(Document):
@@ -207,7 +208,14 @@ class WorkingTime(Document):
 			attendance.submit()
 
 	def create_timesheets(self):
-		aggregated_time_logs = aggregate_time_logs(self.time_logs)
+		regular_logs = self.time_logs
+		if self.whole_day_project:
+			whole_day_logs = [log for log in self.time_logs if log.project == self.whole_day_project]
+			regular_logs = [log for log in self.time_logs if log.project != self.whole_day_project]
+			if whole_day_logs:
+				self.create_whole_day_timesheet(whole_day_logs)
+
+		aggregated_time_logs = aggregate_time_logs(regular_logs)
 
 		for (project, task, key), data in aggregated_time_logs.items():
 			customer, billing_rate, jira_site = frappe.get_value(
@@ -227,6 +235,57 @@ class WorkingTime(Document):
 				jira_issue_url=get_jira_issue_url(jira_site, key),
 				internal_notes=data["internal_notes"],
 			)
+
+	def create_whole_day_timesheet(self, logs):
+		"""Merge all time logs for the whole day project into a single 8-hour timesheet."""
+		customer_notes_by_key = {}
+		internal_notes = []
+		tasks = set()
+		for log in logs:
+			customer_note, internal_note = parse_note(log.note)
+			if internal_note and (not internal_notes or internal_notes[-1] != internal_note):
+				internal_notes.append(internal_note)
+
+			customer_notes = customer_notes_by_key.setdefault(log.key, [])
+			if customer_note and (not customer_notes or customer_notes[-1] != customer_note):
+				customer_notes.append(customer_note)
+
+			if log.task:
+				tasks.add(log.task)
+
+		customer, billing_rate_per_day, jira_site = frappe.get_value(
+			"Project",
+			self.whole_day_project,
+			["customer", "billing_rate_per_day", "jira_site"],
+		)
+		billing_rate = flt(billing_rate_per_day) / WHOLE_DAY_HOURS
+
+		lines = []
+		for key, customer_notes in customer_notes_by_key.items():
+			note = "; ".join(customer_notes)
+			if key:
+				line = get_description(jira_site, key, None)
+				if note:
+					line += f": {note}"
+				lines.append(line)
+			elif note:
+				lines.append(note)
+
+		description = "\n".join(lines) or "-"
+		keys = [key for key in customer_notes_by_key if key]
+		hours = sum(log.duration or 0 for log in logs) / ONE_HOUR
+
+		self.insert_timesheet(
+			project=self.whole_day_project,
+			customer=customer,
+			task=tasks.pop() if len(tasks) == 1 else None,
+			billing_rate=billing_rate,
+			hours=hours,
+			billing_hours=WHOLE_DAY_HOURS,
+			description=description,
+			jira_issue_url=get_jira_issue_url(jira_site, keys[0]) if len(keys) == 1 else None,
+			internal_notes=internal_notes,
+		)
 
 	def insert_timesheet(
 		self,

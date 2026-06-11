@@ -8,8 +8,11 @@
   "employee",
   "column_break_2",
   "employee_name",
-  "section_break_4",
+  "section_break_caqe",
   "date",
+  "column_break_lyny",
+  "whole_day_project",
+  "section_break_4",
   "time_logs",
   "note_explainer",
   "section_break_7",
@@ -171,6 +174,21 @@
    "hide_seconds": 1,
    "label": "Productive Time",
    "read_only": 1
+  },
+  {
+   "fieldname": "section_break_caqe",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_lyny",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "If set, all time logs for this project will be merged into a single 8-hour timesheet.",
+   "fieldname": "whole_day_project",
+   "fieldtype": "Link",
+   "label": "Whole Day Project",
+   "options": "Project"
   }
  ],
  "grid_page_length": 50,
@@ -185,7 +203,7 @@
    "link_fieldname": "working_time"
   }
  ],
- "modified": "2026-05-26 23:20:02.508838",
+ "modified": "2026-06-11 14:44:20.957196",
  "modified_by": "Administrator",
  "module": "Working Time",
  "name": "Working Time",
