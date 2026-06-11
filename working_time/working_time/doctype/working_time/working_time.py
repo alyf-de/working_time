@@ -253,12 +253,14 @@ class WorkingTime(Document):
 			if log.task:
 				tasks.add(log.task)
 
-		customer, billing_rate_per_day, jira_site = frappe.get_value(
+		customer, billing_rate_per_day, billing_rate_per_hour, jira_site = frappe.get_value(
 			"Project",
 			self.whole_day_project,
-			["customer", "billing_rate_per_day", "jira_site"],
+			["customer", "billing_rate_per_day", "billing_rate", "jira_site"],
 		)
-		billing_rate = flt(billing_rate_per_day) / WHOLE_DAY_HOURS
+		billing_rate = (
+			flt(billing_rate_per_day) / WHOLE_DAY_HOURS if billing_rate_per_day else billing_rate_per_hour
+		)
 
 		lines = []
 		for key, customer_notes in customer_notes_by_key.items():
