@@ -177,6 +177,17 @@ class WorkingTime(Document):
 				)
 			)
 
+	def before_submit(self):
+		if self.whole_day_project and not any(
+			log.project == self.whole_day_project for log in self.time_logs
+		):
+			frappe.throw(
+				_("Please add at least one time log for the whole day project {0}.").format(
+					frappe.bold(self.whole_day_project)
+				),
+				title=_("Missing Time Log"),
+			)
+
 	def on_submit(self):
 		self.create_attendance()
 		self.create_timesheets()
