@@ -210,40 +210,65 @@ class WorkingTime(Document):
 		aggregated_time_logs = aggregate_time_logs(self.time_logs)
 
 		for (project, task, key), data in aggregated_time_logs.items():
-			costing_rate = get_costing_rate(self.employee)
 			customer, billing_rate, jira_site = frappe.get_value(
 				"Project",
 				project,
 				["customer", "billing_rate", "jira_site"],
 			)
 
-			frappe.get_doc(
-				{
-					"doctype": "Timesheet",
-					"time_logs": [
-						{
-							"is_billable": int(data["billable_hours"] > 0),
-							"project": project,
-							"task": task,
-							"activity_type": "Default",
-							"base_billing_rate": billing_rate,
-							"base_costing_rate": costing_rate,
-							"costing_rate": costing_rate,
-							"billing_rate": billing_rate,
-							"hours": data["hours"],
-							"from_time": self.date,
-							"billing_hours": data["billable_hours"],
-							"description": get_description(jira_site, key, "; ".join(data["customer_notes"])),
-							"jira_issue_url": get_jira_issue_url(jira_site, key),
-						}
-					],
-					"note": ",\n".join(data["internal_notes"]),
-					"parent_project": project,
-					"customer": customer,
-					"employee": self.employee,
-					"working_time": self.name,
-				}
-			).insert()
+			self.insert_timesheet(
+				project=project,
+				customer=customer,
+				task=task,
+				billing_rate=billing_rate,
+				hours=data["hours"],
+				billing_hours=data["billable_hours"],
+				description=get_description(jira_site, key, "; ".join(data["customer_notes"])),
+				jira_issue_url=get_jira_issue_url(jira_site, key),
+				internal_notes=data["internal_notes"],
+			)
+
+	def insert_timesheet(
+		self,
+		project,
+		customer,
+		task,
+		billing_rate,
+		hours,
+		billing_hours,
+		description,
+		jira_issue_url,
+		internal_notes,
+	):
+		costing_rate = get_costing_rate(self.employee)
+
+		frappe.get_doc(
+			{
+				"doctype": "Timesheet",
+				"time_logs": [
+					{
+						"is_billable": int(billing_hours > 0),
+						"project": project,
+						"task": task,
+						"activity_type": "Default",
+						"base_billing_rate": billing_rate,
+						"base_costing_rate": costing_rate,
+						"costing_rate": costing_rate,
+						"billing_rate": billing_rate,
+						"hours": hours,
+						"from_time": self.date,
+						"billing_hours": billing_hours,
+						"description": description,
+						"jira_issue_url": jira_issue_url,
+					}
+				],
+				"note": ",\n".join(internal_notes),
+				"parent_project": project,
+				"customer": customer,
+				"employee": self.employee,
+				"working_time": self.name,
+			}
+		).insert()
 
 	def delete_draft_timesheets(self):
 		for timesheet in frappe.get_list(
