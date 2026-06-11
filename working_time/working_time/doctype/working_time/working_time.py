@@ -18,6 +18,7 @@ OVERTIME_FACTOR = 1.15
 MAX_HALF_DAY = HALF_DAY * OVERTIME_FACTOR * 60 * 60
 FIVE_MINUTES = 5 * 60
 ONE_HOUR = 60 * 60
+WHOLE_DAY_HOURS = 8
 
 
 class WorkingTime(Document):
@@ -176,6 +177,17 @@ class WorkingTime(Document):
 				)
 			)
 
+	def before_submit(self):
+		if self.whole_day_project and not any(
+			log.project == self.whole_day_project for log in self.time_logs
+		):
+			frappe.throw(
+				_("Please add at least one time log for the whole day project {0}.").format(
+					frappe.bold(self.whole_day_project)
+				),
+				title=_("Missing Time Log"),
+			)
+
 	def on_submit(self):
 		self.create_attendance()
 		self.create_timesheets()
@@ -207,43 +219,122 @@ class WorkingTime(Document):
 			attendance.submit()
 
 	def create_timesheets(self):
-		aggregated_time_logs = aggregate_time_logs(self.time_logs)
+		regular_logs = self.time_logs
+		if self.whole_day_project:
+			whole_day_logs = [log for log in self.time_logs if log.project == self.whole_day_project]
+			regular_logs = [log for log in self.time_logs if log.project != self.whole_day_project]
+			if whole_day_logs:
+				self.create_whole_day_timesheet(whole_day_logs)
+
+		aggregated_time_logs = aggregate_time_logs(regular_logs)
 
 		for (project, task, key), data in aggregated_time_logs.items():
-			costing_rate = get_costing_rate(self.employee)
-			customer, billing_rate, jira_site = frappe.get_value(
-				"Project",
-				project,
-				["customer", "billing_rate", "jira_site"],
+			details = get_project_details(project)
+
+			self.insert_timesheet(
+				project=project,
+				customer=details.customer,
+				task=task,
+				billing_rate=details.billing_rate,
+				hours=data["hours"],
+				billing_hours=data["billable_hours"],
+				description=get_description(details.jira_site, key, "; ".join(data["customer_notes"])),
+				jira_issue_url=get_jira_issue_url(details.jira_site, key),
+				internal_notes=data["internal_notes"],
 			)
 
-			frappe.get_doc(
-				{
-					"doctype": "Timesheet",
-					"time_logs": [
-						{
-							"is_billable": int(data["billable_hours"] > 0),
-							"project": project,
-							"task": task,
-							"activity_type": "Default",
-							"base_billing_rate": billing_rate,
-							"base_costing_rate": costing_rate,
-							"costing_rate": costing_rate,
-							"billing_rate": billing_rate,
-							"hours": data["hours"],
-							"from_time": self.date,
-							"billing_hours": data["billable_hours"],
-							"description": get_description(jira_site, key, "; ".join(data["customer_notes"])),
-							"jira_issue_url": get_jira_issue_url(jira_site, key),
-						}
-					],
-					"note": ",\n".join(data["internal_notes"]),
-					"parent_project": project,
-					"customer": customer,
-					"employee": self.employee,
-					"working_time": self.name,
-				}
-			).insert()
+	def create_whole_day_timesheet(self, logs):
+		"""Merge all time logs for the whole day project into a single 8-hour timesheet."""
+		customer_notes_by_key = {}
+		internal_notes = []
+		tasks = set()
+		for log in logs:
+			customer_note, internal_note = parse_note(log.note)
+			if internal_note and (not internal_notes or internal_notes[-1] != internal_note):
+				internal_notes.append(internal_note)
+
+			customer_notes = customer_notes_by_key.setdefault(log.key, [])
+			if customer_note and (not customer_notes or customer_notes[-1] != customer_note):
+				customer_notes.append(customer_note)
+
+			if log.task:
+				tasks.add(log.task)
+
+		details = get_project_details(self.whole_day_project)
+		billing_rate = (
+			flt(details.billing_rate_per_day) / WHOLE_DAY_HOURS
+			if details.billing_rate_per_day
+			else details.billing_rate
+		)
+
+		lines = []
+		for key, customer_notes in customer_notes_by_key.items():
+			note = "; ".join(customer_notes)
+			if key:
+				line = get_description(details.jira_site, key, None)
+				if note:
+					line += f": {note}"
+				lines.append(line)
+			elif note:
+				lines.append(note)
+
+		description = "\n".join(lines) or "-"
+		keys = [key for key in customer_notes_by_key if key]
+		hours = sum(log.duration or 0 for log in logs) / ONE_HOUR
+
+		self.insert_timesheet(
+			project=self.whole_day_project,
+			customer=details.customer,
+			task=tasks.pop() if len(tasks) == 1 else None,
+			billing_rate=billing_rate,
+			hours=hours,
+			billing_hours=WHOLE_DAY_HOURS,
+			description=description,
+			jira_issue_url=get_jira_issue_url(details.jira_site, keys[0]) if len(keys) == 1 else None,
+			internal_notes=internal_notes,
+		)
+
+	def insert_timesheet(
+		self,
+		project,
+		customer,
+		task,
+		billing_rate,
+		hours,
+		billing_hours,
+		description,
+		jira_issue_url,
+		internal_notes,
+	):
+		costing_rate = get_costing_rate(self.employee)
+
+		frappe.get_doc(
+			{
+				"doctype": "Timesheet",
+				"time_logs": [
+					{
+						"is_billable": int(billing_hours > 0),
+						"project": project,
+						"task": task,
+						"activity_type": "Default",
+						"base_billing_rate": billing_rate,
+						"base_costing_rate": costing_rate,
+						"costing_rate": costing_rate,
+						"billing_rate": billing_rate,
+						"hours": hours,
+						"from_time": self.date,
+						"billing_hours": billing_hours,
+						"description": description,
+						"jira_issue_url": jira_issue_url,
+					}
+				],
+				"note": ",\n".join(internal_notes),
+				"parent_project": project,
+				"customer": customer,
+				"employee": self.employee,
+				"working_time": self.name,
+			}
+		).insert()
 
 	def delete_draft_timesheets(self):
 		for timesheet in frappe.get_list(
@@ -272,6 +363,15 @@ def get_costing_rate(employee):
 		"Activity Cost",
 		{"activity_type": "Default", "employee": employee},
 		"costing_rate",
+	)
+
+
+def get_project_details(project: str):
+	return frappe.get_value(
+		"Project",
+		project,
+		["customer", "billing_rate", "billing_rate_per_day", "jira_site"],
+		as_dict=True,
 	)
 
 

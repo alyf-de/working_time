@@ -210,6 +210,14 @@ working_time_custom_fields = {
 			"translatable": 0,
 		},
 		{
+			"fieldname": "billing_rate_per_day",
+			"label": "Billing Rate per Day",
+			"fieldtype": "Currency",
+			"options": "currency",
+			"insert_after": "billing_rate",
+			"translatable": 0,
+		},
+		{
 			"fieldname": "jira_section",
 			"label": "Jira",
 			"fieldtype": "Section Break",

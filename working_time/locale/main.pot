@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Working Time VERSION\n"
 "Report-Msgid-Bugs-To: hallo@alyf.de\n"
-"POT-Creation-Date: 2026-05-26 23:08+0053\n"
-"PO-Revision-Date: 2026-05-26 23:08+0053\n"
+"POT-Creation-Date: 2026-06-11 17:09+0053\n"
+"PO-Revision-Date: 2026-06-11 17:09+0053\n"
 "Last-Translator: hallo@alyf.de\n"
 "Language-Team: hallo@alyf.de\n"
 "MIME-Version: 1.0\n"
@@ -207,6 +207,12 @@ msgstr ""
 msgid "Freelancer Time Log"
 msgstr ""
 
+#. Description of the 'Whole Day Project' (Link) field in DocType 'Working
+#. Time'
+#: working_time/working_time/doctype/working_time/working_time.json
+msgid "If set, all time logs for this project will be merged into a single 8-hour timesheet."
+msgstr ""
+
 #. Description of the 'Note' (Small Text) field in DocType 'Working Time Log'
 #: working_time/working_time/doctype/working_time_log/working_time_log.json
 msgid "If the Issue Key is missing or needs additional explanation. Start with a \"+\" to get this printed on the invoice."
@@ -248,6 +254,10 @@ msgstr ""
 msgid "Min Rest Between Days"
 msgstr ""
 
+#: working_time/working_time/doctype/working_time/working_time.py:188
+msgid "Missing Time Log"
+msgstr ""
+
 #. Label of a shortcut in the Time Tracking Workspace
 #: working_time/working_time/workspace/time_tracking/time_tracking.json
 msgid "New Freelancer Time"
@@ -276,11 +286,15 @@ msgstr ""
 msgid "Paid Working Time"
 msgstr ""
 
-#: working_time/working_time/doctype/working_time/working_time.py:64
+#: working_time/working_time/doctype/working_time/working_time.py:65
 msgid "Please add an issue key or invoice note to the billable row {0}"
 msgstr ""
 
-#: working_time/working_time/doctype/working_time/working_time.py:55
+#: working_time/working_time/doctype/working_time/working_time.py:185
+msgid "Please add at least one time log for the whole day project {0}."
+msgstr ""
+
+#: working_time/working_time/doctype/working_time/working_time.py:56
 msgid "Please fix negative duration in row {0}"
 msgstr ""
 
@@ -289,11 +303,11 @@ msgstr ""
 msgid "Productive Time"
 msgstr ""
 
-#: working_time/working_time/doctype/working_time/working_time.py:116
+#: working_time/working_time/doctype/working_time/working_time.py:117
 msgid "Productive time ({0}) exceeds the maximum allowed ({1}) per day"
 msgstr ""
 
-#: working_time/working_time/doctype/working_time/working_time.py:129
+#: working_time/working_time/doctype/working_time/working_time.py:130
 msgid "Productive time of {0} or more requires at least {1} of break time"
 msgstr ""
 
@@ -316,7 +330,7 @@ msgstr ""
 msgid "Required Break Minutes"
 msgstr ""
 
-#: working_time/working_time/doctype/working_time/working_time.py:173
+#: working_time/working_time/doctype/working_time/working_time.py:174
 msgid "Rest time since previous day ({0}) is less than the required minimum ({1})"
 msgstr ""
 
@@ -345,6 +359,11 @@ msgstr ""
 #. Label of a Duration field in DocType 'Freelancer Time'
 #: working_time/working_time/doctype/freelancer_time/freelancer_time.json
 msgid "Total Duration"
+msgstr ""
+
+#. Label of a Link field in DocType 'Working Time'
+#: working_time/working_time/doctype/working_time/working_time.json
+msgid "Whole Day Project"
 msgstr ""
 
 #. Label of a Duration field in DocType 'Working Time Break Policy'
@@ -395,11 +414,11 @@ msgstr ""
 msgid "e.g. your-domain.atlassian.net"
 msgstr ""
 
-#: working_time/working_time/doctype/working_time/working_time.py:89
+#: working_time/working_time/doctype/working_time/working_time.py:90
 msgid "{0} is a blocked day according to the Working Time Policy"
 msgstr ""
 
-#: working_time/working_time/doctype/working_time/working_time.py:105
+#: working_time/working_time/doctype/working_time/working_time.py:106
 msgid "{0} is a holiday according to your holiday list"
 msgstr ""
 
