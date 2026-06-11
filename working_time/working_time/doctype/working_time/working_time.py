@@ -218,21 +218,17 @@ class WorkingTime(Document):
 		aggregated_time_logs = aggregate_time_logs(regular_logs)
 
 		for (project, task, key), data in aggregated_time_logs.items():
-			customer, billing_rate, jira_site = frappe.get_value(
-				"Project",
-				project,
-				["customer", "billing_rate", "jira_site"],
-			)
+			details = get_project_details(project)
 
 			self.insert_timesheet(
 				project=project,
-				customer=customer,
+				customer=details.customer,
 				task=task,
-				billing_rate=billing_rate,
+				billing_rate=details.billing_rate,
 				hours=data["hours"],
 				billing_hours=data["billable_hours"],
-				description=get_description(jira_site, key, "; ".join(data["customer_notes"])),
-				jira_issue_url=get_jira_issue_url(jira_site, key),
+				description=get_description(details.jira_site, key, "; ".join(data["customer_notes"])),
+				jira_issue_url=get_jira_issue_url(details.jira_site, key),
 				internal_notes=data["internal_notes"],
 			)
 
@@ -253,20 +249,18 @@ class WorkingTime(Document):
 			if log.task:
 				tasks.add(log.task)
 
-		customer, billing_rate_per_day, billing_rate_per_hour, jira_site = frappe.get_value(
-			"Project",
-			self.whole_day_project,
-			["customer", "billing_rate_per_day", "billing_rate", "jira_site"],
-		)
+		details = get_project_details(self.whole_day_project)
 		billing_rate = (
-			flt(billing_rate_per_day) / WHOLE_DAY_HOURS if billing_rate_per_day else billing_rate_per_hour
+			flt(details.billing_rate_per_day) / WHOLE_DAY_HOURS
+			if details.billing_rate_per_day
+			else details.billing_rate
 		)
 
 		lines = []
 		for key, customer_notes in customer_notes_by_key.items():
 			note = "; ".join(customer_notes)
 			if key:
-				line = get_description(jira_site, key, None)
+				line = get_description(details.jira_site, key, None)
 				if note:
 					line += f": {note}"
 				lines.append(line)
@@ -279,13 +273,13 @@ class WorkingTime(Document):
 
 		self.insert_timesheet(
 			project=self.whole_day_project,
-			customer=customer,
+			customer=details.customer,
 			task=tasks.pop() if len(tasks) == 1 else None,
 			billing_rate=billing_rate,
 			hours=hours,
 			billing_hours=WHOLE_DAY_HOURS,
 			description=description,
-			jira_issue_url=get_jira_issue_url(jira_site, keys[0]) if len(keys) == 1 else None,
+			jira_issue_url=get_jira_issue_url(details.jira_site, keys[0]) if len(keys) == 1 else None,
 			internal_notes=internal_notes,
 		)
 
@@ -358,6 +352,15 @@ def get_costing_rate(employee):
 		"Activity Cost",
 		{"activity_type": "Default", "employee": employee},
 		"costing_rate",
+	)
+
+
+def get_project_details(project: str):
+	return frappe.get_value(
+		"Project",
+		project,
+		["customer", "billing_rate", "billing_rate_per_day", "jira_site"],
+		as_dict=True,
 	)
 
 
