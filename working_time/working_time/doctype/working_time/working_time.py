@@ -27,6 +27,7 @@ class WorkingTime(Document):
 		self.project_time = self.billable_time = 0
 		self.project_pct = self.billable_pct = 0
 
+		has_whole_day_logs = False
 		last_idx = len(self.time_logs) - 1
 		for idx, log in enumerate(self.time_logs):
 			log.to_time = self.time_logs[idx + 1].from_time if idx < last_idx else log.to_time
@@ -44,7 +45,14 @@ class WorkingTime(Document):
 				self.working_time += log.duration
 				if log.project:
 					self.project_time += log.duration
-					self.billable_time += get_billable_duration(log)
+					if self.whole_day_project and log.project == self.whole_day_project:
+						has_whole_day_logs = True
+					else:
+						self.billable_time += get_billable_duration(log)
+
+		if has_whole_day_logs:
+			ratio = 1  # TODO: Discuss this ratio with the team
+			self.billable_time += WHOLE_DAY_HOURS * ONE_HOUR * ratio
 
 		if self.working_time:
 			self.project_pct = round(self.project_time / self.working_time * 100, 0)

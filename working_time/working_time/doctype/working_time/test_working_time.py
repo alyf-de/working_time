@@ -106,6 +106,30 @@ class TestWorkingTime(unittest.TestCase):
 		self.assertEqual(working_time.break_time, 60 * 60)
 		self.assertEqual(working_time.working_time, 7.5 * 60 * 60)
 
+	def test_whole_day_project_billable_time(self):
+		working_time = self.get_working_time(
+			[
+				{
+					"from_time": "09:00:00",
+					"to_time": "12:00:00",
+					"project": "Whole Day Project",
+					"billable": "100%",
+				},
+				{
+					"from_time": "13:00:00",
+					"to_time": "15:00:00",
+					"project": "Other Project",
+					"billable": "50%",
+				},
+			]
+		)
+		working_time.whole_day_project = "Whole Day Project"
+		working_time.before_validate()
+
+		self.assertEqual(working_time.project_time, 5 * 60 * 60)
+		self.assertEqual(working_time.billable_time, (8 * 60 * 60) + (2 * 60 * 60 * 0.5))
+		self.assertEqual(working_time.billable_pct, 180)
+
 	def test_non_break_clears_paid_break_flag(self):
 		working_time = self.get_working_time(
 			[
