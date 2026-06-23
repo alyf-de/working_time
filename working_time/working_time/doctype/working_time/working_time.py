@@ -51,9 +51,7 @@ class WorkingTime(Document):
 			self.billable_pct = round(self.billable_time / self.working_time * 100, 0)
 
 	def validate(self):
-		billable_projects = {
-			log.project for log in self.time_logs if log.billable != "0%" and log.project
-		}
+		billable_projects = {log.project for log in self.time_logs if log.billable != "0%" and log.project}
 		jira_sites = get_jira_sites_for_projects(billable_projects)
 
 		for log in self.time_logs:

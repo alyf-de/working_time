@@ -61,6 +61,19 @@ In a **Working Time Log**, mark _Break_ (`is_break`) for any physical break. Reg
 
 German users may refer to [this article](https://www.kanzlei-chevalier.de/blog/dienstreise-als-arbeitszeit) for more information.
 
+## Billable Time Logs
+
+On submit, every billable **Working Time Log** row (a row with a _Project_ and _Billable_ percentage other than 0%) must include an invoice reference:
+
+- a Jira issue _Key_, or
+- a non-empty _Note_
+
+A billable row with neither a _Key_ nor a _Note_ is rejected, including on projects that are not linked to a **Jira Site**.
+
+For projects linked to a **Jira Site**, a _Note_ alone is only accepted when it starts with `+`. That prefix marks the text as a customer-facing invoice note. Internal-only notes without the `+` prefix are not sufficient for billable rows on Jira projects.
+
+For projects without a **Jira Site**, any non-empty _Note_ is enough when no _Key_ is set. Notes starting with `+` are treated as customer notes on invoices; other notes are internal.
+
 ## Further Reading
 
 Want to add pretty time logs to your invoice? Check out our [print formats](https://github.com/alyf-de/erpnext_druckformate).
