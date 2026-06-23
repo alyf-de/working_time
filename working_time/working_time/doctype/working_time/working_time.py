@@ -51,16 +51,16 @@ class WorkingTime(Document):
 			self.billable_pct = round(self.billable_time / self.working_time * 100, 0)
 
 	def validate(self):
+		billable_projects = {
+			log.project for log in self.time_logs if log.billable != "0%" and log.project
+		}
+		jira_sites = get_jira_sites_for_projects(billable_projects)
+
 		for log in self.time_logs:
 			if log.duration and log.duration < 0:
 				frappe.throw(_("Please fix negative duration in row {0}").format(log.idx))
 
-			if (
-				log.billable != "0%"
-				and log.project
-				and not log.key
-				and (not log.note or not log.note.strip().startswith("+"))
-			):
+			if billable_row_missing_invoice_reference(log, jira_sites.get(log.project)):
 				frappe.throw(
 					_("Please add an issue key or invoice note to the billable row {0}").format(log.idx)
 				)
@@ -380,6 +380,34 @@ def get_billable_duration(log):
 		return 0
 
 	return log.duration * float(log.billable.rstrip("% ")) / 100
+
+
+def get_jira_sites_for_projects(projects: set[str]) -> dict[str, str | None]:
+	if not projects:
+		return {}
+
+	return {
+		row.name: row.jira_site
+		for row in frappe.get_all(
+			"Project",
+			filters={"name": ("in", list(projects))},
+			fields=["name", "jira_site"],
+		)
+	}
+
+
+def billable_row_missing_invoice_reference(log, jira_site: str | None) -> bool:
+	if log.billable == "0%" or not log.project or log.key:
+		return False
+
+	note = log.note.strip() if log.note else ""
+	if not note:
+		return True
+
+	if jira_site:
+		return not note.startswith("+")
+
+	return False
 
 
 def parse_note(note: str | None) -> tuple[str | None, str | None]:

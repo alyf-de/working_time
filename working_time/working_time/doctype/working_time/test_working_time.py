@@ -6,7 +6,12 @@ import unittest
 import frappe
 from frappe import _dict
 
-from working_time.working_time.doctype.working_time.working_time import aggregate_time_logs
+from working_time.jira_utils import get_description
+from working_time.working_time.doctype.working_time.working_time import (
+	aggregate_time_logs,
+	billable_row_missing_invoice_reference,
+	parse_note,
+)
 
 
 class TestWorkingTime(unittest.TestCase):
@@ -83,6 +88,49 @@ class TestWorkingTime(unittest.TestCase):
 		self.assertEqual(project_b["hours"], 2.0)
 		self.assertEqual(project_b["internal_notes"], [])
 		self.assertEqual(project_b["customer_notes"], ["Customer Note 1"])
+
+	def test_aggregate_time_logs_without_jira_site(self):
+		logs = [
+			_dict(
+				project="Project A",
+				duration=3600,
+				billable="100%",
+				note="Internal note",
+			),
+		]
+
+		result = aggregate_time_logs(logs)
+
+		project_a = result[("Project A", None, None)]
+		self.assertEqual(project_a["customer_notes"], [])
+		self.assertEqual(project_a["internal_notes"], ["Internal note"])
+
+	def test_parse_note(self):
+		customer_note, internal_note = parse_note("internal only")
+		self.assertIsNone(customer_note)
+		self.assertEqual(internal_note, "internal only")
+
+		customer_note, internal_note = parse_note("+customer")
+		self.assertEqual(customer_note, "customer")
+		self.assertIsNone(internal_note)
+
+	def test_billable_row_missing_invoice_reference(self):
+		log = _dict(billable="100%", project="Project A", key=None, note="plain note")
+		self.assertFalse(billable_row_missing_invoice_reference(log, None))
+		self.assertTrue(billable_row_missing_invoice_reference(log, "jira.example.com"))
+
+		log.note = "+invoice note"
+		self.assertFalse(billable_row_missing_invoice_reference(log, "jira.example.com"))
+
+		log.note = None
+		log.key = "KEY-1"
+		self.assertFalse(billable_row_missing_invoice_reference(log, "jira.example.com"))
+
+	def test_get_description_without_jira_site(self):
+		self.assertEqual(get_description(None, "KEY-1", None), "KEY-1")
+		self.assertEqual(get_description(None, "KEY-1", "extra"), "KEY-1:\n\nextra")
+		self.assertEqual(get_description(None, None, "note"), "note")
+		self.assertEqual(get_description(None, None, None), "-")
 
 	def test_paid_break_totals(self):
 		working_time = self.get_working_time(
