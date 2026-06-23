@@ -126,6 +126,9 @@ class TestWorkingTime(unittest.TestCase):
 		log.key = "KEY-1"
 		self.assertFalse(billable_row_missing_invoice_reference(log, "jira.example.com"))
 
+		log.key = None
+		self.assertTrue(billable_row_missing_invoice_reference(log, None))
+
 	def test_get_description_without_jira_site(self):
 		self.assertEqual(get_description(None, "KEY-1", None), "KEY-1")
 		self.assertEqual(get_description(None, "KEY-1", "extra"), "KEY-1:\n\nextra")
