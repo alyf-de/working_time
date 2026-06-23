@@ -7,11 +7,16 @@ Companies that use Atlassian Jira for project management and ERPNext for time tr
 ## Features
 
 - Allows logging of miscellaneous time, project time, breaks and paid breaks
-- Allows to set a percentage of working time as billable time in a Working Time Log
+- Optional **Activity Type** on each project time log (defaults to `"Default"`)
+- Creates separate **Timesheet** entries when the same project is logged with different activity types
+- Resolves billing and costing rates from **Activity Cost**, then **Project**, then **Activity Type**
+- Optional project-specific **Activity Cost** records for different rates per project
+- Allows to set a percentage of working time as billable time in a **Working Time Log**
 - Rounds billable time to 5 minutes
 - Fetches issue titles from Jira (used as time log description)
 - Creates ERPNext **Timesheets**
 - Creates ERPNext **Attendances**
+- Whole-day project timesheets (single 8-hour **Timesheet** merged from multiple logs)
 - Report of actual vs. expected working time per Employee
 - Sends email reminders to employees for submitting their draft working time entries
     - If a draft working time entry is older than 3 days, and
@@ -22,6 +27,58 @@ Companies that use Atlassian Jira for project management and ERPNext for time tr
     - Minimum rest time between days
     - Blocked weekdays
     - Holiday blocking (based on the employee's holiday list)
+
+## Activity types and billing rates
+
+This section explains how **Working Time** turns your daily logs into **Timesheet** rows with the correct rates.
+
+### Activity Type on time logs
+
+When a **Working Time Log** row is linked to a **Project**, you can choose an **Activity Type** (for example `"Default"` or `"Support"`). If you leave it empty, `"Default"` is used automatically.
+
+Different activity types on the same day produce **separate Timesheet entries**, even when project, task, and Jira key are the same. That lets you bill or cost the same project at different rates within one day.
+
+### How rates are chosen
+
+When you submit **Working Time**, each **Timesheet** line gets a billing rate and a costing rate. They are resolved independently:
+
+**Billing rate** (what the customer is charged):
+
+1. **Activity Cost** for this employee, activity type, and project (if a matching record exists)
+2. Otherwise **Activity Cost** for the same employee and activity type without a project
+3. Otherwise the **Project** billing rate per hour
+4. Otherwise the default rates on the **Activity Type**
+5. Otherwise `0`
+
+**Costing rate** (internal employee cost):
+
+1. **Activity Cost** for this employee, activity type, and project (if a matching record exists)
+2. Otherwise **Activity Cost** for the same employee and activity type without a project
+3. Otherwise the default rates on the **Activity Type**
+4. Otherwise `0`
+
+Whole-day **Timesheet** entries use the **Project** billing rate per day (or per hour) for billing, but still use **Activity Cost** for costing.
+
+### Project-specific Activity Cost
+
+**Activity Cost** has an optional **Project** field. Use it when one employee should have different rates on different projects while keeping the same activity type.
+
+Example:
+
+| Employee | Activity Type | Project | Billing rate | Costing rate |
+|----------|---------------|---------|--------------|--------------|
+| Jane Doe | Default | *(empty)* | 100 | 45 |
+| Jane Doe | Default | Client A | 120 | 50 |
+
+When Jane logs time on Client A, the project-specific row is used. On any other project, the row without a project applies.
+
+Each combination of employee, activity type, and project may exist only once. You can have one generic record (no project) and additional records for specific projects.
+
+After upgrading an existing site, run `bench migrate` so the **Project** field is added to **Activity Cost**.
+
+### Whole-day project
+
+If **Working Time** has a **Whole Day Project** set, all logs on that project are merged into one 8-hour **Timesheet** when you submit. Every log on that project must use the **same activity type** (or all default to `"Default"`). Mixed activity types are rejected with an error instead of silently using only the first log's type.
 
 ## Setup
 
@@ -37,13 +94,25 @@ Companies that use Atlassian Jira for project management and ERPNext for time tr
 - Enable _Ignore Employee Time Overlap_ and _Ignore User Time Overlap_ in **Projects Settings**
 - Open or create an ERPNext **Project**
     - Link it to your **Jira Site**
-    - Set the _Billing Rate per Hour_
-- Create **Activity Cost** records for your **Employees** (_Activity Type_: "Default")
+    - Set the _Billing Rate per Hour_ (and optionally _Billing Rate per Day_ for whole-day billing)
+- Create **Activity Type** records if you need types other than `"Default"` (installed automatically on first install)
+- Create **Activity Cost** records for your **Employees**
+    - One row per employee and activity type without a project for your standard rates
+    - Optional extra rows with **Project** set for project-specific rates
+- Optionally assign a **Working Time Policy** on each **Employee**
 - Create your first **Working Time**
     - Add a time log with description,
     - Add a time log and mark it as a break,
-    - Add a time log and link it to a _Project_ and Jira issue _Key_
-- Submit your **Working Time**
+    - Add a time log and link it to a _Project_, Jira issue _Key_, and optionally _Activity Type_
+- Submit your **Working Time** and review the draft **Timesheets** created for that day
+
+### Quick checklist for rates
+
+1. Create **Activity Type** records (e.g. `"Default"`, `"Support"`).
+2. For each employee, create **Activity Cost** with activity type `"Default"` and your standard hourly rates.
+3. Add project-specific **Activity Cost** rows only where rates differ from the standard.
+4. Set **Billing Rate per Hour** on each **Project** as a fallback when no **Activity Cost** billing rate applies.
+5. Submit a test **Working Time** with two logs on the same project but different activity types; confirm two **Timesheets** with the expected rates.
 
 ## Time Fields
 
