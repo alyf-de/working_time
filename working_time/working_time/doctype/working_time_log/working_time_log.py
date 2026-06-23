@@ -7,8 +7,14 @@ from datetime import timedelta
 from frappe.model.document import Document
 from frappe.utils.data import to_timedelta
 
+DEFAULT_ACTIVITY_TYPE = "Default"
+
 
 class WorkingTimeLog(Document):
+	def validate(self):
+		if self.project and not self.activity_type:
+			self.activity_type = DEFAULT_ACTIVITY_TYPE
+
 	def cleanup_and_set_duration(self):
 		self.ensure_timedelta()
 		self.remove_seconds()

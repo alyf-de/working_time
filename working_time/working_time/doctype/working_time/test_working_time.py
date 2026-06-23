@@ -2,11 +2,21 @@
 # See license.txt
 
 import unittest
+from unittest.mock import MagicMock, patch
 
 import frappe
 from frappe import _dict
 
-from working_time.working_time.doctype.working_time.working_time import aggregate_time_logs
+from working_time.working_time.doctype.working_time.working_time import (
+	aggregate_time_logs,
+	get_costing_rate,
+	get_log_activity_type,
+	resolve_billing_rate,
+)
+from working_time.working_time.doctype.working_time_log.working_time_log import (
+	DEFAULT_ACTIVITY_TYPE,
+	WorkingTimeLog,
+)
 
 
 class TestWorkingTime(unittest.TestCase):
@@ -71,7 +81,7 @@ class TestWorkingTime(unittest.TestCase):
 		result = aggregate_time_logs(logs)
 
 		# Check Project A
-		project_a = result[("Project A", None, "KEY-1")]
+		project_a = result[("Project A", None, "KEY-1", "Default")]
 		self.assertEqual(project_a["hours"], 3.0)
 		self.assertEqual(
 			project_a["internal_notes"], ["Internal Note 1", "Internal Note 2", "Internal Note 1"]
@@ -79,10 +89,338 @@ class TestWorkingTime(unittest.TestCase):
 		self.assertEqual(project_a["customer_notes"], [])
 
 		# Check Project B
-		project_b = result[("Project B", "Task B", "KEY-2")]
+		project_b = result[("Project B", "Task B", "KEY-2", "Default")]
 		self.assertEqual(project_b["hours"], 2.0)
 		self.assertEqual(project_b["internal_notes"], [])
 		self.assertEqual(project_b["customer_notes"], ["Customer Note 1"])
+
+	def test_aggregate_time_logs_by_activity_type(self):
+		logs = [
+			_dict(
+				project="Project A",
+				key="KEY-1",
+				duration=3600,
+				billable="100%",
+				activity_type="Default",
+			),
+			_dict(
+				project="Project A",
+				key="KEY-1",
+				duration=1800,
+				billable="100%",
+				activity_type="Support",
+			),
+			_dict(
+				project="Project A",
+				key="KEY-1",
+				duration=1800,
+				billable="100%",
+				activity_type="Support",
+			),
+		]
+
+		result = aggregate_time_logs(logs)
+
+		self.assertEqual(result[("Project A", None, "KEY-1", "Default")]["hours"], 1.0)
+		self.assertEqual(result[("Project A", None, "KEY-1", "Support")]["hours"], 1.0)
+
+	def test_get_log_activity_type_defaults_to_default(self):
+		self.assertEqual(
+			get_log_activity_type(_dict(project="Project A", activity_type=None)),
+			DEFAULT_ACTIVITY_TYPE,
+		)
+		self.assertEqual(
+			get_log_activity_type(_dict(project="Project A", activity_type="Support")),
+			"Support",
+		)
+
+	def test_aggregate_time_logs_without_activity_type_uses_default(self):
+		logs = [
+			_dict(
+				project="Project A",
+				key="KEY-1",
+				duration=3600,
+				billable="100%",
+			),
+		]
+
+		result = aggregate_time_logs(logs)
+
+		self.assertIn(("Project A", None, "KEY-1", DEFAULT_ACTIVITY_TYPE), result)
+
+	def test_working_time_log_validate_sets_default_activity_type(self):
+		log = WorkingTimeLog.__new__(WorkingTimeLog)
+		log.project = "Project A"
+		log.activity_type = None
+		WorkingTimeLog.validate(log)
+		self.assertEqual(log.activity_type, DEFAULT_ACTIVITY_TYPE)
+
+	def test_parallel_logs_create_separate_timesheets_by_activity_type(self):
+		working_time = self.get_working_time(
+			[
+				{
+					"from_time": "09:00:00",
+					"to_time": "11:00:00",
+					"project": "Project A",
+					"key": "KEY-1",
+					"billable": "100%",
+					"activity_type": "Default",
+				},
+				{
+					"from_time": "11:00:00",
+					"to_time": "12:00:00",
+					"project": "Project A",
+					"key": "KEY-1",
+					"billable": "100%",
+					"activity_type": "Support",
+				},
+			]
+		)
+		working_time.before_validate()
+
+		project_details = _dict(
+			customer="Customer",
+			billing_rate=100,
+			billing_rate_per_day=0,
+			jira_site=None,
+		)
+		with (
+			patch.object(working_time, "insert_timesheet") as insert_timesheet,
+			patch(
+				"working_time.working_time.doctype.working_time.working_time.get_project_details",
+				return_value=project_details,
+			),
+			patch(
+				"working_time.working_time.doctype.working_time.working_time.get_description",
+				return_value="KEY-1",
+			),
+		):
+			working_time.create_timesheets()
+
+		self.assertEqual(insert_timesheet.call_count, 2)
+		activity_types = {call.kwargs["activity_type"] for call in insert_timesheet.call_args_list}
+		self.assertEqual(activity_types, {"Default", "Support"})
+		for call in insert_timesheet.call_args_list:
+			self.assertEqual(call.kwargs["project"], "Project A")
+			self.assertEqual(call.kwargs["task"], None)
+
+	def test_resolve_billing_rate_priority(self):
+		activity_cost = _dict(billing_rate=150, costing_rate=0)
+		activity_type = _dict(billing_rate=50, costing_rate=0)
+
+		with (
+			patch(
+				"working_time.working_time.doctype.working_time.working_time.get_activity_cost_rates",
+				return_value=activity_cost,
+			),
+			patch(
+				"working_time.working_time.doctype.working_time.working_time.get_activity_type_rates",
+				return_value=activity_type,
+			),
+		):
+			self.assertEqual(resolve_billing_rate("EMP-1", "Support", 100), 150)
+
+		with (
+			patch(
+				"working_time.working_time.doctype.working_time.working_time.get_activity_cost_rates",
+				return_value=None,
+			),
+			patch(
+				"working_time.working_time.doctype.working_time.working_time.get_activity_type_rates",
+				return_value=activity_type,
+			),
+		):
+			self.assertEqual(resolve_billing_rate("EMP-1", "Support", 100), 100)
+
+		with (
+			patch(
+				"working_time.working_time.doctype.working_time.working_time.get_activity_cost_rates",
+				return_value=_dict(billing_rate=0, costing_rate=0),
+			),
+			patch(
+				"working_time.working_time.doctype.working_time.working_time.get_activity_type_rates",
+				return_value=activity_type,
+			),
+		):
+			self.assertEqual(resolve_billing_rate("EMP-1", "Support", 0), 50)
+
+	def test_get_costing_rate_priority(self):
+		activity_cost = _dict(billing_rate=0, costing_rate=45)
+		activity_type = _dict(billing_rate=0, costing_rate=20)
+
+		with (
+			patch(
+				"working_time.working_time.doctype.working_time.working_time.get_activity_cost_rates",
+				return_value=activity_cost,
+			),
+			patch(
+				"working_time.working_time.doctype.working_time.working_time.get_activity_type_rates",
+				return_value=activity_type,
+			),
+		):
+			self.assertEqual(get_costing_rate("EMP-1", "Support"), 45)
+
+		with (
+			patch(
+				"working_time.working_time.doctype.working_time.working_time.get_activity_cost_rates",
+				return_value=None,
+			),
+			patch(
+				"working_time.working_time.doctype.working_time.working_time.get_activity_type_rates",
+				return_value=activity_type,
+			),
+		):
+			self.assertEqual(get_costing_rate("EMP-1", "Support"), 20)
+
+	def test_resolve_billing_rate_falls_back_to_zero(self):
+		with (
+			patch(
+				"working_time.working_time.doctype.working_time.working_time.get_activity_cost_rates",
+				return_value=None,
+			),
+			patch(
+				"working_time.working_time.doctype.working_time.working_time.get_activity_type_rates",
+				return_value=None,
+			),
+		):
+			self.assertEqual(resolve_billing_rate("EMP-1", "Support", 0), 0)
+
+	def test_get_costing_rate_falls_back_to_zero(self):
+		with (
+			patch(
+				"working_time.working_time.doctype.working_time.working_time.get_activity_cost_rates",
+				return_value=None,
+			),
+			patch(
+				"working_time.working_time.doctype.working_time.working_time.get_activity_type_rates",
+				return_value=None,
+			),
+		):
+			self.assertEqual(get_costing_rate("EMP-1", "Support"), 0)
+
+	def test_insert_timesheet_sets_billing_and_costing_rates(self):
+		working_time = self.get_working_time([])
+		working_time.employee = "EMP-1"
+		captured = {}
+
+		def capture_get_doc(doc_dict):
+			captured.update(doc_dict)
+			doc = MagicMock()
+			doc.insert = MagicMock()
+			return doc
+
+		with (
+			patch(
+				"working_time.working_time.doctype.working_time.working_time.get_costing_rate",
+				return_value=45,
+			),
+			patch(
+				"working_time.working_time.doctype.working_time.working_time.frappe.get_doc",
+				side_effect=capture_get_doc,
+			),
+		):
+			working_time.insert_timesheet(
+				project="Project A",
+				customer="Customer",
+				task=None,
+				activity_type="Support",
+				billing_rate=150,
+				hours=2,
+				billing_hours=2,
+				description="Support work",
+				jira_issue_url=None,
+				internal_notes=["internal"],
+			)
+
+		time_log = captured["time_logs"][0]
+		self.assertEqual(time_log["billing_rate"], 150)
+		self.assertEqual(time_log["base_billing_rate"], 150)
+		self.assertEqual(time_log["costing_rate"], 45)
+		self.assertEqual(time_log["base_costing_rate"], 45)
+
+	def test_insert_timesheet_resolves_activity_rates_end_to_end(self):
+		working_time = self.get_working_time([])
+		working_time.employee = "EMP-1"
+		captured = {}
+
+		def capture_get_doc(doc_dict):
+			captured.update(doc_dict)
+			doc = MagicMock()
+			doc.insert = MagicMock()
+			return doc
+
+		with (
+			patch(
+				"working_time.working_time.doctype.working_time.working_time.get_activity_cost_rates",
+				return_value=_dict(billing_rate=150, costing_rate=45),
+			),
+			patch(
+				"working_time.working_time.doctype.working_time.working_time.get_activity_type_rates",
+				return_value=_dict(billing_rate=50, costing_rate=20),
+			),
+			patch(
+				"working_time.working_time.doctype.working_time.working_time.frappe.get_doc",
+				side_effect=capture_get_doc,
+			),
+		):
+			working_time.insert_timesheet(
+				project="Project A",
+				customer="Customer",
+				task=None,
+				activity_type="Support",
+				billing_rate=resolve_billing_rate("EMP-1", "Support", 100),
+				hours=2,
+				billing_hours=2,
+				description="Support work",
+				jira_issue_url=None,
+				internal_notes=[],
+			)
+
+		time_log = captured["time_logs"][0]
+		self.assertEqual(time_log["billing_rate"], 150)
+		self.assertEqual(time_log["costing_rate"], 45)
+
+	def test_insert_timesheet_falls_back_to_zero_rates(self):
+		working_time = self.get_working_time([])
+		working_time.employee = "EMP-1"
+		captured = {}
+
+		def capture_get_doc(doc_dict):
+			captured.update(doc_dict)
+			doc = MagicMock()
+			doc.insert = MagicMock()
+			return doc
+
+		with (
+			patch(
+				"working_time.working_time.doctype.working_time.working_time.get_activity_cost_rates",
+				return_value=None,
+			),
+			patch(
+				"working_time.working_time.doctype.working_time.working_time.get_activity_type_rates",
+				return_value=None,
+			),
+			patch(
+				"working_time.working_time.doctype.working_time.working_time.frappe.get_doc",
+				side_effect=capture_get_doc,
+			),
+		):
+			working_time.insert_timesheet(
+				project="Project A",
+				customer="Customer",
+				task=None,
+				activity_type="Support",
+				billing_rate=resolve_billing_rate("EMP-1", "Support", 0),
+				hours=2,
+				billing_hours=2,
+				description="Support work",
+				jira_issue_url=None,
+				internal_notes=[],
+			)
+
+		time_log = captured["time_logs"][0]
+		self.assertEqual(time_log["billing_rate"], 0)
+		self.assertEqual(time_log["costing_rate"], 0)
 
 	def test_paid_break_totals(self):
 		working_time = self.get_working_time(
