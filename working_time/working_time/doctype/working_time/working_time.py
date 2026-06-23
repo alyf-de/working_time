@@ -241,6 +241,7 @@ class WorkingTime(Document):
 					self.employee,
 					activity_type,
 					details.billing_rate,
+					project=project,
 				),
 				hours=data["hours"],
 				billing_hours=data["billable_hours"],
@@ -288,11 +289,21 @@ class WorkingTime(Document):
 		keys = [key for key in customer_notes_by_key if key]
 		hours = sum(log.duration or 0 for log in logs) / ONE_HOUR
 
+		activity_types = {get_log_activity_type(log) for log in logs}
+		if len(activity_types) > 1:
+			frappe.throw(
+				_("All time logs for the whole day project {0} must use the same activity type.").format(
+					frappe.bold(self.whole_day_project)
+				),
+				title=_("Mixed Activity Types"),
+			)
+		activity_type = activity_types.pop()
+
 		self.insert_timesheet(
 			project=self.whole_day_project,
 			customer=details.customer,
 			task=tasks.pop() if len(tasks) == 1 else None,
-			activity_type=get_log_activity_type(logs[0]),
+			activity_type=activity_type,
 			billing_rate=billing_rate,
 			hours=hours,
 			billing_hours=WHOLE_DAY_HOURS,
@@ -314,7 +325,7 @@ class WorkingTime(Document):
 		jira_issue_url,
 		internal_notes,
 	):
-		costing_rate = get_costing_rate(self.employee, activity_type)
+		costing_rate = get_costing_rate(self.employee, activity_type, project=project)
 
 		frappe.get_doc(
 			{
@@ -368,15 +379,23 @@ class WorkingTime(Document):
 
 def get_log_activity_type(log):
 	if not log.project:
-		return log.activity_type
+		raise ValueError("log must have a project")
 	return log.activity_type or DEFAULT_ACTIVITY_TYPE
 
 
-def get_activity_cost_rates(employee, activity_type):
+def get_activity_cost_rates(employee, activity_type, project=None):
+	filters = {"activity_type": activity_type, "employee": employee}
+	fields = ["costing_rate", "billing_rate"]
+
+	if project:
+		rates = frappe.db.get_value("Activity Cost", {**filters, "project": project}, fields, as_dict=True)
+		if rates:
+			return rates
+
 	return frappe.db.get_value(
 		"Activity Cost",
-		{"activity_type": activity_type, "employee": employee},
-		["costing_rate", "billing_rate"],
+		{**filters, "project": ("is", "not set")},
+		fields,
 		as_dict=True,
 	)
 
@@ -390,8 +409,8 @@ def get_activity_type_rates(activity_type):
 	)
 
 
-def get_costing_rate(employee, activity_type=DEFAULT_ACTIVITY_TYPE):
-	activity_cost = get_activity_cost_rates(employee, activity_type)
+def get_costing_rate(employee, activity_type=DEFAULT_ACTIVITY_TYPE, project=None):
+	activity_cost = get_activity_cost_rates(employee, activity_type, project)
 	if activity_cost and flt(activity_cost.costing_rate):
 		return flt(activity_cost.costing_rate)
 
@@ -402,8 +421,8 @@ def get_costing_rate(employee, activity_type=DEFAULT_ACTIVITY_TYPE):
 	return 0.0
 
 
-def resolve_billing_rate(employee, activity_type, project_billing_rate):
-	activity_cost = get_activity_cost_rates(employee, activity_type)
+def resolve_billing_rate(employee, activity_type, project_billing_rate, project=None):
+	activity_cost = get_activity_cost_rates(employee, activity_type, project)
 	if activity_cost and flt(activity_cost.billing_rate):
 		return flt(activity_cost.billing_rate)
 

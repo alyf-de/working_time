@@ -9,6 +9,7 @@ from frappe import _dict
 
 from working_time.working_time.doctype.working_time.working_time import (
 	aggregate_time_logs,
+	get_activity_cost_rates,
 	get_costing_rate,
 	get_log_activity_type,
 	resolve_billing_rate,
@@ -133,6 +134,8 @@ class TestWorkingTime(unittest.TestCase):
 			get_log_activity_type(_dict(project="Project A", activity_type="Support")),
 			"Support",
 		)
+		with self.assertRaises(ValueError):
+			get_log_activity_type(_dict(project=None, activity_type=None))
 
 	def test_aggregate_time_logs_without_activity_type_uses_default(self):
 		logs = [
@@ -203,6 +206,110 @@ class TestWorkingTime(unittest.TestCase):
 		for call in insert_timesheet.call_args_list:
 			self.assertEqual(call.kwargs["project"], "Project A")
 			self.assertEqual(call.kwargs["task"], None)
+
+	def test_whole_day_timesheet_rejects_mixed_activity_types(self):
+		whole_day_project = "Whole Day Project"
+		working_time = self.get_working_time(
+			[
+				{
+					"from_time": "09:00:00",
+					"to_time": "12:00:00",
+					"project": whole_day_project,
+					"key": "KEY-1",
+					"billable": "100%",
+					"activity_type": "Default",
+				},
+				{
+					"from_time": "12:00:00",
+					"to_time": "17:00:00",
+					"project": whole_day_project,
+					"key": "KEY-2",
+					"billable": "100%",
+					"activity_type": "Support",
+				},
+			]
+		)
+		working_time.whole_day_project = whole_day_project
+		working_time.before_validate()
+
+		project_details = _dict(
+			customer="Customer",
+			billing_rate=100,
+			billing_rate_per_day=800,
+			jira_site=None,
+		)
+		with (
+			patch.object(working_time, "insert_timesheet") as insert_timesheet,
+			patch(
+				"working_time.working_time.doctype.working_time.working_time.get_project_details",
+				return_value=project_details,
+			),
+		):
+			self.assertRaises(
+				frappe.ValidationError,
+				working_time.create_whole_day_timesheet,
+				working_time.time_logs,
+			)
+			insert_timesheet.assert_not_called()
+
+	def test_get_activity_cost_rates_prefers_project_specific(self):
+		project_rates = _dict(billing_rate=120, costing_rate=60)
+		calls = []
+
+		def get_value(doctype, filters, fields, as_dict=False):
+			calls.append(filters)
+			if filters.get("project") == "Project A":
+				return project_rates
+			return None
+
+		with patch(
+			"working_time.working_time.doctype.working_time.working_time.frappe.db.get_value",
+			side_effect=get_value,
+		):
+			result = get_activity_cost_rates("EMP-1", "Support", "Project A")
+
+		self.assertEqual(result, project_rates)
+		self.assertEqual(calls[0]["project"], "Project A")
+		self.assertEqual(len(calls), 1)
+
+	def test_get_activity_cost_rates_falls_back_without_project(self):
+		default_rates = _dict(billing_rate=80, costing_rate=40)
+		calls = []
+
+		def get_value(doctype, filters, fields, as_dict=False):
+			calls.append(filters)
+			if filters.get("project") == "Project A":
+				return None
+			if filters.get("project") == ("is", "not set"):
+				return default_rates
+			return None
+
+		with patch(
+			"working_time.working_time.doctype.working_time.working_time.frappe.db.get_value",
+			side_effect=get_value,
+		):
+			result = get_activity_cost_rates("EMP-1", "Support", "Project A")
+
+		self.assertEqual(result, default_rates)
+		self.assertEqual(calls[0]["project"], "Project A")
+		self.assertEqual(calls[1]["project"], ("is", "not set"))
+
+	def test_get_costing_rate_uses_project_specific_activity_cost(self):
+		with patch(
+			"working_time.working_time.doctype.working_time.working_time.get_activity_cost_rates",
+			return_value=_dict(billing_rate=0, costing_rate=60),
+		):
+			self.assertEqual(get_costing_rate("EMP-1", "Support", project="Project A"), 60)
+
+	def test_resolve_billing_rate_uses_project_specific_activity_cost(self):
+		with patch(
+			"working_time.working_time.doctype.working_time.working_time.get_activity_cost_rates",
+			return_value=_dict(billing_rate=120, costing_rate=0),
+		):
+			self.assertEqual(
+				resolve_billing_rate("EMP-1", "Support", 100, project="Project A"),
+				120,
+			)
 
 	def test_resolve_billing_rate_priority(self):
 		activity_cost = _dict(billing_rate=150, costing_rate=0)

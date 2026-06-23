@@ -8,3 +8,4 @@ working_time.patches.add_total_to_old_freelancer_time
 execute:from working_time.install import make_custom_fields; make_custom_fields() # 2026-06-11
 working_time.patches.rename_max_working_time_to_productive_time
 working_time.patches.backfill_productive_and_paid_break_time # 1
+execute:from working_time.install import make_custom_fields; make_custom_fields() # 2026-06-23
