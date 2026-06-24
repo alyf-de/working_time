@@ -518,12 +518,12 @@ def aggregate_time_logs(time_logs) -> dict[tuple[str | None, str | None, str | N
 
 
 @frappe.whitelist()
-def get_configured_activity_types(employee, project=None):
+def get_configured_activity_types(employee: str, project: str | None = None):
 	check_activity_type_access(employee, project)
 	return _get_configured_activity_types(employee, project)
 
 
-def _get_configured_activity_types(employee, project=None):
+def _get_configured_activity_types(employee: str, project: str | None = None):
 	"""Activity types with an Activity Cost row for this employee (and project, if given)."""
 	if not employee:
 		return []
@@ -549,7 +549,9 @@ def _get_configured_activity_types(employee, project=None):
 
 @frappe.whitelist()
 @frappe.validate_and_sanitize_search_inputs
-def get_activity_type_query(doctype, txt, searchfield, start, page_len, filters):
+def get_activity_type_query(
+	doctype: str, txt: str, searchfield: str, start: int, page_len: int, filters: dict
+):
 	employee = filters.get("employee")
 	project = filters.get("project")
 	check_activity_type_access(employee, project)
