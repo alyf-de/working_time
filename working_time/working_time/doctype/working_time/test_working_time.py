@@ -8,6 +8,7 @@ import frappe
 from frappe import _dict
 
 from working_time.working_time.doctype.working_time.working_time import (
+	_get_configured_activity_types,
 	aggregate_time_logs,
 	get_activity_cost_rates,
 	get_costing_rate,
@@ -310,6 +311,37 @@ class TestWorkingTime(unittest.TestCase):
 				resolve_billing_rate("EMP-1", "Support", 100, project="Project A"),
 				120,
 			)
+
+	def test_get_configured_activity_types_without_project(self):
+		costs = [
+			_dict(activity_type="Default", project="PROJ-0009"),
+			_dict(activity_type="Forschung", project=None),
+			_dict(activity_type="Default", project=None),
+		]
+		with patch(
+			"working_time.working_time.doctype.working_time.working_time.frappe.get_all",
+			return_value=costs,
+		):
+			self.assertEqual(_get_configured_activity_types("EMP-1"), ["Default", "Forschung"])
+
+	def test_get_configured_activity_types_with_project(self):
+		costs = [
+			_dict(activity_type="Default", project="PROJ-0009"),
+			_dict(activity_type="Default", project=None),
+			_dict(activity_type="Forschung", project=None),
+			_dict(activity_type="Ausführung", project="PROJ-OTHER"),
+		]
+		with patch(
+			"working_time.working_time.doctype.working_time.working_time.frappe.get_all",
+			return_value=costs,
+		):
+			self.assertEqual(
+				_get_configured_activity_types("EMP-1", "PROJ-0009"),
+				["Default", "Forschung"],
+			)
+
+	def test_get_configured_activity_types_without_employee(self):
+		self.assertEqual(_get_configured_activity_types(None), [])
 
 	def test_resolve_billing_rate_priority(self):
 		activity_cost = _dict(billing_rate=150, costing_rate=0)

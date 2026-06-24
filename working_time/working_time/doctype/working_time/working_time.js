@@ -4,6 +4,16 @@
 frappe.ui.form.on("Working Time", {
 	setup: function (frm) {
 		frm.set_query("employee", "erpnext.controllers.queries.employee_query");
+		frm.set_query("activity_type", "time_logs", function (doc, cdt, cdn) {
+			const row = locals[cdt][cdn];
+			return {
+				query: "working_time.working_time.doctype.working_time.working_time.get_activity_type_query",
+				filters: {
+					employee: frm.doc.employee,
+					project: row.project,
+				},
+			};
+		});
 	},
 	refresh: function (frm) {
 		if (frm.doc.docstatus === 0) {
@@ -34,6 +44,7 @@ frappe.ui.form.on("Working Time", {
 	},
 	employee: function (frm) {
 		frm.trigger("show_stats");
+		frm.trigger("clear_invalid_activity_types");
 	},
 	show_stats: function (frm) {
 		if (!frm.doc.employee || !frm.doc.date) {
@@ -64,6 +75,27 @@ frappe.ui.form.on("Working Time", {
 		frm.set_df_property("stats_html", "options", "");
 		frm.set_df_property("stats_section", "hidden", 1);
 		frm.refresh_field("stats_html");
+	},
+	clear_invalid_activity_types: function (frm) {
+		if (!frm.doc.employee) {
+			return;
+		}
+
+		for (const row of frm.doc.time_logs || []) {
+			if (!row.project || !row.activity_type) {
+				continue;
+			}
+			frappe
+				.xcall(
+					"working_time.working_time.doctype.working_time.working_time.get_configured_activity_types",
+					{ employee: frm.doc.employee, project: row.project }
+				)
+				.then((allowed) => {
+					if (!allowed.includes(row.activity_type)) {
+						frappe.model.set_value(row.doctype, row.name, "activity_type", "");
+					}
+				});
+		}
 	},
 });
 
@@ -109,6 +141,21 @@ frappe.ui.form.on("Working Time Log", {
 					frappe.model.set_value(cdt, cdn, "billable", "0%");
 				} else {
 					frappe.model.set_value(cdt, cdn, "billable", "100%");
+				}
+			});
+
+		if (!frm.doc.employee || !child.activity_type) {
+			return;
+		}
+
+		frappe
+			.xcall(
+				"working_time.working_time.doctype.working_time.working_time.get_configured_activity_types",
+				{ employee: frm.doc.employee, project: child.project }
+			)
+			.then((allowed) => {
+				if (!allowed.includes(child.activity_type)) {
+					frappe.model.set_value(cdt, cdn, "activity_type", "");
 				}
 			});
 	},

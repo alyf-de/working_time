@@ -11,6 +11,7 @@ from frappe.model.document import Document
 from frappe.utils.data import add_to_date, flt, format_duration, get_time, getdate
 
 from working_time.jira_utils import get_description, get_jira_issue_url
+from working_time.permissions import check_activity_type_access
 from working_time.working_time.doctype.working_time_log.working_time_log import DEFAULT_ACTIVITY_TYPE
 from working_time.working_time.number_card.number_cards import get_chart_data
 
@@ -514,6 +515,55 @@ def aggregate_time_logs(time_logs) -> dict[tuple[str | None, str | None, str | N
 				}
 
 	return aggregated_time_logs
+
+
+@frappe.whitelist()
+def get_configured_activity_types(employee, project=None):
+	check_activity_type_access(employee, project)
+	return _get_configured_activity_types(employee, project)
+
+
+def _get_configured_activity_types(employee, project=None):
+	"""Activity types with an Activity Cost row for this employee (and project, if given)."""
+	if not employee:
+		return []
+
+	costs = frappe.get_all(
+		"Activity Cost",
+		filters={"employee": employee},
+		fields=["activity_type", "project"],
+		order_by="activity_type",
+	)
+
+	if not project:
+		return sorted({row.activity_type for row in costs if row.activity_type})
+
+	return sorted(
+		{
+			row.activity_type
+			for row in costs
+			if row.activity_type and (not row.project or row.project == project)
+		}
+	)
+
+
+@frappe.whitelist()
+@frappe.validate_and_sanitize_search_inputs
+def get_activity_type_query(doctype, txt, searchfield, start, page_len, filters):
+	employee = filters.get("employee")
+	project = filters.get("project")
+	check_activity_type_access(employee, project)
+	allowed = _get_configured_activity_types(employee, project)
+	if not allowed:
+		return []
+
+	activity_type = frappe.qb.DocType("Activity Type")
+	query = frappe.qb.from_(activity_type).select(activity_type.name).where(activity_type.name.isin(allowed))
+
+	if txt:
+		query = query.where(activity_type.name.like(f"%{txt}%"))
+
+	return query.offset(start).limit(page_len).orderby(activity_type.name).run()
 
 
 @frappe.whitelist()
