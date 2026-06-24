@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Working Time VERSION\n"
 "Report-Msgid-Bugs-To: hallo@alyf.de\n"
-"POT-Creation-Date: 2026-06-11 17:09+0053\n"
+"POT-Creation-Date: 2026-06-24 08:37+0000\n"
 "PO-Revision-Date: 2026-03-27 14:57+0053\n"
 "Last-Translator: hallo@alyf.de\n"
 "Language-Team: hallo@alyf.de\n"
@@ -19,37 +19,37 @@ msgstr ""
 #. Option for the 'Billable' (Select) field in DocType 'Working Time Log'
 #: working_time/working_time/doctype/working_time_log/working_time_log.json
 msgid "0%"
-msgstr ""
+msgstr "0%"
 
 #. Option for the 'Billable' (Select) field in DocType 'Working Time Log'
 #: working_time/working_time/doctype/working_time_log/working_time_log.json
 msgid "100%"
-msgstr ""
+msgstr "100%"
 
 #. Option for the 'Billable' (Select) field in DocType 'Working Time Log'
 #: working_time/working_time/doctype/working_time_log/working_time_log.json
 msgid "125%"
-msgstr ""
+msgstr "125%"
 
 #. Option for the 'Billable' (Select) field in DocType 'Working Time Log'
 #: working_time/working_time/doctype/working_time_log/working_time_log.json
 msgid "150%"
-msgstr ""
+msgstr "150%"
 
 #. Option for the 'Billable' (Select) field in DocType 'Working Time Log'
 #: working_time/working_time/doctype/working_time_log/working_time_log.json
 msgid "25%"
-msgstr ""
+msgstr "25%"
 
 #. Option for the 'Billable' (Select) field in DocType 'Working Time Log'
 #: working_time/working_time/doctype/working_time_log/working_time_log.json
 msgid "50%"
-msgstr ""
+msgstr "50%"
 
 #. Option for the 'Billable' (Select) field in DocType 'Working Time Log'
 #: working_time/working_time/doctype/working_time_log/working_time_log.json
 msgid "75%"
-msgstr ""
+msgstr "75%"
 
 #. Content of the 'note_explainer' (HTML) field in DocType 'Freelancer Time'
 #. Content of the 'note_explainer' (HTML) field in DocType 'Working Time'
@@ -68,9 +68,31 @@ msgstr "<span class=\"h4\">Zeiterfassung</span>"
 msgid "API Token"
 msgstr "API-Token"
 
+#: working_time/overrides/activity_cost.py:38
+msgid "Activity Cost exists for Employee {0} against Activity Type {1}"
+msgstr "Für Mitarbeiter {0} bestehen zur Aktivitätsart {1} Aktivitätskosten"
+
+#: working_time/overrides/activity_cost.py:32
+msgid "Activity Cost exists for Employee {0} against Activity Type {1} and Project {2}"
+msgstr "Für Mitarbeiter {0} bestehen zur Aktivitätsart {1} und Projekt {2} Aktivitätskosten"
+
+#. Label of a Link field in DocType 'Working Time Log'
+#: working_time/working_time/doctype/working_time_log/working_time_log.json
+msgid "Activity Type"
+msgstr "Aktivitätsart"
+
 #: working_time/working_time/report/expected_and_actual_working_time/expected_and_actual_working_time.py:66
 msgid "Actual Working Time"
 msgstr "Tatsächliche Arbeitszeit"
+
+#: working_time/working_time/doctype/working_time/working_time.py:296
+msgid "All time logs for the whole day project {0} must use the same activity type."
+msgstr "Alle Zeiteinträge für das Ganztagesprojekt {0} müssen dieselbe Aktivitätsart verwenden."
+
+#. Linked DocType in Working Time's connections
+#: working_time/working_time/doctype/working_time/working_time.json
+msgid "Attendance"
+msgstr "Anwesenheit"
 
 #. Label of a Select field in DocType 'Working Time Log'
 #: working_time/working_time/doctype/working_time_log/working_time_log.json
@@ -177,6 +199,26 @@ msgstr ""
 "\n"
 "Vielen Dank!"
 
+#: working_time/overrides/activity_cost.py:45
+msgid "Default Activity Cost exists for Activity Type {0}"
+msgstr "Es gibt Standard-Aktivitätskosten für Aktivitätsart {0}"
+
+#: working_time/working_time/report/expected_and_actual_working_time/expected_and_actual_working_time.py:74
+msgid "Difference"
+msgstr "Abweichung"
+
+#. Label of a Link field in DocType 'Working Time'
+#. Name of a role
+#: working_time/working_time/doctype/working_time/working_time.json
+#: working_time/working_time/report/expected_and_actual_working_time/expected_and_actual_working_time.js:9
+msgid "Employee"
+msgstr "Mitarbeiter"
+
+#. Label of a Data field in DocType 'Working Time'
+#: working_time/working_time/doctype/working_time/working_time.json
+msgid "Employee Name"
+msgstr "Mitarbeitername"
+
 #. Description of the 'Paid' (Check) field in DocType 'Working Time Log'
 #: working_time/working_time/doctype/working_time_log/working_time_log.json
 msgid "Enable to count this break as paid working time (e.g. mandatory travel time)"
@@ -221,7 +263,7 @@ msgstr "Freelancer-Zeiteintrag"
 #. Time'
 #: working_time/working_time/doctype/working_time/working_time.json
 msgid "If set, all time logs for this project will be merged into a single 8-hour timesheet."
-msgstr "Wenn gesetzt, werden alle Einträge für dieses Projekt in ein 8-Stunden-Timesheet zusammengefasst."
+msgstr "Wenn gesetzt, werden alle Einträge für dieses Projekt in eine 8-Stunden-Zeiterfassung zusammengefasst."
 
 #. Description of the 'Note' (Small Text) field in DocType 'Working Time Log'
 #: working_time/working_time/doctype/working_time_log/working_time_log.json
@@ -247,7 +289,7 @@ msgstr "Jira-Site"
 #. Label of a Data field in DocType 'Working Time Log'
 #: working_time/working_time/doctype/working_time_log/working_time_log.json
 msgid "Jira-Key"
-msgstr ""
+msgstr "Jira-Key"
 
 #. Label of a Table field in DocType 'Working Time Policy'
 #: working_time/working_time/doctype/working_time_policy/working_time_policy.json
@@ -264,9 +306,13 @@ msgstr "Maximale produktive Arbeitszeit pro Tag"
 msgid "Min Rest Between Days"
 msgstr "Mindest-Ruhezeit zwischen Tagen"
 
-#: working_time/working_time/doctype/working_time/working_time.py:188
+#: working_time/working_time/doctype/working_time/working_time.py:190
 msgid "Missing Time Log"
 msgstr "Fehlender Zeiteintrag"
+
+#: working_time/working_time/doctype/working_time/working_time.py:299
+msgid "Mixed Activity Types"
+msgstr "Gemischte Aktivitätsarten"
 
 #. Label of a shortcut in the Time Tracking Workspace
 #: working_time/working_time/workspace/time_tracking/time_tracking.json
@@ -282,9 +328,18 @@ msgstr "Neue Arbeitszeit"
 msgid "Not Plausible"
 msgstr "Nicht Plausibel"
 
+#: working_time/working_time/report/expected_and_actual_working_time/expected_and_actual_working_time.py:46
+msgid "On Leave"
+msgstr "Abwesend"
+
 #: working_time/working_time/doctype/working_time/working_time_dashboard.html:30
 msgid "Only submitted working times are considered in this table."
 msgstr "Nur gebuchte Arbeitszeiten werden in dieser Tabelle berücksichtigt."
+
+#. Label of a Check field in DocType 'Working Time Log'
+#: working_time/working_time/doctype/working_time_log/working_time_log.json
+msgid "Paid"
+msgstr "Bezahlt"
 
 #. Label of a Duration field in DocType 'Working Time'
 #: working_time/working_time/doctype/working_time/working_time.json
@@ -296,15 +351,15 @@ msgstr "Bezahlte Pausenzeit"
 msgid "Paid Working Time"
 msgstr "Bezahlte Arbeitszeit"
 
-#: working_time/working_time/doctype/working_time/working_time.py:65
+#: working_time/working_time/doctype/working_time/working_time.py:67
 msgid "Please add an issue key or invoice note to the billable row {0}"
 msgstr "Bitte einen Issue-Key oder eine Rechnungsnotiz zur abrechenbaren Zeile {0} hinzufügen"
 
-#: working_time/working_time/doctype/working_time/working_time.py:185
+#: working_time/working_time/doctype/working_time/working_time.py:187
 msgid "Please add at least one time log for the whole day project {0}."
 msgstr "Bitte mindestens einen Zeiteintrag für das Ganztagesprojekt {0} hinzufügen."
 
-#: working_time/working_time/doctype/working_time/working_time.py:56
+#: working_time/working_time/doctype/working_time/working_time.py:58
 msgid "Please fix negative duration in row {0}"
 msgstr "Bitte negative Dauer in Zeile {0} korrigieren"
 
@@ -313,11 +368,11 @@ msgstr "Bitte negative Dauer in Zeile {0} korrigieren"
 msgid "Productive Time"
 msgstr "Produktive Arbeitszeit"
 
-#: working_time/working_time/doctype/working_time/working_time.py:117
+#: working_time/working_time/doctype/working_time/working_time.py:119
 msgid "Productive time ({0}) exceeds the maximum allowed ({1}) per day"
 msgstr "Produktive Arbeitszeit ({0}) überschreitet die maximal erlaubte ({1}) pro Tag"
 
-#: working_time/working_time/doctype/working_time/working_time.py:130
+#: working_time/working_time/doctype/working_time/working_time.py:132
 msgid "Productive time of {0} or more requires at least {1} of break time"
 msgstr "Produktive Arbeitszeit von {0} oder mehr benötigt mindestens {1} Pausenzeit"
 
@@ -331,6 +386,11 @@ msgstr "Projekt %"
 msgid "Project Time"
 msgstr "Projektzeit"
 
+#. Label of a Currency field in DocType 'Freelancer Rate'
+#: working_time/working_time/doctype/freelancer_rate/freelancer_rate.json
+msgid "Rate"
+msgstr "Satz"
+
 #: working_time/reminders.py:65 working_time/reminders.py:145
 msgid "Remember to submit your working time"
 msgstr "Erinnerung: Arbeitszeit einreichen"
@@ -340,7 +400,7 @@ msgstr "Erinnerung: Arbeitszeit einreichen"
 msgid "Required Break Minutes"
 msgstr "Erforderliche Pausenminuten"
 
-#: working_time/working_time/doctype/working_time/working_time.py:174
+#: working_time/working_time/doctype/working_time/working_time.py:176
 msgid "Rest time since previous day ({0}) is less than the required minimum ({1})"
 msgstr "Die Ruhezeit seit dem Vortag ({0}) ist kürzer als das erforderliche Minimum ({1})"
 
@@ -366,10 +426,38 @@ msgstr "Das Datum in Zeile {0} liegt nach dem Enddatum."
 msgid "The date in row {0} is before the start date."
 msgstr "Das Datum in Zeile {0} liegt vor dem Startdatum."
 
+#: working_time/install.py:59
+msgid "The filter by project is only available for the Working Time app."
+msgstr "Die Filterung nach Projekt ist nur in der Arbeitszeit-App verfügbar."
+
+#. Label of a Table field in DocType 'Freelancer Time'
+#. Label of a Table field in DocType 'Working Time'
+#: working_time/working_time/doctype/freelancer_time/freelancer_time.json
+#: working_time/working_time/doctype/working_time/working_time.json
+msgid "Time Logs"
+msgstr "Zeiteinträge"
+
+#. Name of a Workspace
+#. Label of a Card Break in the Time Tracking Workspace
+#: working_time/working_time/workspace/time_tracking/time_tracking.json
+msgid "Time Tracking"
+msgstr "Zeiterfassung"
+
+#. Linked DocType in Freelancer Time's connections
+#. Linked DocType in Working Time's connections
+#: working_time/working_time/doctype/freelancer_time/freelancer_time.json
+#: working_time/working_time/doctype/working_time/working_time.json
+msgid "Timesheet"
+msgstr "Arbeitszeitnachweis"
+
 #. Label of a Duration field in DocType 'Freelancer Time'
 #: working_time/working_time/doctype/freelancer_time/freelancer_time.json
 msgid "Total Duration"
 msgstr "Gesamtdauer"
+
+#: working_time/working_time/report/expected_and_actual_working_time/expected_and_actual_working_time.py:40
+msgid "Weekday"
+msgstr "Wochentag"
 
 #. Label of a Link field in DocType 'Working Time'
 #: working_time/working_time/doctype/working_time/working_time.json
@@ -424,11 +512,11 @@ msgstr "Arbeitszeit Zusammenfassung"
 msgid "e.g. your-domain.atlassian.net"
 msgstr "z.B. your-domain.atlassian.net"
 
-#: working_time/working_time/doctype/working_time/working_time.py:90
+#: working_time/working_time/doctype/working_time/working_time.py:92
 msgid "{0} is a blocked day according to the Working Time Policy"
 msgstr "{0} ist laut Arbeitszeitrichtlinie ein gesperrter Tag"
 
-#: working_time/working_time/doctype/working_time/working_time.py:106
+#: working_time/working_time/doctype/working_time/working_time.py:108
 msgid "{0} is a holiday according to your holiday list"
 msgstr "{0} ist laut Ihrer Feiertagsliste ein Feiertag"
 

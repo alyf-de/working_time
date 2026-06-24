@@ -7,6 +7,8 @@ app_color = "grey"
 app_email = "hallo@alyf.de"
 app_license = "-"
 
+from working_time.install import ACTIVITY_COST_PROJECT_DESCRIPTION
+
 # Includes in <head>
 # ------------------
 
@@ -290,6 +292,7 @@ working_time_custom_fields = {
 			"in_list_view": 1,
 			"in_standard_filter": 1,
 			"translatable": 0,
+			"description": ACTIVITY_COST_PROJECT_DESCRIPTION,
 		},
 	],
 }
