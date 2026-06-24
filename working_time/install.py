@@ -5,9 +5,7 @@ import frappe
 from frappe import _
 from frappe.custom.doctype.custom_field.custom_field import create_custom_fields
 
-ACTIVITY_COST_PROJECT_DESCRIPTION = (
-	"The filter by project is only available for the Working Time app."
-)
+ACTIVITY_COST_PROJECT_DESCRIPTION = "The filter by project is only available for the Working Time app."
 
 
 def after_install():
