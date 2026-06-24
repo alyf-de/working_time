@@ -92,7 +92,12 @@ frappe.ui.form.on("Working Time", {
 				)
 				.then((allowed) => {
 					if (!allowed.includes(row.activity_type)) {
-						frappe.model.set_value(row.doctype, row.name, "activity_type", "");
+						frappe.model.set_value(
+							row.doctype,
+							row.name,
+							"activity_type",
+							""
+						);
 					}
 				});
 		}
