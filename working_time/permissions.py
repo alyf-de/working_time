@@ -9,14 +9,14 @@ def check_employee_read(employee: str):
 	if not employee:
 		return
 
-	frappe.has_permission("Employee", "read", frappe.get_doc("Employee", employee), throw=True)
+	frappe.has_permission("Employee", "read", employee, throw=True)
 
 
 def check_project_read(project: str | None):
 	if not project:
 		return
 
-	frappe.has_permission("Project", "read", frappe.get_doc("Project", project), throw=True)
+	frappe.has_permission("Project", "read", project, throw=True)
 
 
 def check_activity_cost_read():
