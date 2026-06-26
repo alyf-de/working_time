@@ -61,18 +61,76 @@ In a **Working Time Log**, mark _Break_ (`is_break`) for any physical break. Reg
 
 German users may refer to [this article](https://www.kanzlei-chevalier.de/blog/dienstreise-als-arbeitszeit) for more information.
 
+## Notes on Time Logs
+
+Each **Working Time Log** _Note_ is either **internal** or **external**:
+
+| Type | Format | Used for |
+|------|--------|----------|
+| **Internal** | plain text, at least 3 characters | internal documentation only |
+| **External** | starts with `+`, at least 3 characters after `+` | customer-facing invoice text |
+| **Too short** | fewer than 3 characters (with or without `+`) | rejected |
+
+On save, two independent checks may apply to a row.
+
+### Short rules
+
+**No note required when:**
+
+- the row is a break
+- the row has no duration
+- a _Task_ is set
+- a Jira _Key_ is set
+
+**Internal note required when:**
+
+- the row is productive (not a break, has duration)
+- no _Task_ and no Jira _Key_
+- this applies at any _Billable_ percentage, including `0%`
+
+**External note required when:**
+
+- the row has a _Project_ and _Billable_ is greater than `0%`
+- no _Task_ and no Jira _Key_
+
+An internal note satisfies the general note rule, but **not** the billable rule. For billable rows without _Task_ or _Key_, only an external note (`+...`) works.
+
+### Decision flow
+
+```mermaid
+flowchart TD
+    A[Working Time Log row] --> B{Break or no duration?}
+    B -->|yes| OK[No note required]
+    B -->|no| C{Task or Jira Key set?}
+    C -->|yes| OK
+    C -->|no| D{Billable > 0% and Project set?}
+    D -->|yes| E{External note +... with 3+ chars?}
+    E -->|yes| OK
+    E -->|no| FAIL1[Reject: add Task, Jira Key, or external note]
+    D -->|no| F{Note with 3+ chars?}
+    F -->|yes| OK
+    F -->|no| FAIL2[Reject: add internal or external note]
+```
+
+### Examples
+
+| Scenario | Result |
+|----------|--------|
+| `0%`, no _Task_/_Key_, note = `Fixed bug` | OK - internal note is enough |
+| `100%`, no _Task_/_Key_, note = `Fixed bug` | Rejected - internal note does not count for billing |
+| `100%`, no _Task_/_Key_, note = `+Fixed bug` | OK - external note satisfies billable rule |
+| `100%`, _Task_ set, no note | OK - _Task_ satisfies billable rule |
+| any productive row, note = `ab` | Rejected - minimum length is 3 characters |
+
 ## Billable Time Logs
 
-On submit, every billable **Working Time Log** row (a row with a _Project_ and _Billable_ percentage other than 0%) must include an invoice reference:
+Billable rows (_Project_ set and _Billable_ greater than `0%`) must include at least one billing reference:
 
+- a _Task_, or
 - a Jira issue _Key_, or
-- a non-empty _Note_
+- an external _Note_ (starting with `+`)
 
-A billable row with neither a _Key_ nor a _Note_ is rejected, including on projects that are not linked to a **Jira Site**.
-
-For projects linked to a **Jira Site**, a _Note_ alone is only accepted when it starts with `+`. That prefix marks the text as a customer-facing invoice note. Internal-only notes without the `+` prefix are not sufficient for billable rows on Jira projects.
-
-For projects without a **Jira Site**, any non-empty _Note_ is enough when no _Key_ is set. Notes starting with `+` are treated as customer notes on invoices; other notes are internal.
+Rows with only an internal note are rejected on billable rows. Billable time is rounded to 5-minute increments when **Timesheets** are created on submit.
 
 ## Further Reading
 

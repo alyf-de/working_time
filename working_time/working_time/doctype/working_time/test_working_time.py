@@ -10,7 +10,9 @@ from working_time.jira_utils import get_description
 from working_time.working_time.doctype.working_time.working_time import (
 	aggregate_time_logs,
 	billable_row_missing_invoice_reference,
+	get_note_content,
 	parse_note,
+	row_requires_note,
 )
 
 
@@ -114,20 +116,47 @@ class TestWorkingTime(unittest.TestCase):
 		self.assertEqual(customer_note, "customer")
 		self.assertIsNone(internal_note)
 
+	def test_get_note_content(self):
+		self.assertEqual(get_note_content("+ invoice note"), "invoice note")
+		self.assertEqual(get_note_content("internal note"), "internal note")
+		self.assertEqual(get_note_content("+ab"), "ab")
+		self.assertEqual(get_note_content(""), "")
+
 	def test_billable_row_missing_invoice_reference(self):
-		log = _dict(billable="100%", project="Project A", key=None, note="plain note")
-		self.assertFalse(billable_row_missing_invoice_reference(log, None))
-		self.assertTrue(billable_row_missing_invoice_reference(log, "jira.example.com"))
+		log = _dict(
+			billable="100%",
+			project="Project A",
+			task=None,
+			key=None,
+			note=None,
+			is_break=0,
+		)
+		self.assertTrue(billable_row_missing_invoice_reference(log))
+
+		log.note = "plain note"
+		self.assertTrue(billable_row_missing_invoice_reference(log))
 
 		log.note = "+invoice note"
-		self.assertFalse(billable_row_missing_invoice_reference(log, "jira.example.com"))
+		self.assertFalse(billable_row_missing_invoice_reference(log))
+
+		log.note = "+ab"
+		self.assertTrue(billable_row_missing_invoice_reference(log))
 
 		log.note = None
 		log.key = "KEY-1"
-		self.assertFalse(billable_row_missing_invoice_reference(log, "jira.example.com"))
+		self.assertFalse(billable_row_missing_invoice_reference(log))
 
 		log.key = None
-		self.assertTrue(billable_row_missing_invoice_reference(log, None))
+		log.task = "TASK-1"
+		self.assertFalse(billable_row_missing_invoice_reference(log))
+
+		log.task = None
+		log.billable = "0%"
+		self.assertFalse(billable_row_missing_invoice_reference(log))
+
+		log.billable = "50%"
+		log.is_break = 1
+		self.assertFalse(billable_row_missing_invoice_reference(log))
 
 	def test_get_description_without_jira_site(self):
 		self.assertEqual(get_description(None, "KEY-1", None), "KEY-1")
@@ -238,3 +267,135 @@ class TestWorkingTime(unittest.TestCase):
 		missing_break.before_validate()
 
 		self.assertRaises(frappe.ValidationError, missing_break.validate_mandatory_breaks, policy)
+
+	def test_note_minimum_length(self):
+		working_time = self.get_working_time(
+			[
+				{
+					"from_time": "09:00:00",
+					"to_time": "10:00:00",
+					"is_break": 0,
+				},
+			]
+		)
+		working_time.before_validate()
+		self.assertRaises(frappe.ValidationError, working_time.validate)
+
+		working_time.time_logs[0].note = "+"
+		self.assertRaises(frappe.ValidationError, working_time.validate)
+
+		working_time.time_logs[0].note = "ab"
+		self.assertRaises(frappe.ValidationError, working_time.validate)
+
+		working_time.time_logs[0].note = "+xy"
+		self.assertRaises(frappe.ValidationError, working_time.validate)
+
+		working_time.time_logs[0].note = "abc"
+		working_time.validate()
+
+		working_time.time_logs[0].note = "+abc"
+		working_time.validate()
+
+	def test_note_not_required_for_breaks(self):
+		working_time = self.get_working_time(
+			[
+				{
+					"from_time": "12:00:00",
+					"to_time": "12:30:00",
+					"is_break": 1,
+				},
+			]
+		)
+		working_time.before_validate()
+		working_time.validate()
+
+	def test_note_optional_with_task(self):
+		working_time = self.get_working_time(
+			[
+				{
+					"from_time": "09:00:00",
+					"to_time": "10:00:00",
+					"is_break": 0,
+					"project": "Project A",
+					"task": "TASK-1",
+					"billable": "0%",
+				},
+			]
+		)
+		working_time.before_validate()
+		working_time.validate()
+
+	def test_note_optional_with_jira_key(self):
+		working_time = self.get_working_time(
+			[
+				{
+					"from_time": "09:00:00",
+					"to_time": "10:00:00",
+					"is_break": 0,
+					"project": "Project A",
+					"key": "KEY-1",
+					"billable": "0%",
+				},
+			]
+		)
+		working_time.before_validate()
+		working_time.validate()
+
+	def test_billable_row_optional_with_task(self):
+		working_time = self.get_working_time(
+			[
+				{
+					"from_time": "09:00:00",
+					"to_time": "10:00:00",
+					"is_break": 0,
+					"project": "Project A",
+					"task": "TASK-1",
+					"billable": "100%",
+				},
+			]
+		)
+		working_time.before_validate()
+		working_time.validate()
+
+	def test_billable_row_requires_task_jira_key_or_external_note(self):
+		working_time = self.get_working_time(
+			[
+				{
+					"from_time": "09:00:00",
+					"to_time": "10:00:00",
+					"is_break": 0,
+					"project": "Project A",
+					"billable": "100%",
+				},
+			]
+		)
+		working_time.before_validate()
+		self.assertRaises(frappe.ValidationError, working_time.validate)
+
+		working_time.time_logs[0].note = "internal note"
+		self.assertRaises(frappe.ValidationError, working_time.validate)
+
+		working_time.time_logs[0].note = "+invoice note"
+		working_time.validate()
+
+	def test_note_required_without_task_or_jira_key(self):
+		working_time = self.get_working_time(
+			[
+				{
+					"from_time": "09:00:00",
+					"to_time": "10:00:00",
+					"is_break": 0,
+					"project": "Project A",
+					"billable": "0%",
+				},
+			]
+		)
+		working_time.before_validate()
+		self.assertRaises(frappe.ValidationError, working_time.validate)
+
+	def test_row_requires_note(self):
+		self.assertFalse(row_requires_note(_dict(is_break=0, duration=3600, task="TASK-1", key="KEY-1")))
+		self.assertFalse(row_requires_note(_dict(is_break=0, duration=3600, task="TASK-1", key=None)))
+		self.assertFalse(row_requires_note(_dict(is_break=0, duration=3600, task=None, key="KEY-1")))
+		self.assertTrue(row_requires_note(_dict(is_break=0, duration=3600, task=None, key=None)))
+		self.assertFalse(row_requires_note(_dict(is_break=1, duration=3600, task=None, key=None)))

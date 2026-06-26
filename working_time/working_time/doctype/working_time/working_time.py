@@ -19,6 +19,7 @@ MAX_HALF_DAY = HALF_DAY * OVERTIME_FACTOR * 60 * 60
 FIVE_MINUTES = 5 * 60
 ONE_HOUR = 60 * 60
 WHOLE_DAY_HOURS = 8
+MIN_NOTE_LENGTH = 3
 
 
 class WorkingTime(Document):
@@ -51,16 +52,18 @@ class WorkingTime(Document):
 			self.billable_pct = round(self.billable_time / self.working_time * 100, 0)
 
 	def validate(self):
-		billable_projects = {log.project for log in self.time_logs if log.billable != "0%" and log.project}
-		jira_sites = get_jira_sites_for_projects(billable_projects)
-
 		for log in self.time_logs:
 			if log.duration and log.duration < 0:
 				frappe.throw(_("Please fix negative duration in row {0}").format(log.idx))
 
-			if billable_row_missing_invoice_reference(log, jira_sites.get(log.project)):
+			if billable_row_missing_invoice_reference(log):
 				frappe.throw(
-					_("Please add an issue key or invoice note to the billable row {0}").format(log.idx)
+					_("Please add a task, Jira key, or external note to billable row {0}").format(log.idx)
+				)
+
+			if row_requires_note(log) and not note_has_minimum_content(log.note):
+				frappe.throw(
+					_("Note in row {0} must contain at least {1} characters").format(log.idx, MIN_NOTE_LENGTH)
 				)
 
 		self.validate_working_time_policy()
@@ -380,46 +383,48 @@ def get_billable_duration(log):
 	return log.duration * float(log.billable.rstrip("% ")) / 100
 
 
-def get_jira_sites_for_projects(projects: set[str]) -> dict[str, str | None]:
-	if not projects:
-		return {}
-
-	return {
-		row.name: row.jira_site
-		for row in frappe.get_all(
-			"Project",
-			filters={"name": ("in", list(projects))},
-			fields=["name", "jira_site"],
-		)
-	}
+def has_external_note(note: str | None) -> bool:
+	stripped_note = note.strip() if note else ""
+	return stripped_note.startswith("+") and note_has_minimum_content(note)
 
 
-def billable_row_missing_invoice_reference(log, jira_site: str | None) -> bool:
-	if log.billable == "0%" or not log.project or log.key:
+def billable_row_missing_invoice_reference(log) -> bool:
+	if log.billable == "0%" or not log.project or log.is_break:
 		return False
 
-	note = log.note.strip() if log.note else ""
-	if not note:
-		return True
+	return not log.task and not log.key and not has_external_note(log.note)
 
-	if jira_site:
-		return not note.startswith("+")
 
-	return False
+def get_note_content(note: str | None) -> str:
+	stripped_note = note.strip() if note else ""
+	if not stripped_note:
+		return ""
+	if stripped_note.startswith("+"):
+		return stripped_note[1:].strip()
+	return stripped_note
+
+
+def note_has_minimum_content(note: str | None) -> bool:
+	return len(get_note_content(note)) >= MIN_NOTE_LENGTH
+
+
+def row_requires_note(log) -> bool:
+	if log.is_break or not log.duration:
+		return False
+
+	return not log.task and not log.key
 
 
 def parse_note(note: str | None) -> tuple[str | None, str | None]:
 	"""Parse a note into customer note and internal note."""
-	customer_note = None
-	internal_note = None
-	stripped_note = note.strip() if note else None
-	if stripped_note:
-		if stripped_note.startswith("+"):
-			customer_note = stripped_note[1:].strip()
-		else:
-			internal_note = stripped_note
+	content = get_note_content(note)
+	if not content:
+		return None, None
 
-	return customer_note, internal_note
+	if note and note.strip().startswith("+"):
+		return content, None
+
+	return None, content
 
 
 def calculate_hours(log) -> tuple[float, float]:
