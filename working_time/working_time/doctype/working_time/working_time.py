@@ -21,6 +21,7 @@ MAX_HALF_DAY = HALF_DAY * OVERTIME_FACTOR * 60 * 60
 FIVE_MINUTES = 5 * 60
 ONE_HOUR = 60 * 60
 WHOLE_DAY_HOURS = 8
+MIN_NOTE_LENGTH = 3
 
 
 class WorkingTime(Document):
@@ -57,14 +58,9 @@ class WorkingTime(Document):
 			if log.duration and log.duration < 0:
 				frappe.throw(_("Please fix negative duration in row {0}").format(log.idx))
 
-			if (
-				log.billable != "0%"
-				and log.project
-				and not log.key
-				and (not log.note or not log.note.strip().startswith("+"))
-			):
+			if billable_row_missing_invoice_reference(log):
 				frappe.throw(
-					_("Please add an issue key or invoice note to the billable row {0}").format(log.idx)
+					_("Please add a task, Jira key, or external note to billable row {0}").format(log.idx)
 				)
 
 		self.validate_working_time_policy()
@@ -453,18 +449,41 @@ def get_billable_duration(log):
 	return log.duration * float(log.billable.rstrip("% ")) / 100
 
 
+def has_external_note(note: str | None) -> bool:
+	stripped_note = note.strip() if note else ""
+	return stripped_note.startswith("+") and note_has_minimum_content(note)
+
+
+def billable_row_missing_invoice_reference(log) -> bool:
+	if log.billable == "0%" or not log.project or log.is_break:
+		return False
+
+	return not log.task and not log.key and not has_external_note(log.note)
+
+
+def get_note_content(note: str | None) -> str:
+	stripped_note = note.strip() if note else ""
+	if not stripped_note:
+		return ""
+	if stripped_note.startswith("+"):
+		return stripped_note[1:].strip()
+	return stripped_note
+
+
+def note_has_minimum_content(note: str | None) -> bool:
+	return len(get_note_content(note)) >= MIN_NOTE_LENGTH
+
+
 def parse_note(note: str | None) -> tuple[str | None, str | None]:
 	"""Parse a note into customer note and internal note."""
-	customer_note = None
-	internal_note = None
-	stripped_note = note.strip() if note else None
-	if stripped_note:
-		if stripped_note.startswith("+"):
-			customer_note = stripped_note[1:].strip()
-		else:
-			internal_note = stripped_note
+	content = get_note_content(note)
+	if not content:
+		return None, None
 
-	return customer_note, internal_note
+	if note and note.strip().startswith("+"):
+		return content, None
+
+	return None, content
 
 
 def calculate_hours(log) -> tuple[float, float]:
