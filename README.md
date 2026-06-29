@@ -61,6 +61,64 @@ In a **Working Time Log**, mark _Break_ (`is_break`) for any physical break. Reg
 
 German users may refer to [this article](https://www.kanzlei-chevalier.de/blog/dienstreise-als-arbeitszeit) for more information.
 
+## Notes on Time Logs
+
+Each **Working Time Log** _Note_ is either **internal** or **external**:
+
+| Type | Format | Used for |
+|------|--------|----------|
+| **Internal** | plain text | internal documentation only |
+| **External** | starts with `+`, at least 3 characters after `+` | customer-facing invoice text |
+
+On save, billable rows without a _Task_ or Jira _Key_ must include an external note with at least 3 characters after `+`.
+
+### Short rules
+
+**No note required when any of the following applies:**
+
+- the row is a break
+- a _Task_ is set
+- a Jira _Key_ is set
+
+**External note required when:**
+
+- the row has a _Project_ and _Billable_ is greater than `0%`
+- no _Task_ and no Jira _Key_
+
+### Decision flow
+
+```mermaid
+flowchart TD
+    A[Working Time Log row] --> B{Break?}
+    B -->|yes| OK[No note required]
+    B -->|no| C{Task or Jira Key set?}
+    C -->|yes| OK
+    C -->|no| D{Billable > 0% and Project set?}
+    D -->|no| OK
+    D -->|yes| E{External note +... with 3+ chars?}
+    E -->|yes| OK
+    E -->|no| FAIL[Reject: add Task, Jira Key, or external note]
+```
+
+### Examples
+
+| Scenario | Result |
+|----------|--------|
+| `100%`, no _Task_/_Key_, note = `Fixed bug` | Rejected - internal note does not count for billing |
+| `100%`, no _Task_/_Key_, note = `+Fixed bug` | OK - external note satisfies billable rule |
+| `100%`, no _Task_/_Key_, note = `+ab` | Rejected - external note needs 3+ characters after `+` |
+| `100%`, _Task_ set, no note | OK - _Task_ satisfies billable rule |
+
+## Billable Time Logs
+
+Billable rows (_Project_ set and _Billable_ greater than `0%`) must include at least one billing reference:
+
+- a _Task_, or
+- a Jira issue _Key_, or
+- an external _Note_ (starting with `+`)
+
+Rows with only an internal note are rejected on billable rows. Billable time is rounded to 5-minute increments when **Timesheets** are created on submit.
+
 ## Further Reading
 
 Want to add pretty time logs to your invoice? Check out our [print formats](https://github.com/alyf-de/erpnext_druckformate).
