@@ -61,11 +61,6 @@ class WorkingTime(Document):
 					_("Please add a task, Jira key, or external note to billable row {0}").format(log.idx)
 				)
 
-			if row_requires_note(log) and not note_has_minimum_content(log.note):
-				frappe.throw(
-					_("Note in row {0} must contain at least {1} characters").format(log.idx, MIN_NOTE_LENGTH)
-				)
-
 		self.validate_working_time_policy()
 
 	def validate_working_time_policy(self):
@@ -406,13 +401,6 @@ def get_note_content(note: str | None) -> str:
 
 def note_has_minimum_content(note: str | None) -> bool:
 	return len(get_note_content(note)) >= MIN_NOTE_LENGTH
-
-
-def row_requires_note(log) -> bool:
-	if log.is_break or not log.duration:
-		return False
-
-	return not log.task and not log.key
 
 
 def parse_note(note: str | None) -> tuple[str | None, str | None]:

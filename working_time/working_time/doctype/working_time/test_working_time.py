@@ -12,7 +12,6 @@ from working_time.working_time.doctype.working_time.working_time import (
 	billable_row_missing_invoice_reference,
 	get_note_content,
 	parse_note,
-	row_requires_note,
 )
 
 
@@ -268,13 +267,15 @@ class TestWorkingTime(unittest.TestCase):
 
 		self.assertRaises(frappe.ValidationError, missing_break.validate_mandatory_breaks, policy)
 
-	def test_note_minimum_length(self):
+	def test_external_note_minimum_length_on_billable_row(self):
 		working_time = self.get_working_time(
 			[
 				{
 					"from_time": "09:00:00",
 					"to_time": "10:00:00",
 					"is_break": 0,
+					"project": "Project A",
+					"billable": "100%",
 				},
 			]
 		)
@@ -284,14 +285,8 @@ class TestWorkingTime(unittest.TestCase):
 		working_time.time_logs[0].note = "+"
 		self.assertRaises(frappe.ValidationError, working_time.validate)
 
-		working_time.time_logs[0].note = "ab"
-		self.assertRaises(frappe.ValidationError, working_time.validate)
-
 		working_time.time_logs[0].note = "+xy"
 		self.assertRaises(frappe.ValidationError, working_time.validate)
-
-		working_time.time_logs[0].note = "abc"
-		working_time.validate()
 
 		working_time.time_logs[0].note = "+abc"
 		working_time.validate()
@@ -377,25 +372,3 @@ class TestWorkingTime(unittest.TestCase):
 
 		working_time.time_logs[0].note = "+invoice note"
 		working_time.validate()
-
-	def test_note_required_without_task_or_jira_key(self):
-		working_time = self.get_working_time(
-			[
-				{
-					"from_time": "09:00:00",
-					"to_time": "10:00:00",
-					"is_break": 0,
-					"project": "Project A",
-					"billable": "0%",
-				},
-			]
-		)
-		working_time.before_validate()
-		self.assertRaises(frappe.ValidationError, working_time.validate)
-
-	def test_row_requires_note(self):
-		self.assertFalse(row_requires_note(_dict(is_break=0, duration=3600, task="TASK-1", key="KEY-1")))
-		self.assertFalse(row_requires_note(_dict(is_break=0, duration=3600, task="TASK-1", key=None)))
-		self.assertFalse(row_requires_note(_dict(is_break=0, duration=3600, task=None, key="KEY-1")))
-		self.assertTrue(row_requires_note(_dict(is_break=0, duration=3600, task=None, key=None)))
-		self.assertFalse(row_requires_note(_dict(is_break=1, duration=3600, task=None, key=None)))
