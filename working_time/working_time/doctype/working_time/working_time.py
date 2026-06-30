@@ -11,6 +11,8 @@ from frappe.model.document import Document
 from frappe.utils.data import add_to_date, flt, format_duration, get_time, getdate
 
 from working_time.jira_utils import get_description, get_jira_issue_url
+from working_time.permissions import check_activity_type_access
+from working_time.working_time.doctype.working_time_log.working_time_log import DEFAULT_ACTIVITY_TYPE
 from working_time.working_time.number_card.number_cards import get_chart_data
 
 HALF_DAY = 3.25
@@ -224,14 +226,20 @@ class WorkingTime(Document):
 
 		aggregated_time_logs = aggregate_time_logs(regular_logs)
 
-		for (project, task, key), data in aggregated_time_logs.items():
+		for (project, task, key, activity_type), data in aggregated_time_logs.items():
 			details = get_project_details(project)
 
 			self.insert_timesheet(
 				project=project,
 				customer=details.customer,
 				task=task,
-				billing_rate=details.billing_rate,
+				activity_type=activity_type,
+				billing_rate=resolve_billing_rate(
+					self.employee,
+					activity_type,
+					details.billing_rate,
+					project=project,
+				),
 				hours=data["hours"],
 				billing_hours=data["billable_hours"],
 				description=get_description(details.jira_site, key, "; ".join(data["customer_notes"])),
@@ -278,10 +286,21 @@ class WorkingTime(Document):
 		keys = [key for key in customer_notes_by_key if key]
 		hours = sum(log.duration or 0 for log in logs) / ONE_HOUR
 
+		activity_types = {get_log_activity_type(log) for log in logs}
+		if len(activity_types) > 1:
+			frappe.throw(
+				_("All time logs for the whole day project {0} must use the same activity type.").format(
+					frappe.bold(self.whole_day_project)
+				),
+				title=_("Mixed Activity Types"),
+			)
+		activity_type = activity_types.pop()
+
 		self.insert_timesheet(
 			project=self.whole_day_project,
 			customer=details.customer,
 			task=tasks.pop() if len(tasks) == 1 else None,
+			activity_type=activity_type,
 			billing_rate=billing_rate,
 			hours=hours,
 			billing_hours=WHOLE_DAY_HOURS,
@@ -295,6 +314,7 @@ class WorkingTime(Document):
 		project,
 		customer,
 		task,
+		activity_type,
 		billing_rate,
 		hours,
 		billing_hours,
@@ -302,7 +322,7 @@ class WorkingTime(Document):
 		jira_issue_url,
 		internal_notes,
 	):
-		costing_rate = get_costing_rate(self.employee)
+		costing_rate = get_costing_rate(self.employee, activity_type, project=project)
 
 		frappe.get_doc(
 			{
@@ -312,7 +332,7 @@ class WorkingTime(Document):
 						"is_billable": int(billing_hours > 0),
 						"project": project,
 						"task": task,
-						"activity_type": "Default",
+						"activity_type": activity_type,
 						"base_billing_rate": billing_rate,
 						"base_costing_rate": costing_rate,
 						"costing_rate": costing_rate,
@@ -354,12 +374,63 @@ class WorkingTime(Document):
 		attendance.cancel()
 
 
-def get_costing_rate(employee):
-	return frappe.get_value(
+def get_log_activity_type(log):
+	if not log.project:
+		raise ValueError("log must have a project")
+	return log.activity_type or DEFAULT_ACTIVITY_TYPE
+
+
+def get_activity_cost_rates(employee, activity_type, project=None):
+	filters = {"activity_type": activity_type, "employee": employee}
+	fields = ["costing_rate", "billing_rate"]
+
+	if project:
+		rates = frappe.db.get_value("Activity Cost", {**filters, "project": project}, fields, as_dict=True)
+		if rates:
+			return rates
+
+	return frappe.db.get_value(
 		"Activity Cost",
-		{"activity_type": "Default", "employee": employee},
-		"costing_rate",
+		{**filters, "project": ("is", "not set")},
+		fields,
+		as_dict=True,
 	)
+
+
+def get_activity_type_rates(activity_type):
+	return frappe.db.get_value(
+		"Activity Type",
+		activity_type,
+		["costing_rate", "billing_rate"],
+		as_dict=True,
+	)
+
+
+def get_costing_rate(employee, activity_type=DEFAULT_ACTIVITY_TYPE, project=None):
+	activity_cost = get_activity_cost_rates(employee, activity_type, project)
+	if activity_cost and flt(activity_cost.costing_rate):
+		return flt(activity_cost.costing_rate)
+
+	activity_type_rates = get_activity_type_rates(activity_type)
+	if activity_type_rates and flt(activity_type_rates.costing_rate):
+		return flt(activity_type_rates.costing_rate)
+
+	return 0.0
+
+
+def resolve_billing_rate(employee, activity_type, project_billing_rate, project=None):
+	activity_cost = get_activity_cost_rates(employee, activity_type, project)
+	if activity_cost and flt(activity_cost.billing_rate):
+		return flt(activity_cost.billing_rate)
+
+	if flt(project_billing_rate):
+		return flt(project_billing_rate)
+
+	activity_type_rates = get_activity_type_rates(activity_type)
+	if activity_type_rates and flt(activity_type_rates.billing_rate):
+		return flt(activity_type_rates.billing_rate)
+
+	return 0.0
 
 
 def get_project_details(project: str):
@@ -425,10 +496,10 @@ def calculate_hours(log) -> tuple[float, float]:
 	return hours, billing_hours
 
 
-def aggregate_time_logs(time_logs) -> dict[tuple[str | None, str | None, str | None], dict]:
-	"""Aggregate time logs by project and issue key."""
+def aggregate_time_logs(time_logs) -> dict[tuple[str | None, str | None, str | None, str], dict]:
+	"""Aggregate time logs by project, task, issue key, and activity type."""
 	aggregated_time_logs = {
-		# (log.project, log.task, log.key): {
+		# (log.project, log.task, log.key, activity_type): {
 		#     customer_notes: [],
 		#     internal_notes: [],
 		#     billable_hours: 0,
@@ -440,20 +511,22 @@ def aggregate_time_logs(time_logs) -> dict[tuple[str | None, str | None, str | N
 		if log.duration and log.project:
 			hours, billing_hours = calculate_hours(log)
 			customer_note, internal_note = parse_note(log.note)
+			activity_type = get_log_activity_type(log)
+			aggregate_key = (log.project, log.task, log.key, activity_type)
 
-			if (log.project, log.task, log.key) in aggregated_time_logs:
-				aggregated_time_logs[(log.project, log.task, log.key)]["hours"] += hours
-				aggregated_time_logs[(log.project, log.task, log.key)]["billable_hours"] += billing_hours
+			if aggregate_key in aggregated_time_logs:
+				aggregated_time_logs[aggregate_key]["hours"] += hours
+				aggregated_time_logs[aggregate_key]["billable_hours"] += billing_hours
 
-				customer_notes = aggregated_time_logs[(log.project, log.task, log.key)]["customer_notes"]
+				customer_notes = aggregated_time_logs[aggregate_key]["customer_notes"]
 				if customer_note and (not customer_notes or customer_notes[-1] != customer_note):
 					customer_notes.append(customer_note)
 
-				internal_notes = aggregated_time_logs[(log.project, log.task, log.key)]["internal_notes"]
+				internal_notes = aggregated_time_logs[aggregate_key]["internal_notes"]
 				if internal_note and (not internal_notes or internal_notes[-1] != internal_note):
 					internal_notes.append(internal_note)
 			else:
-				aggregated_time_logs[(log.project, log.task, log.key)] = {
+				aggregated_time_logs[aggregate_key] = {
 					"hours": hours,
 					"billable_hours": billing_hours,
 					"customer_notes": [customer_note] if customer_note else [],
@@ -461,6 +534,57 @@ def aggregate_time_logs(time_logs) -> dict[tuple[str | None, str | None, str | N
 				}
 
 	return aggregated_time_logs
+
+
+@frappe.whitelist()
+def get_configured_activity_types(employee: str, project: str | None = None):
+	check_activity_type_access(employee, project)
+	return _get_configured_activity_types(employee, project)
+
+
+def _get_configured_activity_types(employee: str, project: str | None = None):
+	"""Activity types with an Activity Cost row for this employee (and project, if given)."""
+	if not employee:
+		return []
+
+	costs = frappe.get_all(
+		"Activity Cost",
+		filters={"employee": employee},
+		fields=["activity_type", "project"],
+		order_by="activity_type",
+	)
+
+	if not project:
+		return sorted({row.activity_type for row in costs if row.activity_type})
+
+	return sorted(
+		{
+			row.activity_type
+			for row in costs
+			if row.activity_type and (not row.project or row.project == project)
+		}
+	)
+
+
+@frappe.whitelist()
+@frappe.validate_and_sanitize_search_inputs
+def get_activity_type_query(
+	doctype: str, txt: str, searchfield: str, start: int, page_len: int, filters: dict
+):
+	employee = filters.get("employee")
+	project = filters.get("project")
+	check_activity_type_access(employee, project)
+	allowed = _get_configured_activity_types(employee, project)
+	if not allowed:
+		return []
+
+	activity_type = frappe.qb.DocType("Activity Type")
+	query = frappe.qb.from_(activity_type).select(activity_type.name).where(activity_type.name.isin(allowed))
+
+	if txt:
+		query = query.where(activity_type.name.like(f"%{txt}%"))
+
+	return query.offset(start).limit(page_len).orderby(activity_type.name).run()
 
 
 @frappe.whitelist()

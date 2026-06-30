@@ -2,7 +2,10 @@
 # For license information, please see license.txt
 
 import frappe
+from frappe import _
 from frappe.custom.doctype.custom_field.custom_field import create_custom_fields
+
+ACTIVITY_COST_PROJECT_DESCRIPTION = "The filter by project is only available for the Working Time app."
 
 
 def after_install():
@@ -48,3 +51,7 @@ def update_projects_settings():
 		}
 	)
 	settings.save()
+
+
+# Description of the 'Project' (Link) custom field on Activity Cost
+_("The filter by project is only available for the Working Time app.")

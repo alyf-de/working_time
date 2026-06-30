@@ -7,6 +7,8 @@ app_color = "grey"
 app_email = "hallo@alyf.de"
 app_license = "-"
 
+from working_time.install import ACTIVITY_COST_PROJECT_DESCRIPTION
+
 # Includes in <head>
 # ------------------
 
@@ -85,9 +87,9 @@ after_install = "working_time.install.after_install"
 # ---------------
 # Override standard doctype classes
 
-# override_doctype_class = {
-# 	"ToDo": "custom_app.overrides.CustomToDo"
-# }
+override_doctype_class = {
+	"Activity Cost": "working_time.overrides.activity_cost.WorkingTimeActivityCost",
+}
 
 # Document Events
 # ---------------
@@ -279,5 +281,18 @@ working_time_custom_fields = {
 			"options": "Working Time Policy",
 			"insert_after": "holiday_list",
 		}
+	],
+	"Activity Cost": [
+		{
+			"fieldname": "project",
+			"label": "Project",
+			"fieldtype": "Link",
+			"options": "Project",
+			"insert_after": "employee",
+			"in_list_view": 1,
+			"in_standard_filter": 1,
+			"translatable": 0,
+			"description": ACTIVITY_COST_PROJECT_DESCRIPTION,
+		},
 	],
 }
