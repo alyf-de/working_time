@@ -3,14 +3,20 @@
 
 import frappe
 
-from working_time.jira_client import JiraClient
+from working_time.jira_utils import get_jira_issue_summary
+
+
+def get_task_description(task: str) -> str:
+	subject = frappe.db.get_value("Task", task, "subject")
+
+	return f"{subject} ({task})" if subject else task
 
 
 def get_description(*, task=None, jira_site=None, key=None, note=None):
 	if task:
-		description = frappe.db.get_value("Task", task, "subject") or task
+		description = get_task_description(task)
 	elif key and jira_site:
-		description = f"{JiraClient(jira_site).get_issue_summary(key)} ({key})"
+		description = get_jira_issue_summary(jira_site, key)
 	elif key:
 		description = key
 	else:
