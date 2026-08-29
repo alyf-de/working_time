@@ -52,13 +52,14 @@
    "fieldname": "task",
    "fieldtype": "Link",
    "label": "Task",
+   "link_filters": "[[\"Task\",\"project\",\"=\",\"eval: doc.project\"],[\"Task\",\"status\",\"in\",[\"Open\",\"Pending Review\",\"Working\",\"Overdue\"]]]",
    "options": "Task"
   }
  ],
  "grid_page_length": 50,
  "istable": 1,
  "links": [],
- "modified": "2026-08-29 20:04:06.142921",
+ "modified": "2026-08-29 20:26:09.535785",
  "modified_by": "Administrator",
  "module": "Working Time",
  "name": "Freelancer Time Log",
