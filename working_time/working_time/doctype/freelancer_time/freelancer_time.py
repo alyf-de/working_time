@@ -15,6 +15,7 @@ from working_time.working_time.doctype.working_time.working_time import (
 	ONE_HOUR,
 	has_external_note,
 	parse_note,
+	task_not_in_project,
 )
 
 
@@ -35,6 +36,13 @@ class FreelancerTime(Document):
 			if not log.task and not log.issue_key and not has_external_note(log.note):
 				frappe.throw(
 					_("Please add a task, Jira key, or external note to billable row {0}").format(log.idx)
+				)
+
+			if task_not_in_project(log.task, log.project):
+				frappe.throw(
+					_("The task in row {0} does not belong to project {1}.").format(
+						log.idx, frappe.bold(log.project)
+					)
 				)
 
 	def on_submit(self):

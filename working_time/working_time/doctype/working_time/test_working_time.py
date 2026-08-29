@@ -2,6 +2,7 @@
 # See license.txt
 
 import unittest
+from unittest.mock import patch
 
 import frappe
 from frappe import _dict
@@ -12,6 +13,7 @@ from working_time.working_time.doctype.working_time.working_time import (
 	billable_row_missing_invoice_reference,
 	get_note_content,
 	parse_note,
+	task_not_in_project,
 )
 
 
@@ -156,6 +158,23 @@ class TestWorkingTime(unittest.TestCase):
 		log.billable = "50%"
 		log.is_break = 1
 		self.assertFalse(billable_row_missing_invoice_reference(log))
+
+	def test_task_not_in_project(self):
+		self.assertFalse(task_not_in_project(None, "Project A"))
+
+		with patch(
+			"working_time.working_time.doctype.working_time.working_time.frappe.db.get_value",
+			return_value="Project B",
+		):
+			self.assertTrue(task_not_in_project("TASK-1", "Project A"))
+			self.assertFalse(task_not_in_project("TASK-1", "Project B"))
+			self.assertTrue(task_not_in_project("TASK-1", None))
+
+		with patch(
+			"working_time.working_time.doctype.working_time.working_time.frappe.db.get_value",
+			return_value=None,
+		):
+			self.assertFalse(task_not_in_project("TASK-1", "Project A"))
 
 	def test_get_description_without_jira_site(self):
 		self.assertEqual(get_description(None, "KEY-1", None), "KEY-1")
