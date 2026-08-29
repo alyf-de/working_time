@@ -2,14 +2,15 @@ Timetracking and Attendance in ERPNext, integrated with Jira
 
 ## Who is this for?
 
-Companies that use Atlassian Jira for project management and ERPNext for time tracking and billing.
+Companies that use ERPNext for time tracking and billing, with optional Atlassian Jira integration.
 
 ## Features
 
 - Allows logging of miscellaneous time, project time, breaks and paid breaks
 - Allows to set a percentage of working time as billable time in a Working Time Log
 - Rounds billable time to 5 minutes
-- Fetches issue titles from Jira (used as time log description)
+- Lets you set a **Task** or a Jira _Key_ on a time log, not both
+- Sets **Timesheet Detail** _Description_ from **Task** _Subject_ or the Jira issue title
 - Creates ERPNext **Timesheets**
 - Creates ERPNext **Attendances**
 - Report of actual vs. expected working time per Employee
@@ -42,7 +43,7 @@ Companies that use Atlassian Jira for project management and ERPNext for time tr
 - Create your first **Working Time**
     - Add a time log with description,
     - Add a time log and mark it as a break,
-    - Add a time log and link it to a _Project_ and Jira issue _Key_
+    - Add a time log and link it to a _Project_ and a **Task** or Jira issue _Key_
 - Submit your **Working Time**
 
 ## Time Fields
@@ -69,6 +70,8 @@ Each **Working Time Log** _Note_ is either **internal** or **external**:
 |------|--------|----------|
 | **Internal** | plain text | internal documentation only |
 | **External** | starts with `+`, at least 3 characters after `+` | customer-facing invoice text |
+
+A time log can have a _Task_ or a Jira _Key_, not both.
 
 On save, billable rows without a _Task_ or Jira _Key_ must include an external note with at least 3 characters after `+`.
 
@@ -108,6 +111,7 @@ flowchart TD
 | `100%`, no _Task_/_Key_, note = `+Fixed bug` | OK - external note satisfies billable rule |
 | `100%`, no _Task_/_Key_, note = `+ab` | Rejected - external note needs 3+ characters after `+` |
 | `100%`, _Task_ set, no note | OK - _Task_ satisfies billable rule |
+| `100%`, _Task_ and _Key_ set | Rejected - use a _Task_ or a _Key_, not both |
 
 ## Billable Time Logs
 
@@ -116,6 +120,10 @@ Billable rows (_Project_ set and _Billable_ greater than `0%`) must include at l
 - a _Task_, or
 - a Jira issue _Key_, or
 - an external _Note_ (starting with `+`)
+
+Set a _Task_ or a Jira issue _Key_, not both.
+
+On submit, **Timesheet Detail** _Description_ uses **Task** _Subject_ if a _Task_ is set. Otherwise it uses the Jira issue title. If the row also has an external _Note_, the note is appended to the description.
 
 Rows with only an internal note are rejected on billable rows. Billable time is rounded to 5-minute increments when **Timesheets** are created on submit.
 
