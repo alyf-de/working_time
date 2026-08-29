@@ -61,6 +61,13 @@ class WorkingTime(Document):
 					_("Please add a task, Jira key, or external note to billable row {0}").format(log.idx)
 				)
 
+			if task_not_in_project(log.task, log.project):
+				frappe.throw(
+					_("The task in row {0} does not belong to project {1}.").format(
+						log.idx, frappe.bold(log.project)
+					)
+				)
+
 		self.validate_working_time_policy()
 
 	def validate_working_time_policy(self):
@@ -376,6 +383,14 @@ def get_billable_duration(log):
 		return 0
 
 	return log.duration * float(log.billable.rstrip("% ")) / 100
+
+
+def task_not_in_project(task: str | None, project: str | None) -> bool:
+	if not task:
+		return False
+
+	task_project = frappe.db.get_value("Task", task, "project")
+	return bool(task_project) and task_project != project
 
 
 def has_external_note(note: str | None) -> bool:
