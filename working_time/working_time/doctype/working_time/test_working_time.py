@@ -7,7 +7,7 @@ from unittest.mock import patch
 import frappe
 from frappe import _dict
 
-from working_time.jira_utils import get_description
+from working_time.timesheet_utils import get_description
 from working_time.working_time.doctype.working_time.working_time import (
 	aggregate_time_logs,
 	billable_row_missing_invoice_reference,
@@ -177,10 +177,42 @@ class TestWorkingTime(unittest.TestCase):
 			self.assertFalse(task_not_in_project("TASK-1", "Project A"))
 
 	def test_get_description_without_jira_site(self):
-		self.assertEqual(get_description(None, "KEY-1", None), "KEY-1")
-		self.assertEqual(get_description(None, "KEY-1", "extra"), "KEY-1:\n\nextra")
-		self.assertEqual(get_description(None, None, "note"), "note")
-		self.assertEqual(get_description(None, None, None), "-")
+		self.assertEqual(get_description(key="KEY-1"), "KEY-1")
+		self.assertEqual(get_description(key="KEY-1", note="extra"), "KEY-1:\n\nextra")
+		self.assertEqual(get_description(note="note"), "note")
+		self.assertEqual(get_description(), "-")
+
+	def test_get_description_with_task(self):
+		with patch(
+			"working_time.timesheet_utils.frappe.db.get_value",
+			return_value="Fix login",
+		):
+			self.assertEqual(get_description(task="TASK-1"), "Fix login")
+			self.assertEqual(get_description(task="TASK-1", note="extra"), "Fix login:\n\nextra")
+
+	def test_get_description_falls_back_to_task_name(self):
+		with patch(
+			"working_time.timesheet_utils.frappe.db.get_value",
+			return_value=None,
+		):
+			self.assertEqual(get_description(task="TASK-1"), "TASK-1")
+
+	def test_task_and_jira_key_are_exclusive(self):
+		working_time = self.get_working_time(
+			[
+				{
+					"from_time": "09:00:00",
+					"to_time": "10:00:00",
+					"is_break": 0,
+					"project": "Project A",
+					"task": "TASK-1",
+					"key": "KEY-1",
+					"billable": "100%",
+				},
+			]
+		)
+		working_time.before_validate()
+		self.assertRaises(frappe.ValidationError, working_time.validate)
 
 	def test_paid_break_totals(self):
 		working_time = self.get_working_time(

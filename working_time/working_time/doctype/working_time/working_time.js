@@ -87,6 +87,18 @@ frappe.ui.form.on("Working Time Log", {
 			frappe.model.set_value(cdt, cdn, "is_paid_break", 0);
 		}
 	},
+	task: function (frm, cdt, cdn) {
+		const child = locals[cdt][cdn];
+		if (child.task && child.key) {
+			frappe.model.set_value(cdt, cdn, "key", "");
+		}
+	},
+	key: function (frm, cdt, cdn) {
+		const child = locals[cdt][cdn];
+		if (child.key && child.task) {
+			frappe.model.set_value(cdt, cdn, "task", "");
+		}
+	},
 	project: function (frm, cdt, cdn) {
 		// set billable time to 0% if Project is of Type "Internal", reset to 100% otherwise
 		const child = locals[cdt][cdn];
@@ -96,7 +108,7 @@ frappe.ui.form.on("Working Time Log", {
 				"default_key",
 			])
 			.then(({ message }) => {
-				if (!child.key && message.default_key) {
+				if (!child.key && !child.task && message.default_key) {
 					frappe.model.set_value(
 						cdt,
 						cdn,

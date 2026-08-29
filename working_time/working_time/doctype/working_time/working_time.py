@@ -10,7 +10,8 @@ from frappe.model.docstatus import DocStatus
 from frappe.model.document import Document
 from frappe.utils.data import add_to_date, flt, format_duration, get_time, getdate
 
-from working_time.jira_utils import get_description, get_jira_issue_url
+from working_time.jira_utils import get_jira_issue_url
+from working_time.timesheet_utils import get_description
 from working_time.working_time.number_card.number_cards import get_chart_data
 
 HALF_DAY = 3.25
@@ -55,6 +56,11 @@ class WorkingTime(Document):
 		for log in self.time_logs:
 			if log.duration and log.duration < 0:
 				frappe.throw(_("Please fix negative duration in row {0}").format(log.idx))
+
+			if log.task and log.key:
+				frappe.throw(
+					_("Please select either a task or a Jira key in row {0}, not both.").format(log.idx)
+				)
 
 			if billable_row_missing_invoice_reference(log):
 				frappe.throw(
@@ -241,14 +247,19 @@ class WorkingTime(Document):
 				billing_rate=details.billing_rate,
 				hours=data["hours"],
 				billing_hours=data["billable_hours"],
-				description=get_description(details.jira_site, key, "; ".join(data["customer_notes"])),
+				description=get_description(
+					task=task,
+					jira_site=details.jira_site,
+					key=key,
+					note="; ".join(data["customer_notes"]),
+				),
 				jira_issue_url=get_jira_issue_url(details.jira_site, key),
 				internal_notes=data["internal_notes"],
 			)
 
 	def create_whole_day_timesheet(self, logs):
 		"""Merge all time logs for the whole day project into a single 8-hour timesheet."""
-		customer_notes_by_key = {}
+		customer_notes_by_ref = {}
 		internal_notes = []
 		tasks = set()
 		for log in logs:
@@ -256,7 +267,7 @@ class WorkingTime(Document):
 			if internal_note and (not internal_notes or internal_notes[-1] != internal_note):
 				internal_notes.append(internal_note)
 
-			customer_notes = customer_notes_by_key.setdefault(log.key, [])
+			customer_notes = customer_notes_by_ref.setdefault((log.key, log.task), [])
 			if customer_note and (not customer_notes or customer_notes[-1] != customer_note):
 				customer_notes.append(customer_note)
 
@@ -271,10 +282,10 @@ class WorkingTime(Document):
 		)
 
 		lines = []
-		for key, customer_notes in customer_notes_by_key.items():
+		for (key, task), customer_notes in customer_notes_by_ref.items():
 			note = "; ".join(customer_notes)
-			if key:
-				line = get_description(details.jira_site, key, None)
+			if key or task:
+				line = get_description(task=task, jira_site=details.jira_site, key=key)
 				if note:
 					line += f": {note}"
 				lines.append(line)
@@ -282,7 +293,7 @@ class WorkingTime(Document):
 				lines.append(note)
 
 		description = "\n".join(lines) or "-"
-		keys = [key for key in customer_notes_by_key if key]
+		keys = [key for key, _task in customer_notes_by_ref if key]
 		hours = sum(log.duration or 0 for log in logs) / ONE_HOUR
 
 		self.insert_timesheet(
