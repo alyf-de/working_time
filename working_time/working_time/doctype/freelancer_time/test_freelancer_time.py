@@ -44,3 +44,17 @@ class TestFreelancerTime(FrappeTestCase):
 		freelancer_time.time_logs[0].issue_key = None
 		freelancer_time.time_logs[0].task = "TASK-1"
 		freelancer_time.validate()
+
+	def test_task_and_jira_key_are_exclusive(self):
+		freelancer_time = self.get_freelancer_time(
+			[
+				{
+					"date": "2026-05-15",
+					"project": "Project A",
+					"duration": 3600,
+					"task": "TASK-1",
+					"issue_key": "KEY-1",
+				},
+			]
+		)
+		self.assertRaises(frappe.ValidationError, freelancer_time.validate)

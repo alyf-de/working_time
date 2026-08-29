@@ -9,7 +9,8 @@ from frappe.model.docstatus import DocStatus
 from frappe.model.document import Document
 from frappe.utils.data import date_diff
 
-from working_time.jira_utils import get_description, get_jira_issue_url
+from working_time.jira_utils import get_jira_issue_url
+from working_time.timesheet_utils import get_description
 from working_time.working_time.doctype.working_time.working_time import (
 	FIVE_MINUTES,
 	ONE_HOUR,
@@ -32,6 +33,11 @@ class FreelancerTime(Document):
 
 			if date_diff(log.date, self.from_date) < 0:
 				frappe.throw(_("The date in row {0} is before the start date.").format(log.idx))
+
+			if log.task and log.issue_key:
+				frappe.throw(
+					_("Please select either a task or a Jira key in row {0}, not both.").format(log.idx)
+				)
 
 			if not log.task and not log.issue_key and not has_external_note(log.note):
 				frappe.throw(
@@ -80,7 +86,12 @@ class FreelancerTime(Document):
 								"hours": hours,
 								"from_time": log.date,
 								"billing_hours": billing_hours,
-								"description": get_description(jira_site, log.issue_key, customer_note),
+								"description": get_description(
+									task=log.task,
+									jira_site=jira_site,
+									key=log.issue_key,
+									note=customer_note,
+								),
 								"jira_issue_url": get_jira_issue_url(jira_site, log.issue_key),
 							}
 						],
