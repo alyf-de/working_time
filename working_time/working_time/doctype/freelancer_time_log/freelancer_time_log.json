@@ -8,6 +8,7 @@
   "date",
   "project",
   "issue_key",
+  "task",
   "duration",
   "note"
  ],
@@ -31,8 +32,7 @@
    "fieldname": "issue_key",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Issue Key",
-   "reqd": 1
+   "label": "Issue Key"
   },
   {
    "fieldname": "duration",
@@ -47,16 +47,25 @@
    "fieldname": "note",
    "fieldtype": "Small Text",
    "label": "Note"
+  },
+  {
+   "fieldname": "task",
+   "fieldtype": "Link",
+   "label": "Task",
+   "options": "Task"
   }
  ],
+ "grid_page_length": 50,
  "istable": 1,
  "links": [],
- "modified": "2023-08-14 17:57:05.968464",
+ "modified": "2026-08-29 20:04:06.142921",
  "modified_by": "Administrator",
  "module": "Working Time",
  "name": "Freelancer Time Log",
  "owner": "Administrator",
  "permissions": [],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": []

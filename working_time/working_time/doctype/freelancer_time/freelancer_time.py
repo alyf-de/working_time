@@ -13,6 +13,7 @@ from working_time.jira_utils import get_description, get_jira_issue_url
 from working_time.working_time.doctype.working_time.working_time import (
 	FIVE_MINUTES,
 	ONE_HOUR,
+	has_external_note,
 	parse_note,
 )
 
@@ -30,6 +31,11 @@ class FreelancerTime(Document):
 
 			if date_diff(log.date, self.from_date) < 0:
 				frappe.throw(_("The date in row {0} is before the start date.").format(log.idx))
+
+			if not log.task and not log.issue_key and not has_external_note(log.note):
+				frappe.throw(
+					_("Please add a task, Jira key, or external note to billable row {0}").format(log.idx)
+				)
 
 	def on_submit(self):
 		self.create_timesheets()
@@ -57,6 +63,7 @@ class FreelancerTime(Document):
 							{
 								"is_billable": 1,
 								"project": log.project,
+								"task": log.task,
 								"activity_type": "Default",
 								"base_billing_rate": billing_rate,
 								"base_costing_rate": costing_rate,
