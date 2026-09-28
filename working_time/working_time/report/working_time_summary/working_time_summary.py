@@ -39,9 +39,9 @@ def execute(filters=None):
 		"Working Time",
 		fields=[
 			"employee",
-			"SUM(working_time) as total_working_time",
-			"SUM(project_time) as total_project_time",
-			"SUM(break_time) as total_break_time",
+			{"SUM": "working_time", "as": "total_working_time"},
+			{"SUM": "project_time", "as": "total_project_time"},
+			{"SUM": "break_time", "as": "total_break_time"},
 		],
 		filters=[
 			["docstatus", "=", 1],

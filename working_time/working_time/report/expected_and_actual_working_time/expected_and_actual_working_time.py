@@ -107,7 +107,7 @@ def get_data(employee, from_date, to_date, daily_working_hours, fieldname):
 			frappe.get_list(
 				"Working Time",
 				filters={"employee": employee, "date": current_date, "docstatus": 1},
-				fields=[f"SUM({fieldname})"],
+				fields=[{"SUM": fieldname, "as": "total"}],
 				as_list=True,
 			)[0][0]
 			or 0

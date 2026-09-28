@@ -44,7 +44,7 @@ frappe.ui.form.on("Working Time", {
 		frappe
 			.xcall(
 				"working_time.working_time.doctype.working_time.working_time.get_working_time_stats",
-				{ employee: frm.doc.employee, date: frm.doc.date }
+				{ employee: frm.doc.employee, date: frm.doc.date },
 			)
 			.then((message) => {
 				if (message) {
@@ -54,7 +54,7 @@ frappe.ui.form.on("Working Time", {
 						"options",
 						frappe.render_template("working_time_dashboard", {
 							data: message,
-						})
+						}),
 					);
 					frm.refresh_field("stats_html");
 				}
@@ -77,7 +77,7 @@ frappe.ui.form.on("Working Time Log", {
 			cdt,
 			cdn,
 			"from_time",
-			prev_to_time || frappe.datetime.now_time(false)
+			prev_to_time || frappe.datetime.now_time(false),
 		);
 		frappe.model.set_value(cdt, cdn, "to_time", ""); // Otherwise Frappe may overwrite empty values with the current time on save.
 	},
@@ -103,18 +103,10 @@ frappe.ui.form.on("Working Time Log", {
 		// set billable time to 0% if Project is of Type "Internal", reset to 100% otherwise
 		const child = locals[cdt][cdn];
 		frappe.db
-			.get_value("Project", child.project, [
-				"project_type",
-				"default_key",
-			])
+			.get_value("Project", child.project, ["project_type", "default_key"])
 			.then(({ message }) => {
 				if (!child.key && !child.task && message.default_key) {
-					frappe.model.set_value(
-						cdt,
-						cdn,
-						"key",
-						message.default_key
-					);
+					frappe.model.set_value(cdt, cdn, "key", message.default_key);
 				}
 
 				if (message && message.project_type == "Internal") {
