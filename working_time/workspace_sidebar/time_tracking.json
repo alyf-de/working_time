@@ -1,0 +1,122 @@
+{
+ "app": "working_time",
+ "creation": "2026-09-28 14:38:15.210004",
+ "docstatus": 0,
+ "doctype": "Workspace Sidebar",
+ "header_icon": "calendar-clock",
+ "idx": 0,
+ "items": [
+  {
+   "child": 0,
+   "collapsible": 1,
+   "indent": 0,
+   "keep_closed": 0,
+   "label": "Home",
+   "link_to": "Time Tracking",
+   "link_type": "Workspace",
+   "show_arrow": 0,
+   "type": "Link"
+  },
+  {
+   "child": 0,
+   "collapsible": 1,
+   "icon": "alarm-clock",
+   "indent": 0,
+   "keep_closed": 0,
+   "label": "Time Tracking",
+   "link_type": "DocType",
+   "show_arrow": 1,
+   "type": "Section Break"
+  },
+  {
+   "child": 1,
+   "collapsible": 1,
+   "icon": "calendar-clock",
+   "indent": 0,
+   "keep_closed": 0,
+   "label": "Working Time",
+   "link_to": "Working Time",
+   "link_type": "DocType",
+   "navigate_to_tab": "",
+   "show_arrow": 0,
+   "type": "Link"
+  },
+  {
+   "child": 1,
+   "collapsible": 1,
+   "icon": "calendar-clock",
+   "indent": 0,
+   "keep_closed": 0,
+   "label": "Freelancer Time",
+   "link_to": "Freelancer Time",
+   "link_type": "DocType",
+   "show_arrow": 0,
+   "type": "Link"
+  },
+  {
+   "child": 0,
+   "collapsible": 1,
+   "icon": "clipboard-list",
+   "indent": 0,
+   "keep_closed": 0,
+   "label": "Reports",
+   "link_type": "DocType",
+   "show_arrow": 0,
+   "type": "Section Break"
+  },
+  {
+   "child": 1,
+   "collapsible": 1,
+   "icon": "clipboard-clock",
+   "indent": 0,
+   "keep_closed": 0,
+   "label": "Expected and Actual Working Time",
+   "link_to": "Expected and Actual Working Time",
+   "link_type": "Report",
+   "show_arrow": 0,
+   "type": "Link"
+  },
+  {
+   "child": 0,
+   "collapsible": 1,
+   "icon": "wrench",
+   "indent": 0,
+   "keep_closed": 0,
+   "label": "Setup",
+   "link_type": "DocType",
+   "show_arrow": 0,
+   "type": "Section Break"
+  },
+  {
+   "child": 1,
+   "collapsible": 1,
+   "icon": "person-standing",
+   "indent": 0,
+   "keep_closed": 0,
+   "label": "Freelancer Rate",
+   "link_to": "Freelancer Rate",
+   "link_type": "DocType",
+   "show_arrow": 0,
+   "type": "Link"
+  },
+  {
+   "child": 1,
+   "collapsible": 1,
+   "icon": "website",
+   "indent": 0,
+   "keep_closed": 0,
+   "label": "Jira Site",
+   "link_to": "Jira Site",
+   "link_type": "DocType",
+   "show_arrow": 0,
+   "type": "Link"
+  }
+ ],
+ "modified": "2026-09-28 15:03:00.458681",
+ "modified_by": "Administrator",
+ "module": "Working Time",
+ "name": "Time Tracking",
+ "owner": "Administrator",
+ "standard": 1,
+ "title": "Time Tracking"
+}

@@ -1,0 +1,23 @@
+{
+ "app": "working_time",
+ "bg_color": "gray",
+ "creation": "2026-09-28 10:44:48.376940",
+ "docstatus": 0,
+ "doctype": "Desktop Icon",
+ "hidden": 0,
+ "icon": "calendar",
+ "icon_type": "Link",
+ "idx": 0,
+ "label": "Time Tracking",
+ "link_to": "Time Tracking",
+ "link_type": "Workspace Sidebar",
+ "logo_url": "/assets/working_time/img/logo.png",
+ "modified": "2026-09-28 14:31:23.840058",
+ "modified_by": "Administrator",
+ "name": "Time Tracking",
+ "owner": "Administrator",
+ "restrict_removal": 0,
+ "roles": [],
+ "sidebar": "Time Tracking",
+ "standard": 1
+}
