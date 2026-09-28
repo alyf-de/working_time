@@ -187,8 +187,11 @@ class TestWorkingTime(unittest.TestCase):
 			"working_time.timesheet_utils.frappe.db.get_value",
 			return_value="Fix login",
 		):
-			self.assertEqual(get_description(task="TASK-1"), "Fix login")
-			self.assertEqual(get_description(task="TASK-1", note="extra"), "Fix login:\n\nextra")
+			self.assertEqual(get_description(task="TASK-1"), "Fix login (TASK-1)")
+			self.assertEqual(
+				get_description(task="TASK-1", note="extra"),
+				"Fix login (TASK-1):\n\nextra",
+			)
 
 	def test_get_description_falls_back_to_task_name(self):
 		with patch(

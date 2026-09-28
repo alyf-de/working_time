@@ -10,7 +10,7 @@ Companies that use ERPNext for time tracking and billing, with optional Atlassia
 - Allows to set a percentage of working time as billable time in a Working Time Log
 - Rounds billable time to 5 minutes
 - Lets you set a **Task** or a Jira _Key_ on a time log, not both
-- Sets **Timesheet Detail** _Description_ from **Task** _Subject_ or the Jira issue title
+- Sets **Timesheet Detail** _Description_ from **Task** _Subject_ and the task name (`Subject (TASK-00001)`), or from the Jira issue summary and _Key_ (`Summary (PROJ-123)`)
 - Creates ERPNext **Timesheets**
 - Creates ERPNext **Attendances**
 - Report of actual vs. expected working time per Employee
@@ -123,7 +123,7 @@ Billable rows (_Project_ set and _Billable_ greater than `0%`) must include at l
 
 Set a _Task_ or a Jira issue _Key_, not both.
 
-On submit, **Timesheet Detail** _Description_ uses **Task** _Subject_ if a _Task_ is set. Otherwise it uses the Jira issue title. If the row also has an external _Note_, the note is appended to the description.
+On submit, **Timesheet Detail** _Description_ uses **Task** _Subject_ and the task name if a _Task_ is set (`Subject (TASK-00001)`; if _Subject_ is empty, only the task name). Otherwise it uses the Jira issue summary and _Key_ (`Summary (PROJ-123)`). If the row also has an external _Note_, the note is appended to the description.
 
 Rows with only an internal note are rejected on billable rows. Billable time is rounded to 5-minute increments when **Timesheets** are created on submit.
 
