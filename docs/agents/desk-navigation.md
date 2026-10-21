@@ -4,7 +4,7 @@ Working Time is a **Desk-only** ERPNext extension. There is no separate SPA; the
 
 | Layer | Shipped in this app | Notes |
 | ----- | ------------------- | ----- |
-| **Apps screen** | `hooks.py` → `add_to_apps_screen` | `route` and `desk_route` → `/desk/time-tracking` |
+| **Apps screen** | `hooks.py` → `add_to_apps_screen` | `route` → `/desk/time-tracking` |
 | **Dock** | `working_time/dock/working_time/working_time.json` | One rail row: **Workspace** → **Time Tracking** |
 | **Sidebar** (module shell) | `working_time/working_time/sidebar/time_tracking/time_tracking.json` | Shipped **Sidebar** for shell **Time Tracking** |
 | **Workspace** | `working_time/working_time/workspace/time_tracking/time_tracking.json` | Public home at `/desk/time-tracking` |
