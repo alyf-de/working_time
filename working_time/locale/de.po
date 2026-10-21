@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Working Time VERSION\n"
 "Report-Msgid-Bugs-To: hallo@alyf.de\n"
-"POT-Creation-Date: 2026-09-28 15:38+0053\n"
+"POT-Creation-Date: 2026-10-21 09:21+0053\n"
 "PO-Revision-Date: 2026-03-27 14:57+0053\n"
 "Last-Translator: hallo@alyf.de\n"
 "Language-Team: hallo@alyf.de\n"
@@ -189,11 +189,11 @@ msgid "Expected Working Time"
 msgstr "Erwartete Arbeitszeit"
 
 #. Name of a report
+#. Label of a Sidebar Item
 #. Label of a Link in the Time Tracking Workspace
-#. Label of a Workspace Sidebar Item
 #: working_time/working_time/report/expected_and_actual_working_time/expected_and_actual_working_time.json
+#: working_time/working_time/sidebar/time_tracking/time_tracking.json
 #: working_time/working_time/workspace/time_tracking/time_tracking.json
-#: working_time/workspace_sidebar/time_tracking.json
 msgid "Expected and Actual Working Time"
 msgstr "Erwartete und Tatsächliche Arbeitszeit"
 
@@ -203,20 +203,20 @@ msgid "Freelancer"
 msgstr "Freelancer"
 
 #. Name of a DocType
+#. Label of a Sidebar Item
 #. Label of a Link in the Time Tracking Workspace
-#. Label of a Workspace Sidebar Item
 #: working_time/working_time/doctype/freelancer_rate/freelancer_rate.json
+#: working_time/working_time/sidebar/time_tracking/time_tracking.json
 #: working_time/working_time/workspace/time_tracking/time_tracking.json
-#: working_time/workspace_sidebar/time_tracking.json
 msgid "Freelancer Rate"
 msgstr "Freelancer-Satz"
 
 #. Name of a DocType
+#. Label of a Sidebar Item
 #. Label of a Link in the Time Tracking Workspace
-#. Label of a Workspace Sidebar Item
 #: working_time/working_time/doctype/freelancer_time/freelancer_time.json
+#: working_time/working_time/sidebar/time_tracking/time_tracking.json
 #: working_time/working_time/workspace/time_tracking/time_tracking.json
-#: working_time/workspace_sidebar/time_tracking.json
 msgid "Freelancer Time"
 msgstr "Freelancer-Zeit"
 
@@ -246,11 +246,11 @@ msgid "Issue Key"
 msgstr "Issue-Key"
 
 #. Name of a DocType
+#. Label of a Sidebar Item
 #. Label of a Link in the Time Tracking Workspace
-#. Label of a Workspace Sidebar Item
 #: working_time/working_time/doctype/jira_site/jira_site.json
+#: working_time/working_time/sidebar/time_tracking/time_tracking.json
 #: working_time/working_time/workspace/time_tracking/time_tracking.json
-#: working_time/workspace_sidebar/time_tracking.json
 msgid "Jira Site"
 msgstr "Jira-Site"
 
@@ -407,11 +407,11 @@ msgid "Work Threshold"
 msgstr "Arbeitsschwelle"
 
 #. Name of a DocType
+#. Label of a Sidebar Item
 #. Label of a Link in the Time Tracking Workspace
-#. Label of a Workspace Sidebar Item
 #: working_time/working_time/doctype/working_time/working_time.json
+#: working_time/working_time/sidebar/time_tracking/time_tracking.json
 #: working_time/working_time/workspace/time_tracking/time_tracking.json
-#: working_time/workspace_sidebar/time_tracking.json
 msgid "Working Time"
 msgstr "Arbeitszeit"
 
