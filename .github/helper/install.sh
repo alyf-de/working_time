@@ -29,10 +29,10 @@ bench get-app working_time "${GITHUB_WORKSPACE}"
 
 bench setup requirements --dev
 
+bench start &> bench_start.log &
+
 bench new-site --db-root-password root --admin-password admin test_site --install-app erpnext
 bench --site test_site install-app hrms
 bench --site test_site install-app working_time
 
 CI=Yes bench build --production
-
-bench start &> bench_start.log &
