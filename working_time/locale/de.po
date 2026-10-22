@@ -58,10 +58,10 @@ msgstr ""
 msgid "<p class=\"text-muted\">Notes starting with <code>\"+ \"</code> will get printed on the invoice, if any.<br>Other notes will be treated as internal.</p><p></p>"
 msgstr "<p class=\"text-muted\">Notizen, die mit <code>\"+ \"</code> beginnen, werden ggf. auf der Rechnung gedruckt.<br>Andere Notizen werden als intern behandelt.</p><p></p>"
 
-#. Header text in the Time Tracking Workspace
-#: working_time/working_time/workspace/time_tracking/time_tracking.json
-msgid "<span class=\"h4\">Time Tracking</span>"
-msgstr "<span class=\"h4\">Zeiterfassung</span>"
+#. Header text in the Working Time Workspace
+#: working_time/working_time/workspace/working_time/working_time.json
+msgid "<span class=\"h4\">Working Time</span>"
+msgstr "<span class=\"h4\">Arbeitszeit</span>"
 
 #. Label of the api_token (Password) field in DocType 'Jira Site'
 #: working_time/working_time/doctype/jira_site/jira_site.json
@@ -124,8 +124,8 @@ msgstr "Pause"
 msgid "Break Time"
 msgstr "Pausenzeit"
 
-#. Label of a number card in the Time Tracking Workspace
-#: working_time/working_time/workspace/time_tracking/time_tracking.json
+#. Label of a number card in the Working Time Workspace
+#: working_time/working_time/workspace/working_time/working_time.json
 msgid "Daily Billable Time (this month)"
 msgstr "Tägliche abrechenbare Zeit (dieser Monat)"
 
@@ -133,13 +133,13 @@ msgstr "Tägliche abrechenbare Zeit (dieser Monat)"
 msgid "Daily Break Time"
 msgstr "Tägliche Pausenzeit"
 
-#. Label of a number card in the Time Tracking Workspace
-#: working_time/working_time/workspace/time_tracking/time_tracking.json
+#. Label of a number card in the Working Time Workspace
+#: working_time/working_time/workspace/working_time/working_time.json
 msgid "Daily Break Time (this month)"
 msgstr "Tägliche Pausenzeit (dieser Monat)"
 
-#. Label of a number card in the Time Tracking Workspace
-#: working_time/working_time/workspace/time_tracking/time_tracking.json
+#. Label of a number card in the Working Time Workspace
+#: working_time/working_time/workspace/working_time/working_time.json
 msgid "Daily Project Time (this month)"
 msgstr "Tägliche Projektzeit (dieser Monat)"
 
@@ -190,10 +190,10 @@ msgstr "Erwartete Arbeitszeit"
 
 #. Name of a report
 #. Label of a Sidebar Item
-#. Label of a Link in the Time Tracking Workspace
+#. Label of a Link in the Working Time Workspace
 #: working_time/working_time/report/expected_and_actual_working_time/expected_and_actual_working_time.json
-#: working_time/working_time/sidebar/time_tracking/time_tracking.json
-#: working_time/working_time/workspace/time_tracking/time_tracking.json
+#: working_time/working_time/sidebar/working_time/working_time.json
+#: working_time/working_time/workspace/working_time/working_time.json
 msgid "Expected and Actual Working Time"
 msgstr "Erwartete und Tatsächliche Arbeitszeit"
 
@@ -204,19 +204,19 @@ msgstr "Freelancer"
 
 #. Name of a DocType
 #. Label of a Sidebar Item
-#. Label of a Link in the Time Tracking Workspace
+#. Label of a Link in the Working Time Workspace
 #: working_time/working_time/doctype/freelancer_rate/freelancer_rate.json
-#: working_time/working_time/sidebar/time_tracking/time_tracking.json
-#: working_time/working_time/workspace/time_tracking/time_tracking.json
+#: working_time/working_time/sidebar/working_time/working_time.json
+#: working_time/working_time/workspace/working_time/working_time.json
 msgid "Freelancer Rate"
 msgstr "Freelancer-Satz"
 
 #. Name of a DocType
 #. Label of a Sidebar Item
-#. Label of a Link in the Time Tracking Workspace
+#. Label of a Link in the Working Time Workspace
 #: working_time/working_time/doctype/freelancer_time/freelancer_time.json
-#: working_time/working_time/sidebar/time_tracking/time_tracking.json
-#: working_time/working_time/workspace/time_tracking/time_tracking.json
+#: working_time/working_time/sidebar/working_time/working_time.json
+#: working_time/working_time/workspace/working_time/working_time.json
 msgid "Freelancer Time"
 msgstr "Freelancer-Zeit"
 
@@ -247,10 +247,10 @@ msgstr "Issue-Key"
 
 #. Name of a DocType
 #. Label of a Sidebar Item
-#. Label of a Link in the Time Tracking Workspace
+#. Label of a Link in the Working Time Workspace
 #: working_time/working_time/doctype/jira_site/jira_site.json
-#: working_time/working_time/sidebar/time_tracking/time_tracking.json
-#: working_time/working_time/workspace/time_tracking/time_tracking.json
+#: working_time/working_time/sidebar/working_time/working_time.json
+#: working_time/working_time/workspace/working_time/working_time.json
 msgid "Jira Site"
 msgstr "Jira-Site"
 
@@ -280,13 +280,13 @@ msgstr "Mindest-Ruhezeit zwischen Tagen"
 msgid "Missing Time Log"
 msgstr "Fehlender Zeiteintrag"
 
-#. Label of a shortcut in the Time Tracking Workspace
-#: working_time/working_time/workspace/time_tracking/time_tracking.json
+#. Label of a shortcut in the Working Time Workspace
+#: working_time/working_time/workspace/working_time/working_time.json
 msgid "New Freelancer Time"
 msgstr "Neue Freelancer-Zeit"
 
-#. Label of a shortcut in the Time Tracking Workspace
-#: working_time/working_time/workspace/time_tracking/time_tracking.json
+#. Label of a shortcut in the Working Time Workspace
+#: working_time/working_time/workspace/working_time/working_time.json
 msgid "New Working Time"
 msgstr "Neue Arbeitszeit"
 
@@ -408,15 +408,15 @@ msgstr "Arbeitsschwelle"
 
 #. Name of a DocType
 #. Label of a Sidebar Item
-#. Label of a Link in the Time Tracking Workspace
+#. Label of a Link in the Working Time Workspace
 #: working_time/working_time/doctype/working_time/working_time.json
-#: working_time/working_time/sidebar/time_tracking/time_tracking.json
-#: working_time/working_time/workspace/time_tracking/time_tracking.json
+#: working_time/working_time/sidebar/working_time/working_time.json
+#: working_time/working_time/workspace/working_time/working_time.json
 msgid "Working Time"
 msgstr "Arbeitszeit"
 
-#. Label of a number card in the Time Tracking Workspace
-#: working_time/working_time/workspace/time_tracking/time_tracking.json
+#. Label of a number card in the Working Time Workspace
+#: working_time/working_time/workspace/working_time/working_time.json
 msgid "Working Time (this month)"
 msgstr "Arbeitszeit (dieser Monat)"
 
@@ -458,8 +458,8 @@ msgstr "{0} ist laut Arbeitszeitrichtlinie ein gesperrter Tag"
 msgid "{0} is a holiday according to your holiday list"
 msgstr "{0} ist laut Ihrer Feiertagsliste ein Feiertag"
 
-#. Count format of shortcut in the Time Tracking Workspace
-#: working_time/working_time/workspace/time_tracking/time_tracking.json
+#. Count format of shortcut in the Working Time Workspace
+#: working_time/working_time/workspace/working_time/working_time.json
 msgid "{} Drafts"
 msgstr "{} Entwürfe"
 

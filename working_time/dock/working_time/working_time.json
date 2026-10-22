@@ -9,12 +9,12 @@
    "added": 0,
    "hidden": 0,
    "icon": "calendar-clock",
-   "link_to": "Time Tracking",
+   "link_to": "Working Time",
    "link_type": "Workspace",
-   "title": "Time Tracking"
+   "title": "Working Time"
   }
  ],
- "modified": "2026-10-21 09:00:00.000000",
+ "modified": "2026-10-22 13:15:00.000000",
  "modified_by": "Administrator",
  "mount_on": "",
  "name": "working_time",
