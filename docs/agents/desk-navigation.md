@@ -15,7 +15,7 @@ Working Time is a **Desk-only** ERPNext extension. There is no separate SPA; the
 
 - **Tile label:** Time Tracking
 - **Opens:** `/desk/time-tracking`
-- **Visibility:** `working_time.api.permission.has_app_permission` — `frappe.has_permission` on **Working Time** or **Freelancer Time** (read at doctype level), so shipped **DocPerm** and site **Custom DocPerm** control the tile without duplicating role names in code.
+- **Visibility:** `working_time.api.permission.has_app_permission` — the session user’s `UserPermissions.allow_modules` (same list as `Workspace.get_allowed_modules` / `frappe.boot.user.allow_modules` after boot). Any **DocPerm**-granted read, write, or create on a DocType in module **Working Time** shows the tile (including **Freelancer Time** without a separate **Working Time** check).
 
 ## Changing navigation (Desk)
 
