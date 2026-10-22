@@ -15,7 +15,7 @@ add_to_apps_screen = [
 		"name": app_name,
 		"logo": "/assets/working_time/img/logo.png",
 		"title": app_title,
-		"route": "/desk/working-time",
+		"route": "/desk/time-tracking",
 		"has_permission": "working_time.api.permission.has_app_permission",
 		"sequence_id": 50,
 	}
