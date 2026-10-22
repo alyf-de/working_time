@@ -1,0 +1,24 @@
+{
+ "app": "working_time",
+ "creation": "2026-10-21 09:00:00.000000",
+ "docstatus": 0,
+ "doctype": "Dock",
+ "idx": 0,
+ "items": [
+  {
+   "added": 0,
+   "hidden": 0,
+   "icon": "calendar-clock",
+   "link_to": "Time Tracking",
+   "link_type": "Workspace",
+   "title": "Working Time"
+  }
+ ],
+ "modified": "2026-10-22 14:00:00.000000",
+ "modified_by": "Administrator",
+ "mount_on": "",
+ "name": "working_time",
+ "owner": "Administrator",
+ "standard": 1,
+ "user": ""
+}
