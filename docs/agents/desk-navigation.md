@@ -15,7 +15,7 @@ Working Time is a **Desk-only** ERPNext extension. There is no separate SPA; the
 
 - **Tile label:** Time Tracking
 - **Opens:** `/desk/time-tracking`
-- **Visibility:** `working_time.api.permission.has_app_permission` — roles **Employee**, **Freelancer**, and **System Manager** (same roles as on **Working Time** / **Freelancer Time** DocTypes).
+- **Visibility:** `working_time.api.permission.has_app_permission` — `frappe.has_permission` on **Working Time** or **Freelancer Time** (read at doctype level), so shipped **DocPerm** and site **Custom DocPerm** control the tile without duplicating role names in code.
 
 ## Changing navigation (Desk)
 
@@ -32,7 +32,7 @@ Working Time is a **Desk-only** ERPNext extension. There is no separate SPA; the
 
 ## Standalone app vs mounting on ERPNext
 
-**Default in this app:** standalone — `add_to_apps_screen` plus a `working_time` **Dock** (`mount_on` empty). Users with **Employee** / **Freelancer** / **System Manager** open **Time Tracking** from the **apps screen** and land on `/desk/time-tracking` in one click, without opening ERPNext first.
+**Default in this app:** standalone — `add_to_apps_screen` plus a `working_time` **Dock** (`mount_on` empty). Users with read on **Working Time** or **Freelancer Time** open **Time Tracking** from the **apps screen** and land on `/desk/time-tracking` in one click, without opening ERPNext first.
 
 **Alternative:** set `mount_on` to `erpnext` on the shipped `working_time` **Dock** document. Frappe appends Working Time’s rail rows to **ERPNext’s** dock and **removes** the separate apps-screen tile (`on_apps_screen` is false when the app is mounted). Use when time tracking should live only inside the ERPNext shell (companion-app pattern, e.g. India Compliance).
 
