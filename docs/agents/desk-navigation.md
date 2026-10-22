@@ -63,5 +63,4 @@ Direct URL `/desk/time-tracking` and the Awesome Bar always work regardless of d
 
 ## Related
 
-- Frappe v16 mechanics: workspace skill `frappe-desk-navigation-v16` in the Frappe bench `.cursor/skills` tree.
 - Request Management dual-surface example: `request_management/docs/agents/desk-navigation.md` (SPA + Desk).
