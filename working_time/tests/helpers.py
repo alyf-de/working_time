@@ -20,6 +20,8 @@ def delete_custom_docperm(doctype: str, role: str) -> None:
 
 def delete_disposable_app_permission_user(role_name: str, user_email: str) -> None:
 	frappe.set_user("Administrator")
+	for employee in frappe.get_all("Employee", filters={"user_id": user_email}, pluck="name"):
+		frappe.delete_doc("Employee", employee, force=True, ignore_permissions=True)
 	if frappe.db.exists("User", user_email):
 		frappe.delete_doc("User", user_email, force=True, ignore_permissions=True)
 	if role_name and frappe.db.exists("Role", role_name):
@@ -50,6 +52,21 @@ def insert_disposable_test_user(
 	return email
 
 
+def insert_linked_employee(user_email: str, *, first_name: str) -> None:
+	frappe.get_doc(
+		{
+			"doctype": "Employee",
+			"first_name": first_name,
+			"gender": "Female",
+			"date_of_birth": "1990-01-01",
+			"date_of_joining": "2020-01-01",
+			"company": "_Test Company",
+			"user_id": user_email,
+			"status": "Active",
+		}
+	).insert(ignore_permissions=True)
+
+
 @contextlib.contextmanager
 def app_permission_test_user(
 	testcase: TestCase,
@@ -68,6 +85,10 @@ def app_permission_test_user(
 		add_permission(custom_docperm_doctype, role, 0, ptype="read")
 
 	insert_disposable_test_user(email, first_name=first_name, last_name=last_name, roles=(role,))
+	if role == "Employee":
+		# ERPNext removes the Employee role from users without a linked Employee.
+		# Saving a linked Employee adds the role back.
+		insert_linked_employee(email, first_name=first_name)
 
 	def cleanup() -> None:
 		if custom_docperm_doctype and insert_role:
