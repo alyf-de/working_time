@@ -10,6 +10,11 @@ def get_employee_working_hours(employee: str):
 	frappe.has_permission("Employee", throw=True)
 	if not employee:
 		return None
+
+	# Custom field from erpnext_germany, which this app does not require
+	if not frappe.get_meta("Employee").has_field("working_hours_per_week"):
+		return None
+
 	working_hours_per_week = frappe.get_value("Employee", employee, "working_hours_per_week")
 	if working_hours_per_week:
 		return working_hours_per_week / 5
