@@ -339,6 +339,7 @@ class WorkingTime(Document):
 				"parent_project": project,
 				"customer": customer,
 				"employee": self.employee,
+				"company": frappe.db.get_value("Employee", self.employee, "company"),
 				"working_time": self.name,
 			}
 		).insert()

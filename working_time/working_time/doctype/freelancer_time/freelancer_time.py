@@ -63,10 +63,10 @@ class FreelancerTime(Document):
 				costing_rate = get_rate_and_currency(self.owner, log.date)
 				billing_hours = hours = math.ceil(log.duration / FIVE_MINUTES) * FIVE_MINUTES / ONE_HOUR
 
-				customer, billing_rate, jira_site = frappe.get_value(
+				company, customer, billing_rate, jira_site = frappe.get_value(
 					"Project",
 					log.project,
-					["customer", "billing_rate", "jira_site"],
+					["company", "customer", "billing_rate", "jira_site"],
 				)
 				customer_note, internal_note = parse_note(log.note)
 
@@ -98,6 +98,7 @@ class FreelancerTime(Document):
 						"note": internal_note,
 						"parent_project": log.project,
 						"customer": customer,
+						"company": company,
 						"freelancer_time": self.name,
 					}
 				).insert()
