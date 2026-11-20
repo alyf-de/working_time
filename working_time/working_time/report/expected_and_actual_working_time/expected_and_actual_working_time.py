@@ -7,6 +7,7 @@ import frappe
 from babel.dates import format_date
 from frappe import _
 from frappe.utils.data import getdate
+from hrms.utils.holiday_list import get_holiday_dates_between_range
 
 if TYPE_CHECKING:
 	from erpnext.setup.doctype.employee.employee import Employee
@@ -92,7 +93,9 @@ def daterange(start_date, end_date):
 
 
 def get_data(employee, from_date, to_date, daily_working_hours, fieldname):
-	holiday_list = frappe.db.get_value("Employee", employee, "holiday_list")
+	holidays = set(
+		get_holiday_dates_between_range(employee, from_date, to_date, raise_exception_for_holiday_list=False)
+	)
 	attendance_list = frappe.get_all(
 		"Attendance",
 		filters={
@@ -122,9 +125,7 @@ def get_data(employee, from_date, to_date, daily_working_hours, fieldname):
 		on_leave = int(bool(attendance and attendance.status == "On Leave"))
 		half_day = int(bool(attendance and attendance.status == "Half Day" and attendance.leave_type))
 
-		is_holiday = int(
-			bool(frappe.db.exists("Holiday", {"parent": holiday_list, "holiday_date": current_date}))
-		)
+		is_holiday = int(current_date in holidays)
 
 		if current_date.isoweekday() in (6, 7) or on_leave or is_holiday:
 			expected_working_time = 0

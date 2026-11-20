@@ -5,6 +5,7 @@ import math
 from datetime import datetime
 
 import frappe
+from erpnext.setup.doctype.employee.employee import is_holiday
 from frappe import _
 from frappe.model.docstatus import DocStatus
 from frappe.model.document import Document
@@ -102,15 +103,7 @@ class WorkingTime(Document):
 		if not policy.consider_holiday_list:
 			return
 
-		holiday_list = frappe.db.get_value("Employee", self.employee, "holiday_list")
-		if not holiday_list:
-			return
-
-		is_holiday = frappe.db.exists(
-			"Holiday",
-			{"parent": holiday_list, "holiday_date": self.date, "weekly_off": 0},
-		)
-		if is_holiday:
+		if is_holiday(self.employee, self.date, raise_exception=False, only_non_weekly=True):
 			frappe.throw(
 				_("{0} is a holiday according to your holiday list").format(
 					frappe.utils.format_date(self.date)

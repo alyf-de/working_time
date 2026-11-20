@@ -5,6 +5,7 @@ import frappe
 from frappe import _
 from frappe.translate import print_language
 from frappe.utils.data import get_url
+from hrms.utils.holiday_list import get_holiday_dates_between_range
 
 
 def is_last_working_day(d: date, absent_days: list[date]) -> bool:
@@ -39,13 +40,15 @@ def send_month_end_reminders():
 	last_dom = calendar.monthrange(today.year, today.month)[1]
 	last_date = date(today.year, today.month, last_dom)
 
-	for employee, holiday_list, prefered_email, first_name, user_id, reports_to in frappe.get_all(
+	for employee, prefered_email, first_name, user_id, reports_to in frappe.get_all(
 		"Employee",
 		filters={"status": "Active"},
-		fields=["name", "holiday_list", "prefered_email", "first_name", "user_id", "reports_to"],
+		fields=["name", "prefered_email", "first_name", "user_id", "reports_to"],
 		as_list=True,
 	):
-		holidays = get_holiday_dates(holiday_list, today, last_date)
+		holidays = get_holiday_dates_between_range(
+			employee, today, last_date, raise_exception_for_holiday_list=False
+		)
 		leaves = get_leaves(employee, today, last_date)
 		absent_days = list(set(holidays + leaves))
 
@@ -75,28 +78,6 @@ Thanks in advance!"""
 					url=get_url(f"/app/working-time?employee={employee}&docstatus=0"),
 				),
 			)
-
-
-def get_holiday_dates(holiday_list: str, first_date: date, last_date: date) -> list[date]:
-	"""Get all holiday dates for a given holiday list and date range.
-
-	Args:
-	- holiday_list: The name of the holiday list to check
-	- first_date: The start date of the range
-	- last_date: The end date of the range
-
-	Returns:
-	- A list of holiday dates
-	"""
-	return frappe.get_all(
-		"Holiday",
-		filters=[
-			("parent", "=", holiday_list),
-			("holiday_date", ">=", first_date),
-			("holiday_date", "<=", last_date),
-		],
-		pluck="holiday_date",
-	)
 
 
 def get_leaves(employee: str, first_date: date, last_date: date) -> list[date]:
