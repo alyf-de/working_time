@@ -75,7 +75,7 @@ Thanks in advance!"""
 				).format(
 					first_name=first_name,
 					month=_(today.strftime("%B")),
-					url=get_url(f"/app/working-time?employee={employee}&docstatus=0"),
+					url=get_url(f"/desk/working-time?employee={employee}&docstatus=0"),
 				),
 			)
 
@@ -132,7 +132,7 @@ You have a draft <a href='{url}'>working time entry</a> that is older than {cuto
 Thanks in advance!"""
 				).format(
 					first_name=first_name,
-					url=get_url(f"/app/working-time/{working_time}"),
+					url=get_url(f"/desk/working-time/{working_time}"),
 					cutoff_days=cutoff_days,
 				),
 			)
